@@ -1,12 +1,12 @@
 The keys for navigate the dungeon is simple:
-'w' 'a' 's' 'd' to go front, left, down and right respectively
+'w' 'a' 's' 'd' to go up, left, down and right respectively
 'z' to open doors
 'x' to attack monsters
 'c' to interact with staircases ('>' and '<') Note: You have to stand on top of it to interact with it
 'i' to open inventory mode (Your inventory is initially empty, so the inventory will not open)
 'q' to quit
 Inventory mode keybinds:
-    'w' 'a' 's' 'd' to go front, left, down and right respectively
+    'w' 'a' 's' 'd' to go up, left, down and right respectively
     'e' to equip and unequip items
     'r' to delete items from your inventory
     'q' to quit the inventory
