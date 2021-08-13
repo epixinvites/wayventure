@@ -28,19 +28,19 @@ std::pair<int,char> check_monster_pos(std::vector<monster> monsters, int x, int 
 }
 void char_move(WINDOW *main_win, int ch, std::pair<int,int> &csr_pos, std::vector<monster> monsters, Player &User){
     bool require_move = false;
-    if(ch=='a'&&csr_pos.first>1&&!check_surroundings(monsters,csr_pos.first-1,csr_pos.second)){
+    if((ch=='a'||ch==KEY_LEFT)&&csr_pos.first>1&&!check_surroundings(monsters,csr_pos.first-1,csr_pos.second)){
         mvwaddch(main_win,csr_pos.second,csr_pos.first,' ');
         csr_pos.first--; require_move=true;
     }
-    if(ch=='d'&&csr_pos.first<78&&!check_surroundings(monsters,csr_pos.first+1,csr_pos.second)){
+    if((ch=='d'||ch==KEY_RIGHT)&&csr_pos.first<78&&!check_surroundings(monsters,csr_pos.first+1,csr_pos.second)){
         mvwaddch(main_win,csr_pos.second,csr_pos.first,' ');
         csr_pos.first++; require_move=true;
     }
-    if(ch=='w'&&csr_pos.second>1&&!check_surroundings(monsters,csr_pos.first,csr_pos.second-1)){
+    if((ch=='w'||ch==KEY_UP)&&csr_pos.second>1&&!check_surroundings(monsters,csr_pos.first,csr_pos.second-1)){
         mvwaddch(main_win,csr_pos.second,csr_pos.first,' ');
         csr_pos.second--; require_move=true;
     }
-    if(ch=='s'&&csr_pos.second<48&&!check_surroundings(monsters,csr_pos.first,csr_pos.second+1)){
+    if((ch=='s'||ch==KEY_DOWN)&&csr_pos.second<48&&!check_surroundings(monsters,csr_pos.first,csr_pos.second+1)){
         mvwaddch(main_win,csr_pos.second,csr_pos.first,' ');
         csr_pos.second++; require_move=true;
     }
@@ -235,7 +235,7 @@ void init_dungeon(WINDOW *main_win, WINDOW *status_win, WINDOW *interaction_bar,
     while(true){
         redraw_dungeon(main_win,Current,monsters,csr_pos);
         int ch = wgetch(main_win);
-        if(ch=='w'||ch=='a'||ch=='s'||ch=='d'){
+        if(ch=='w'||ch=='a'||ch=='s'||ch=='d'||ch==KEY_LEFT||ch==KEY_RIGHT||ch==KEY_DOWN||ch==KEY_UP){
             redraw_dungeon(main_win,Current,monsters,csr_pos);
             char_move(main_win,ch,csr_pos,monsters,User);
             draw_stats(status_win,User);
