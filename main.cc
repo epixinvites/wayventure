@@ -67,7 +67,7 @@ void calculate_damage (Player &User, monster_stats &monster){
         User.cur_hp-=(monster.attk-User.def);
     }
 }
-bool player_battle(WINDOW *main_win, WINDOW *status_win, Player &User, level Current, char monster_type){ // WIP return false if lost, true if won. Return to mainmenu if false
+bool player_battle(WINDOW *main_win, WINDOW *status_win, Player &User, level Current, char monster_type){
     monster_stats monster = create_monster(Current,monster_type);
     while(true){
         wclear(main_win);
@@ -86,6 +86,7 @@ bool player_battle(WINDOW *main_win, WINDOW *status_win, Player &User, level Cur
                 return false;
             }
             if(monster.hp<=0){
+                User.inv.item.push_back(generate_loot(monster_type));
                 return true;
             }
         }
@@ -253,6 +254,7 @@ void init_dungeon(WINDOW *main_win, WINDOW *status_win, WINDOW *interaction_bar,
             }
             if(attack_status.first&&attack_status.second){ // If win redraw dungeon and move on
                 redraw_dungeon(main_win,Current,monsters,csr_pos);
+                draw_stats(status_win,User);
             }
         }
         if(ch=='c'){

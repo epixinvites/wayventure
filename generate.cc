@@ -1,5 +1,5 @@
 #include "headers/generate.h"
-char generate_loot(char type){ // monster types: e, b, x, f
+char generate_loot_rarity(char type){ // monster types: e, b, x, f
     std::random_device device;
     std::mt19937 generator(device());
     std::uniform_int_distribution<int> loot_type(1,1000);
@@ -49,6 +49,108 @@ char generate_loot(char type){ // monster types: e, b, x, f
         }
     }
     return '0';
+}
+char generate_loot_type() {
+    std::random_device device;
+    std::mt19937 generator(device());
+    std::uniform_int_distribution<int> loot_type(1,100);
+    int loot = loot_type(generator);
+    if(loot<=20){
+        return 'c'; // chestplate
+    }
+    else if(loot<=40){
+        return 'h'; // helmet
+    }
+    else if(loot<=60){
+        return 'g'; // greaves
+    }
+    else if(loot<=80){
+        return 'w'; // weapon
+    }
+    else if(loot<=90){
+        return 'b'; // boots
+    }
+    else if(loot<=100){
+        return 's'; // shield
+    }
+    return '0';
+}
+double rarity_value(char rarity){
+    if(rarity=='c'){
+        return 1.0;
+    }
+    if(rarity=='u'){
+        return 1.5;
+    }
+    if(rarity=='r'){
+        return 2.0;
+    }
+    if(rarity=='e'){
+        return 3.0;
+    }
+    if(rarity=='l'){
+        return 5.0;
+    }
+    if(rarity=='a'){
+        return 10.0;
+    }
+    return 0;
+}
+Item generate_loot(char type) {
+    char loot_rarity = generate_loot_rarity(type);
+    char loot_type = generate_loot_type();
+    std::random_device device;
+    std::mt19937 generator(device());
+    std::uniform_int_distribution<int> deviation(-25,25);
+    std::uniform_int_distribution<int> bonus_stats(1,100);
+    std::string name;
+    int hp=0, attk=0, def=0, shield=0, crit_chance=0, crit_dmg=0;
+    if(loot_type=='c'){ // chestplate
+        hp=(100+deviation(generator))*rarity_value(loot_rarity);
+        if(bonus_stats(generator)<=60){
+            def=15*rarity_value(loot_rarity);
+        }
+        if(bonus_stats(generator)<=10){
+            crit_dmg=2*rarity_value(loot_rarity);
+        }
+    }
+    else if(loot_type=='h'){ // helmet
+        hp=(40+deviation(generator))*rarity_value(loot_rarity);
+        if(bonus_stats(generator)<=30){
+            def=5*rarity_value(loot_rarity);
+        }
+        if(bonus_stats(generator)<=10){
+            shield=20*rarity_value(loot_rarity);
+        }
+    }
+    else if(loot_type=='g'){ // greaves
+        def=(50+deviation(generator))*rarity_value(loot_rarity);
+        if(bonus_stats(generator)<=30){
+            shield=15*rarity_value(loot_rarity);
+        }
+    }
+    else if(loot_type=='b'){ // boots
+        def=(30+deviation(generator))*rarity_value(loot_rarity);
+        if(bonus_stats(generator)<=50){
+            crit_chance=5*rarity_value(loot_rarity);
+        }
+    }
+    else if(loot_type=='w'){ // weapon
+        attk=(200+deviation(generator))*rarity_value(loot_rarity);
+        if(bonus_stats(generator)<=70){
+            crit_dmg=10*rarity_value(loot_rarity);
+        }
+        if(bonus_stats(generator)<=20){
+            crit_chance=5*rarity_value(loot_rarity);
+        }
+    }
+    else if(loot_type=='s'){ // shield
+        shield=(100+deviation(generator))*rarity_value(loot_rarity);
+        if(bonus_stats(generator)<=60){
+            def=20*rarity_value(loot_rarity);
+        }
+    }
+    return {"Placeholder",loot_type,loot_rarity,false,hp,attk,def,shield,crit_chance,crit_dmg,0,0};
 }
 void generate_monsters(std::vector<monster> &monsters, level Current, std::pair<int,int> csr_pos){
     std::random_device device;
