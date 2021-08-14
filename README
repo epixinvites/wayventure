@@ -10,3 +10,7 @@ Inventory mode keybinds:
     'e' to equip and unequip items
     'r' to delete items from your inventory
     'q' to quit the inventory
+Attack mode keybinds:
+    '1' to deal basic attack
+    '2' to put up your shield
+    '3' to heal

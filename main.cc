@@ -345,7 +345,10 @@ int main(){
     /*
     // Generate loot after defeating enemy
     // Save data to file / Retrieve data from file
+    // Hunger and Auto-health regen
     // Bar
+    // Status effects
+    // Tutorial level
     */
 
 }
