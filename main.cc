@@ -154,7 +154,7 @@ bool player_battle(WINDOW *main_win, WINDOW *status_win, Player &User, level Cur
             if(ch=='r'){
                 return true;
             }
-            User.inv.item.push_back(loot);
+            User.inv.add_item(loot);
             return true;
         }
         wrefresh(main_win);
