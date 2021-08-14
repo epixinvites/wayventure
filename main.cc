@@ -345,6 +345,7 @@ int main(){
     /*
     // Generate loot after defeating enemy
     // Save data to file / Retrieve data from file
+    // make install (copy resources to $HOME/.project-cosmos/)
     // Hunger and Auto-health regen
     // Bar
     // Status effects
