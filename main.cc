@@ -86,7 +86,15 @@ bool player_battle(WINDOW *main_win, WINDOW *status_win, Player &User, level Cur
                 return false;
             }
             if(monster.hp<=0){
-                User.inv.item.push_back(generate_loot(monster_type));
+                Item loot = generate_loot(monster_type);
+                wclear(main_win);
+                mvwaddstr(main_win,0,0,"Press any key to keep and [r] to trash");
+                print_description(main_win,&loot,1);
+                int ch = wgetch(main_win);
+                if(ch=='r'){
+                    return true;
+                }
+                User.inv.item.push_back(loot);
                 return true;
             }
         }
