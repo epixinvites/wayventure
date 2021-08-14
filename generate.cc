@@ -114,7 +114,7 @@ Item generate_loot(char type) {
             crit_dmg=2*rarity_value(loot_rarity);
         }
     }
-    else if(loot_type=='h'){ // helmet
+    if(loot_type=='h'){ // helmet
         hp=(40+deviation(generator))*rarity_value(loot_rarity);
         if(bonus_stats(generator)<=30){
             def=5*rarity_value(loot_rarity);
@@ -123,19 +123,19 @@ Item generate_loot(char type) {
             shield=20*rarity_value(loot_rarity);
         }
     }
-    else if(loot_type=='g'){ // greaves
+    if(loot_type=='g'){ // greaves
         def=(50+deviation(generator))*rarity_value(loot_rarity);
         if(bonus_stats(generator)<=30){
             shield=15*rarity_value(loot_rarity);
         }
     }
-    else if(loot_type=='b'){ // boots
+    if(loot_type=='b'){ // boots
         def=(30+deviation(generator))*rarity_value(loot_rarity);
         if(bonus_stats(generator)<=50){
             crit_chance=5*rarity_value(loot_rarity);
         }
     }
-    else if(loot_type=='w'){ // weapon
+    if(loot_type=='w'){ // weapon
         attk=(200+deviation(generator))*rarity_value(loot_rarity);
         if(bonus_stats(generator)<=70){
             crit_dmg=10*rarity_value(loot_rarity);
@@ -144,13 +144,13 @@ Item generate_loot(char type) {
             crit_chance=5*rarity_value(loot_rarity);
         }
     }
-    else if(loot_type=='s'){ // shield
+    if(loot_type=='s'){ // shield
         shield=(100+deviation(generator))*rarity_value(loot_rarity);
         if(bonus_stats(generator)<=60){
             def=20*rarity_value(loot_rarity);
         }
     }
-    return {"Placeholder",loot_type,loot_rarity,false,hp,attk,def,shield,crit_chance,crit_dmg,0,0};
+    return{"Placeholder",loot_type,loot_rarity,false,hp,attk,def,shield,crit_chance,crit_dmg,0,0};
 }
 void generate_monsters(std::vector<monster> &monsters, level Current, std::pair<int,int> csr_pos){
     std::random_device device;

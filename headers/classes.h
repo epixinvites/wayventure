@@ -23,10 +23,12 @@ struct Item{
     unsigned int calibration = 0, uses = 0;
     Item(std::string name, char type, char rarity, bool is_equipped, int hp, int attk, int def, int shield, int crit_chance, int crit_dmg, unsigned int calibration, unsigned int uses);
     void initialize_item(); // MUST RUN BEFORE MODIFYING ANYTHING
+    void reinitialize_item();
     void calculate_calibration();
 };
 struct Inventory{
     std::vector<Item> item;
+    void add_item(Item input);
     int heal_amount=0;
 };
 struct Equipped{

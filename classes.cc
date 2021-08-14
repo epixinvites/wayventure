@@ -71,6 +71,21 @@ void Item::calculate_calibration(){
         pow*=2;
     }
 }
+void Item::reinitialize_item(){
+    attk=original.attk;
+    hp=original.hp;
+    def=original.def;
+    shield=original.def;
+    crit_chance=original.crit_chance;
+    crit_dmg=original.crit_dmg;
+    calculate_calibration();
+    attk*=(1.0+(calibration/20.0));
+    hp*=(1.0+(calibration/20.0));
+    def*=(1.0+(calibration/20.0));
+    def*=(1.0+(calibration/20.0));
+    crit_chance*=(1.0+(calibration/20.0));
+    crit_dmg*=(1.0+(calibration/20.0));
+}
 void Item::initialize_item(){
     original.attk=attk;
     original.hp=hp;
@@ -86,3 +101,8 @@ void Item::initialize_item(){
     crit_chance*=(1.0+(calibration/20.0));
     crit_dmg*=(1.0+(calibration/20.0));
 }
+void Inventory::add_item(Item input) {
+    item.push_back(input);
+    item.end()->initialize_item();
+}
+

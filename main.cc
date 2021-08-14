@@ -53,7 +53,7 @@ void char_move(WINDOW *main_win, int ch, std::pair<int,int> &csr_pos, std::vecto
         wrefresh(main_win);
     }
 }
-void calculate_damage (Player &User, monster_stats &monster){
+void calculate_damage(Player &User, monster_stats &monster){
     if(User.crit_chance>0&&return_chance(User.crit_chance)){ // Calculate damage that enemy takes
         monster.hp=monster.hp-(User.attk*(1+(User.crit_dmg/100.0)));
     }
@@ -81,6 +81,26 @@ bool player_battle(WINDOW *main_win, WINDOW *status_win, Player &User, level Cur
         mvwaddstr(main_win,1,1,enemy_output.str().c_str());
         int ch = wgetch(main_win);
         if(ch=='1'){
+            if(User.equip.weapon!=nullptr){
+                User.equip.weapon->uses++;
+                User.equip.weapon->reinitialize_item();
+            }
+            if(User.equip.helmet!=nullptr){
+                User.equip.helmet->uses++;
+                User.equip.helmet->reinitialize_item();
+            }
+            if(User.equip.chestplate!=nullptr){
+                User.equip.chestplate->uses++;
+                User.equip.chestplate->reinitialize_item();
+            }
+            if(User.equip.greaves!=nullptr){
+                User.equip.greaves->uses++;
+                User.equip.greaves->reinitialize_item();
+            }
+            if(User.equip.boots!=nullptr){
+                User.equip.boots->uses++;
+                User.equip.boots->reinitialize_item();
+            }
             calculate_damage(User,monster);
             if(User.cur_hp<=0){
                 return false;
@@ -90,11 +110,12 @@ bool player_battle(WINDOW *main_win, WINDOW *status_win, Player &User, level Cur
                 wclear(main_win);
                 mvwaddstr(main_win,0,0,"Press any key to keep and [r] to trash");
                 print_description(main_win,&loot,1);
+                draw_stats(status_win,User);
                 int ch = wgetch(main_win);
                 if(ch=='r'){
                     return true;
                 }
-                User.inv.item.push_back(loot);
+                User.inv.add_item(loot);
                 return true;
             }
         }
@@ -104,6 +125,10 @@ bool player_battle(WINDOW *main_win, WINDOW *status_win, Player &User, level Cur
                 continue;
             }
             if(User.cur_shield>0){ // Calculate damage that player takes
+                if(User.equip.shield!=nullptr){
+                    User.equip.shield->uses++;
+                    User.equip.shield->reinitialize_item();
+                }
                 if(User.cur_shield>=monster.attk){
                     User.cur_shield-=monster.attk;
                 }
@@ -118,6 +143,19 @@ bool player_battle(WINDOW *main_win, WINDOW *status_win, Player &User, level Cur
                 User.inv.heal_amount--;
                 User.cur_hp=User.ori_hp;
             }
+        }
+        if(ch=='q'){
+            Item loot = generate_loot(monster_type);
+            wclear(main_win);
+            mvwaddstr(main_win,0,0,"Press any key to keep and [r] to trash");
+            print_description(main_win,&loot,1);
+            draw_stats(status_win,User);
+            int ch = wgetch(main_win);
+            if(ch=='r'){
+                return true;
+            }
+            User.inv.item.push_back(loot);
+            return true;
         }
         wrefresh(main_win);
     }
@@ -261,8 +299,8 @@ void init_dungeon(WINDOW *main_win, WINDOW *status_win, WINDOW *interaction_bar,
                 return;
             }
             if(attack_status.first&&attack_status.second){ // If win redraw dungeon and move on
+                User.cur_shield=User.ori_shield;
                 redraw_dungeon(main_win,Current,monsters,csr_pos);
-                draw_stats(status_win,User);
             }
         }
         if(ch=='c'){
@@ -288,6 +326,10 @@ void init_dungeon(WINDOW *main_win, WINDOW *status_win, WINDOW *interaction_bar,
             return;
         }
     }
+}
+void save_data(Player User, level Current, std::pair<int,int> csr_pos){
+    std::ofstream inventory_file("save/user.save",std::ofstream::out|std::ofstream::trunc);
+    std::ofstream status_file("save/status.save",std::ofstream::out|std::ofstream::trunc);
 }
 void init(WINDOW *main_win, WINDOW *status_win, WINDOW *interaction_bar, std::pair<int,int> &csr_pos, Player &User, level &Current){
     std::ifstream ascii_wayfarer("res/wayfarer.txt");
@@ -352,14 +394,20 @@ int main(){
      *    wrefresh(main_win);
      */
 
-    /*
-    // Generate loot after defeating enemy
+    /* TODO Features
     // Save data to file / Retrieve data from file
-    // make install (copy resources to $HOME/.project-cosmos/)
-    // Hunger and Auto-health regen
-    // Bar
-    // Status effects
+    // Lose all equipped items upon death
+    // Hunger, Thrist and Auto-health regen
+    // Misc items (Food, water)
+    // Bar (Bartender, Farmer, Merchant)
+    // -1.0-
+    // Status effects (Runes)
     // Tutorial level
+    // Pet
     */
 
+    /* TODO Bugs
+     * Check if item is initialized on push_back()
+     * Disable uneqipping if item bonus HP >= Current HP
+     */
 }
