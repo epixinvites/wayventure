@@ -103,6 +103,6 @@ void Item::initialize_item(){
 }
 void Inventory::add_item(Item input) {
     item.push_back(input);
-    item.end()->initialize_item();
+    item[item.size()-1].initialize_item();
 }
 
