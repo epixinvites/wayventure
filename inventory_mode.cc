@@ -347,11 +347,11 @@ void equip_item(Player &User, unsigned int csr_pos, unsigned int page_num){
 }
 void unequip_item(Player &User, unsigned int csr_pos, unsigned int page_num){
     User.inv.item[csr_pos+(page_num*30)].is_equipped=false;
-    if(User.inv.item[csr_pos+(page_num*30)].type=='h'){
+    if(User.inv.item[csr_pos+(page_num*30)].type=='h'&&User.cur_hp>User.inv.item[csr_pos+(page_num*30)].hp){
         User.uninitialize_gear(User.equip.helmet);
         User.equip.helmet=nullptr;
     }
-    if(User.inv.item[csr_pos+(page_num*30)].type=='c'){
+    if(User.inv.item[csr_pos+(page_num*30)].type=='c'&&User.cur_hp>User.inv.item[csr_pos+(page_num*30)].hp){
         User.uninitialize_gear(User.equip.chestplate);
         User.equip.chestplate=nullptr;
     }

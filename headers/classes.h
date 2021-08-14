@@ -29,7 +29,7 @@ struct Item{
 struct Inventory{
     std::vector<Item> item;
     void add_item(Item input);
-    int heal_amount=0;
+    int heal_amount=20;
 };
 struct Equipped{
     Item *helmet=nullptr;

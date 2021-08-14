@@ -393,8 +393,9 @@ int main(){
     // Pet
     */
 
-    /* TODO Bugs
-     * Check if item is initialized on push_back()
-     * Disable uneqipping if item bonus HP >= Current HP
+    /* TODO
+     * Fix why Equipped pointer mysteriously points towards two items
+     * Fix why sometimes Original stats become jumbled up
+     * Fix why heal is 0 while its 20
      */
 }
