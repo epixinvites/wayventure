@@ -385,7 +385,7 @@ void inventory_mode(WINDOW *main_win, WINDOW *status_win, WINDOW *interaction_ba
     print_description(main_win,&User.inv.item[page_num*30],35);
     while(true){
         int ch = wgetch(main_win);
-        if(ch=='s'&&((csr_pos+page_num*30)<User.inv.item.size()-1&&csr_pos<29)){
+        if((ch=='s'||ch==KEY_DOWN)&&((csr_pos+page_num*30)<User.inv.item.size()-1&&csr_pos<29)){
             csr_pos++;
             clear_screen(main_win);
             draw_base(main_win,interaction_bar,34,User.inv.item.size(),page_num);
@@ -396,7 +396,7 @@ void inventory_mode(WINDOW *main_win, WINDOW *status_win, WINDOW *interaction_ba
             print_bold_item(main_win,&User.inv.item[page_num*30+csr_pos],csr_pos);
 
         }
-        if(ch=='w'&&csr_pos>0){
+        if((ch=='w'||ch==KEY_UP)&&csr_pos>0){
             csr_pos--;
             clear_screen(main_win);
             draw_base(main_win,interaction_bar,34,User.inv.item.size(),page_num);
@@ -407,7 +407,7 @@ void inventory_mode(WINDOW *main_win, WINDOW *status_win, WINDOW *interaction_ba
             print_bold_item(main_win,&User.inv.item[page_num*30+csr_pos],csr_pos);
 
         }
-        if(ch=='a'){
+        if(ch=='a'||ch==KEY_LEFT){
             if(page_num>0){
                 page_num--;
                 csr_pos=0;
@@ -420,7 +420,7 @@ void inventory_mode(WINDOW *main_win, WINDOW *status_win, WINDOW *interaction_ba
                 print_bold_item(main_win,&User.inv.item[page_num*30],0);
             }
         }
-        if(ch=='d'){
+        if(ch=='d'||ch==KEY_RIGHT){
             if((page_num+1)*30<User.inv.item.size()){
                 page_num++;
                 csr_pos=0;
