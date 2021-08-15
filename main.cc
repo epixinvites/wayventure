@@ -101,6 +101,10 @@ bool player_battle(WINDOW *main_win, WINDOW *status_win, Player &User, level Cur
                 User.equip.boots->uses++;
                 User.equip.boots->reinitialize_item();
             }
+            if(User.equip.shield!=nullptr){
+                User.equip.shield->uses++;
+                User.equip.shield->reinitialize_item();
+            }
             calculate_damage(User,monster);
             if(User.cur_hp<=0){
                 return false;
@@ -125,10 +129,6 @@ bool player_battle(WINDOW *main_win, WINDOW *status_win, Player &User, level Cur
                 continue;
             }
             if(User.cur_shield>0){ // Calculate damage that player takes
-                if(User.equip.shield!=nullptr){
-                    User.equip.shield->uses++;
-                    User.equip.shield->reinitialize_item();
-                }
                 if(User.cur_shield>=monster.attk){
                     User.cur_shield-=monster.attk;
                 }
@@ -379,21 +379,5 @@ int main(){
      *    mvwaddstr(main_win,0,0,"Test");
      *    wattroff(main_win,COLOR_PAIR(15));
      *    wrefresh(main_win);
-     */
-
-    /* TODO Features
-    // Save data to file / Retrieve data from file
-    // Lose all equipped items upon death
-    // Hunger, Thrist and Auto-health regen
-    // Misc items (Food, water)
-    // Bar (Bartender, Farmer, Merchant)
-    // -1.0-
-    // Status effects (Runes)
-    // Tutorial level
-    // Pet
-    */
-
-    /* TODO Bugs
-     * Fix mysterious Shield stats on Chestplate (Might be duplicated unintialization in equip() and unequip())
      */
 }

@@ -75,7 +75,7 @@ void Item::reinitialize_item(){
     attk=original.attk;
     hp=original.hp;
     def=original.def;
-    shield=original.def;
+    shield=original.shield;
     crit_chance=original.crit_chance;
     crit_dmg=original.crit_dmg;
     calculate_calibration();
