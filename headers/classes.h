@@ -28,7 +28,6 @@ struct Item{
 };
 struct Inventory{
     std::vector<Item> item;
-    void add_item(Item input);
     int heal_amount=20;
 };
 struct Equipped{
@@ -53,6 +52,7 @@ public:
     void initialize_gear(Item *gear);
     void uninitialize_gear(Item *gear);
     void reinitialize_stats();
+    void add_item(Item input);
 };
 struct level{
     int lvl, x, y;

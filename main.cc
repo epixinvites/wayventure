@@ -115,7 +115,7 @@ bool player_battle(WINDOW *main_win, WINDOW *status_win, Player &User, level Cur
                 if(ch=='r'){
                     return true;
                 }
-                User.inv.add_item(loot);
+                User.add_item(loot); // Problematic fucking pointers and memory
                 return true;
             }
         }
@@ -393,9 +393,7 @@ int main(){
     // Pet
     */
 
-    /* TODO
-     * Fix why Equipped pointer mysteriously points towards two items
-     * Fix why sometimes Original stats become jumbled up
-     * Fix why heal is 0 while its 20
+    /* TODO Bugs
+     * Fix mysterious Shield stats on Chestplate (Might be duplicated unintialization in equip() and unequip())
      */
 }
