@@ -1,5 +1,4 @@
 #include "headers/classes.h"
-#include <string>
 Item::Item(std::string name, char type, char rarity, bool is_equipped, int hp, int attk, int def, int shield, int crit_chance, int crit_dmg, unsigned int calibration, unsigned int uses):name{name},type{type},rarity{rarity},is_equipped{is_equipped},hp{hp},attk{attk},def{def},shield{shield},crit_chance{crit_chance},crit_dmg{crit_dmg},calibration{calibration},uses{uses}{}
 Player::Player(int ori_hp, int attk, int def, int ori_shield, int crit_chance, int crit_dmg, int gold):ori_hp{ori_hp},attk{attk},def{def},ori_shield{ori_shield},crit_chance{crit_chance},crit_dmg{crit_dmg},gold{gold}{};
 void Player::init(){

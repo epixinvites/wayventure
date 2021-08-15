@@ -7,6 +7,8 @@ ______          _           _     _____
               _/ |
              |__/
 
+This project is currently in Alpha stage, it contains many many bugs, and many more that are yet to be found! Please create an issue if you find one!
+
 The keys for navigate the dungeon is simple:
 'w' 'a' 's' 'd' to go up, left, down and right respectively
 'z' to open doors
