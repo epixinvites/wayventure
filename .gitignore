@@ -1,3 +1,8 @@
 *.o
 .kdev4/
 wayfarer.kdev4
+.settings/
+.cproject
+.project
+.gitignore
+
