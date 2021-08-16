@@ -41,10 +41,10 @@ char generate_loot_rarity(char type){ // monster types: e, b, x, f
         }
     }
     else if(type=='f'){
-        if(loot<985){
+        if(loot<995){
             return 'l';
         }
-        if(loot>=985){
+        if(loot>=995){
             return 'a';
         }
     }
@@ -58,7 +58,6 @@ char generate_loot_type(){
     if(loot<=100){
         return 'c'; // chestplate
     }
-    /*
      else if(loot<=40){
      return 'h'; // helmet
      }
@@ -74,7 +73,6 @@ char generate_loot_type(){
      else if(loot<=100){
      return 's'; // shield
      }
-     */
     return '0';
 }
 double rarity_value(char rarity){
@@ -98,6 +96,28 @@ double rarity_value(char rarity){
     }
     return 0;
 }
+double rarity_bonus(char rarity){
+    if(rarity=='c'){
+        return 1.0;
+    }
+    if(rarity=='u'){
+        return 1.0;
+    }
+    if(rarity=='r'){
+        return 1.0;
+    }
+    if(rarity=='e'){
+        return 2.0;
+    }
+    if(rarity=='l'){
+        return 2.5;
+    }
+    if(rarity=='a'){
+        return 4.0;
+    }
+    return 0;
+}
+
 Item generate_loot(char type){
     char loot_rarity=generate_loot_rarity(type);
     char loot_type=generate_loot_type();
@@ -118,37 +138,37 @@ Item generate_loot(char type){
     }
     if(loot_type=='h'){ // helmet
         hp=(40+deviation(generator))*rarity_value(loot_rarity);
-        if(bonus_stats(generator)<=30){
+        if(bonus_stats(generator)<=(30*rarity_bonus(type))){
             def=5*rarity_value(loot_rarity);
         }
-        if(bonus_stats(generator)<=10){
+        if(bonus_stats(generator)<=(10*rarity_bonus(type))){
             shield=20*rarity_value(loot_rarity);
         }
     }
     if(loot_type=='g'){ // greaves
         def=(50+deviation(generator))*rarity_value(loot_rarity);
-        if(bonus_stats(generator)<=30){
+        if(bonus_stats(generator)<=(30*rarity_bonus(type))){
             shield=15*rarity_value(loot_rarity);
         }
     }
     if(loot_type=='b'){ // boots
         def=(30+deviation(generator))*rarity_value(loot_rarity);
-        if(bonus_stats(generator)<=50){
+        if(bonus_stats(generator)<=(50*rarity_bonus(type))){
             crit_chance=5*rarity_value(loot_rarity);
         }
     }
     if(loot_type=='w'){ // weapon
         attk=(200+deviation(generator))*rarity_value(loot_rarity);
-        if(bonus_stats(generator)<=70){
+        if(bonus_stats(generator)<=(50*rarity_bonus(type))){
             crit_dmg=10*rarity_value(loot_rarity);
         }
-        if(bonus_stats(generator)<=20){
+        if(bonus_stats(generator)<=(30*rarity_bonus(type))){
             crit_chance=5*rarity_value(loot_rarity);
         }
     }
     if(loot_type=='s'){ // shield
         shield=(100+deviation(generator))*rarity_value(loot_rarity);
-        if(bonus_stats(generator)<=60){
+        if(bonus_stats(generator)<=(50*rarity_bonus(type))){
             def=20*rarity_value(loot_rarity);
         }
     }
