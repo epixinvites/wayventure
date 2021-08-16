@@ -255,4 +255,21 @@ void generate_doors(std::vector<std::pair<int,int>> &doors, level Current){
         doors.push_back({79,24}); // right door
     }
 }
-
+int generate_gold(char type){
+    std::random_device device;
+    std::mt19937 generator(device());
+    std::uniform_int_distribution<int> gold(0,10);
+	if(type=='e'){
+		return(gold(generator));
+	}
+	if(type=='b'){
+		return(gold(generator)*gold(generator));
+	}
+	if(type=='x'){
+		return(gold(generator)*20);
+	}
+	if(type=='f'){
+		return(gold(generator)*50);
+	}
+	return 0;
+}

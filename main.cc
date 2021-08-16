@@ -112,6 +112,7 @@ bool player_battle(WINDOW *main_win, WINDOW *status_win, Player &User, level Cur
                 return false;
             }
             if(monster.hp<=0){
+            	User.gold+=generate_gold(monster_type);
                 Item loot = generate_loot(monster_type);
                 wclear(main_win);
                 mvwaddstr(main_win,0,0,"Press any key to keep and [r] to trash");

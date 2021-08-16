@@ -26,8 +26,19 @@ struct Item{
     void reinitialize_item();
     void calculate_calibration();
 };
+struct Food{
+	int bread=10; // 30 points of saturation
+	int waffle=0; // 50 points of saturation
+	int energy_bar=0; // Fill up entire saturation
+};
+struct Water{
+	int water=10; // 50 points of hydration
+	int sparkling_juice=0; // Fill up entire hydration
+};
 struct Inventory{
     std::vector<Item> item;
+    Food food;
+    Water water;
     int heal_amount=20;
 };
 struct Equipped{
@@ -42,12 +53,15 @@ class Player{ // Default HP: 500, Attk: 80, Def: 0, Shield: 0, Crit_chance: 0%, 
 public:
     std::string name = "Wayfarrer";
     unsigned long long int steps = 0;
+    int saturation = 100, hydration = 100;
     int ori_hp, attk, def, ori_shield, crit_chance, crit_dmg, gold;
     int cur_hp, cur_shield;
     Inventory inv;
     Equipped equip;
     Player(int ori_hp = 500, int attk = 80, int def = 0, int ori_shield = 0, int crit_chance = 0, int crit_dmg = 0, int gold = 0);
     void init();
+    void eat(int *food);
+    void drink(int *water);
     void initialize_gear(Item *gear);
     void uninitialize_gear(Item *gear);
     void initialize_stats();
