@@ -137,34 +137,34 @@ void Player::add_item(Item input) {
     inv.item[inv.item.size()-1].initialize_item();
 }
 void Player::eat(int *food){
-	if(saturation<100){
-		if(food==&inv.food.bread&&*food>0){
-			--*food;
-			saturation+=30;
-		}
-		else if(food==&inv.food.waffle&&*food>0){
-			*food--;
-			saturation+=50;
-		}
-		else if(food==&inv.food.energy_bar&&*food>0){
-			*food--;
-			saturation=100;
-		}
-	}
-	if(saturation>100){
-		saturation=100;
-	}
+    if(saturation<100){
+        if(food==&inv.food.bread&&*food>0){
+            --*food;
+            saturation+=30;
+        }
+        else if(food==&inv.food.waffle&&*food>0){
+            --*food;
+            saturation+=50;
+        }
+        else if(food==&inv.food.energy_bar&&*food>0){
+            --*food;
+            saturation=100;
+        }
+    }
+    if(saturation>100){
+        saturation=100;
+    }
 }
 void Player::drink(int *water){
-	if(hydration<100){
-		if(water==&inv.water.water&&water>0){
-			hydration+=50;
-		}
-		else if(water==&inv.water.sparkling_juice){
-			hydration=100;
-		}
-	}
-	if(hydration>100){
-		hydration=100;
-	}
+    if(hydration<100){
+        if(water==&inv.water.water&&*water>0){
+            hydration+=50;
+        }
+        else if(water==&inv.water.sparkling_juice&&*water>0){
+            hydration=100;
+        }
+    }
+    if(hydration>100){
+        hydration=100;
+    }
 }
