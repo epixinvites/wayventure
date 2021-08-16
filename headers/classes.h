@@ -14,7 +14,7 @@ struct Item{
         int hp = 0, attk = 0, def = 0, shield = 0, crit_chance = 0, crit_dmg = 0;
     };
     Original original;
-    std::string name;
+    std::string name = "";
     char type, rarity;
     // type: 'h' helmet, 'c' chestplate, 'g' greaves, 'b' boots, 's' shield, 'w' weapon
     // rarity: 'c' common, 'u' uncommon, 'r' rare, 'e' epic, 'l' legendary, 'a' artifact
@@ -46,12 +46,12 @@ public:
     int cur_hp, cur_shield;
     Inventory inv;
     Equipped equip;
-    Player(int ori_hp = 500, int attk = 80, int def = 0, int ori_shield = 0, int crit_chance = 0, int crit_dmg = 0, int
-    gold = 0);
+    Player(int ori_hp = 500, int attk = 80, int def = 0, int ori_shield = 0, int crit_chance = 0, int crit_dmg = 0, int gold = 0);
     void init();
     void initialize_gear(Item *gear);
     void uninitialize_gear(Item *gear);
-    void reinitialize_stats();
+    void initialize_stats();
+    void uninitialize_stats();
     void add_item(Item input);
 };
 struct level{

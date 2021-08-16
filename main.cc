@@ -81,6 +81,7 @@ bool player_battle(WINDOW *main_win, WINDOW *status_win, Player &User, level Cur
         mvwaddstr(main_win,1,1,enemy_output.str().c_str());
         int ch = wgetch(main_win);
         if(ch=='1'){
+        	User.uninitialize_stats();
             if(User.equip.weapon!=nullptr){
                 User.equip.weapon->uses++;
                 User.equip.weapon->reinitialize_item();
@@ -105,6 +106,7 @@ bool player_battle(WINDOW *main_win, WINDOW *status_win, Player &User, level Cur
                 User.equip.shield->uses++;
                 User.equip.shield->reinitialize_item();
             }
+            User.initialize_stats();
             calculate_damage(User,monster);
             if(User.cur_hp<=0){
                 return false;

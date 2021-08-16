@@ -25,7 +25,7 @@ void Player::init(){
             }
         }
     }
-    reinitialize_stats();
+    initialize_stats();
     cur_hp=ori_hp;
     cur_shield=ori_shield;
 }
@@ -53,7 +53,7 @@ void Player::uninitialize_gear(Item *gear){
         crit_dmg-=gear->crit_dmg;
     }
 }
-void Player::reinitialize_stats(){
+void Player::initialize_stats(){
     initialize_gear(equip.helmet);
     initialize_gear(equip.chestplate);
     initialize_gear(equip.greaves);
@@ -61,6 +61,15 @@ void Player::reinitialize_stats(){
     initialize_gear(equip.shield);
     initialize_gear(equip.weapon);
 }
+void Player::uninitialize_stats(){
+    uninitialize_gear(equip.helmet);
+    uninitialize_gear(equip.chestplate);
+    uninitialize_gear(equip.greaves);
+    uninitialize_gear(equip.boots);
+    uninitialize_gear(equip.shield);
+    uninitialize_gear(equip.weapon);
+}
+
 void Item::calculate_calibration(){
     int pow = 2;
     for(int i = 0;; i++){
