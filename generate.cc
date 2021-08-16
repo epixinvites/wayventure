@@ -55,24 +55,24 @@ char generate_loot_type(){
     std::mt19937 generator(device());
     std::uniform_int_distribution<int> loot_type(1, 100);
     int loot=loot_type(generator);
-    if(loot<=100){
+    if(loot<=20){
         return 'c'; // chestplate
     }
-     else if(loot<=40){
-     return 'h'; // helmet
-     }
-     else if(loot<=60){
-     return 'g'; // greaves
-     }
-     else if(loot<=80){
-     return 'w'; // weapon
-     }
-     else if(loot<=90){
-     return 'b'; // boots
-     }
-     else if(loot<=100){
-     return 's'; // shield
-     }
+    else if(loot<=40){
+        return 'h'; // helmet
+    }
+    else if(loot<=60){
+        return 'g'; // greaves
+    }
+    else if(loot<=80){
+        return 'w'; // weapon
+    }
+    else if(loot<=90){
+        return 'b'; // boots
+    }
+    else if(loot<=100){
+        return 's'; // shield
+    }
     return '0';
 }
 double rarity_value(char rarity){
