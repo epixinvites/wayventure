@@ -1,8 +1,11 @@
 #include "headers/classes.h"
-Item::Item(std::string name, char type, char rarity, bool is_equipped, int hp, int attk, int def, int shield, int crit_chance, int crit_dmg, unsigned int calibration, unsigned int uses):name{name},type{type},rarity{rarity},is_equipped{is_equipped},hp{hp},attk{attk},def{def},shield{shield},crit_chance{crit_chance},crit_dmg{crit_dmg},calibration{calibration},uses{uses}{}
-Player::Player(int ori_hp, int attk, int def, int ori_shield, int crit_chance, int crit_dmg, int gold):ori_hp{ori_hp},attk{attk},def{def},ori_shield{ori_shield},crit_chance{crit_chance},crit_dmg{crit_dmg},gold{gold}{};
+Item::Item(std::string name, char type, char rarity, bool is_equipped, int hp, int attk, int def, int shield, int crit_chance, int crit_dmg, unsigned int calibration, unsigned int uses) : name{name}, type{type}, rarity{rarity}, is_equipped{is_equipped}, hp{hp}, attk{attk}, def{def}, shield{shield}, crit_chance{crit_chance}, crit_dmg{crit_dmg}, calibration{calibration}, uses{uses}{
+}
+Player::Player(int ori_hp, int attk, int def, int ori_shield, int crit_chance, int crit_dmg, int gold) : ori_hp{ori_hp}, attk{attk}, def{def}, ori_shield{ori_shield}, crit_chance{crit_chance}, crit_dmg{crit_dmg}, gold{gold}{
+}
+;
 void Player::init(){
-    for(int i = 0; i<inv.item.size(); i++){ // loops through every single item and finds all items that is_equipped
+    for(int i=0; i<inv.item.size(); i++){ // loops through every single item and finds all items that is_equipped
         inv.item[i].initialize_item();
         if(inv.item[i].is_equipped){
             if(inv.item[i].type=='h'){
@@ -71,8 +74,8 @@ void Player::uninitialize_stats(){
 }
 
 void Item::calculate_calibration(){
-    int pow = 2;
-    for(int i = 0;; i++){
+    int pow=2;
+    for(int i=0;; i++){
         if(uses<pow){
             calibration=i;
             break;
@@ -110,9 +113,9 @@ void Item::initialize_item(){
     crit_chance*=(1.0+(calibration/20.0));
     crit_dmg*=(1.0+(calibration/20.0));
 }
-void Player::add_item(Item input) {
+void Player::add_item(Item input){
     inv.item.push_back(input);
-    for(int i = 0; i<inv.item.size(); i++){ // loops through every single item and finds all items that is_equipped
+    for(int i=0; i<inv.item.size(); i++){ // loops through every single item and finds all items that is_equipped
         if(inv.item[i].is_equipped){
             if(inv.item[i].type=='h'){
                 equip.helmet=&inv.item[i];
@@ -158,9 +161,11 @@ void Player::eat(int *food){
 void Player::drink(int *water){
     if(hydration<100){
         if(water==&inv.water.water&&*water>0){
+            --*water;
             hydration+=50;
         }
         else if(water==&inv.water.sparkling_juice&&*water>0){
+            --*water;
             hydration=100;
         }
     }

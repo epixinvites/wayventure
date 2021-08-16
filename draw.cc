@@ -1,4 +1,5 @@
 #include "headers/draw.h"
+#include <sstream>
 void draw_level(WINDOW *interaction_bar, level Current){
     wclear(interaction_bar);
     std::stringstream ss;
@@ -11,6 +12,30 @@ void draw_stats(WINDOW *status_win, Player stats){
     std::stringstream ss;
     ss<<"HP:"<<stats.cur_hp<<" Attk:"<<stats.attk<<" Def:"<<stats.def<<" Shield:"<<stats.cur_shield<<" CritChn:"<<stats.crit_chance<<" CritDmg:"<<stats.crit_dmg<<" Gold:"<<stats.gold<<" T:"<<stats.steps/10;
     mvwaddstr(status_win, 0, 0, ss.str().c_str());
+    ss.str(std::string());
+    ss<<"Saturation ("<<stats.saturation<<"/100)"<<" [";
+    for(int i = 1; i<=50; i++){
+        if(i*2<=stats.saturation){
+            ss<<"#";
+        }
+        else{
+            ss<<"-";
+        }
+    }
+    ss<<"]";
+    mvwaddstr(status_win, 1, 0, ss.str().c_str());
+    ss.str(std::string());
+    ss<<"Hydration ("<<stats.hydration<<"/100)"<<" [";
+    for(int i = 1; i<=50; i++){
+        if(i*2<=stats.hydration){
+            ss<<"#";
+        }
+        else{
+            ss<<"-";
+        }
+    }
+    ss<<"]";
+    mvwaddstr(status_win, 2, 0, ss.str().c_str());
     wrefresh(status_win);
 }
 void draw_player(WINDOW *main_win, int x, int y){

@@ -15,6 +15,8 @@ The keys for navigate the dungeon is simple:
 'x' to attack monsters
 'c' to interact with staircases ('>' and '<') Note: You have to stand on top of it to interact with it
 'i' to open inventory mode (Your inventory is initially empty, so the inventory will not open)
+'r' to redraw the dungeon
+'e' to eat or drink
 'q' to quit
 Inventory mode keybinds:
     'w' 'a' 's' 'd' to go up, left, down and right respectively

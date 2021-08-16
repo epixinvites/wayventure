@@ -27,12 +27,12 @@ struct Item{
     void calculate_calibration();
 };
 struct Food{
-	int bread=10; // 30 points of saturation
+	int bread=5; // 30 points of saturation
 	int waffle=0; // 50 points of saturation
 	int energy_bar=0; // Fill up entire saturation
 };
 struct Water{
-	int water=10; // 50 points of hydration
+	int water=3; // 50 points of hydration
 	int sparkling_juice=0; // Fill up entire hydration
 };
 struct Inventory{

@@ -53,6 +53,12 @@ void char_move(WINDOW *main_win, int ch, std::pair<int,int> &csr_pos, std::vecto
         if(User.steps>100000000000000000){
             User.steps/=10;
         }
+        if(User.steps%5==0){
+            User.hydration--;
+        }
+        if(User.steps%8==0){
+            User.saturation--;
+        }
         draw_player(main_win, csr_pos.first, csr_pos.second);
         wrefresh(main_win);
     }
@@ -241,10 +247,58 @@ bool move_staircase(level &Current, std::pair<int,int> csr_pos){
     }
     return false;
 }
+void print_food(WINDOW *main_win, Player &User){
+    wclear(main_win);
+    std::stringstream ss;
+    ss<<"[1] Bread (30 Saturation Points): "<<User.inv.food.bread;
+    mvwaddstr(main_win,0,0,ss.str().c_str());
+    ss.str(std::string());
+    ss<<"[2] Waffle (50 Saturation Points): "<<User.inv.food.waffle;
+    mvwaddstr(main_win,1,0,ss.str().c_str());
+    ss.str(std::string());
+    ss<<"[3] Energy Bar (100 Saturation Points): "<<User.inv.food.energy_bar;
+    mvwaddstr(main_win,2,0,ss.str().c_str());
+    ss.str(std::string());
+    ss<<"[4] Water (50 Hydration Points): "<<User.inv.water.water;
+    mvwaddstr(main_win,3,0,ss.str().c_str());
+    ss.str(std::string());
+    ss<<"[5] Sparkling Water (100 Hydration Points): "<<User.inv.water.sparkling_juice;
+    mvwaddstr(main_win,4,0,ss.str().c_str());
+    ss.str(std::string());
+    wrefresh(main_win);
+}
+void eat_drink_mode(WINDOW *main_win, WINDOW *status_win, Player &User){
+    print_food(main_win, User);
+    while(true){
+        draw_stats(status_win, User);
+        print_food(main_win, User);
+        wrefresh(status_win);
+        int ch=wgetch(main_win);
+        if(ch=='1'&&User.inv.food.bread>0){
+            User.eat(&User.inv.food.bread);
+        }
+        if(ch=='2'&&User.inv.food.waffle>0){
+            User.eat(&User.inv.food.waffle);
+        }
+        if(ch=='3'&&User.inv.food.energy_bar>0){
+            User.eat(&User.inv.food.energy_bar);
+        }
+        if(ch=='4'&&User.inv.water.water>0){
+            User.drink(&User.inv.water.water);
+        }
+        if(ch=='5'&&User.inv.water.sparkling_juice>0){
+            User.eat(&User.inv.water.sparkling_juice);
+        }
+        if(ch=='q'){
+            return;
+        }
+    }
+    draw_stats(status_win, User);
+}
 void end_program(int sig){
+    endwin();
     if(sig==0){
-        endwin();
-        std::cout<<"Nyooooom~"<<std::endl;
+        std::cout<<"Nya~"<<std::endl;
         std::ifstream cosmos_ascii("res/cosmos.txt");
         std::string line;
         while(std::getline(cosmos_ascii, line)){
@@ -253,15 +307,21 @@ void end_program(int sig){
         return;
     }
     if(sig==1){
-        endwin();
-        std::cout<<"The Dark Lord laughed: \"Weakling...\""<<std::endl;
+        std::cout<<"LMAO... RIIIIP"<<std::endl;
         return;
+    }
+    if(sig==2){
+        std::cout<<"*Grumbling* You died of hunger... You regret being on a diet while fighting monsters. (Seriously, dieting exccesively is bad for your health)"<<std::endl;
+        return;
+    }
+    if(sig==3){
+        std::cout<<"*Cough* *Cough* You died of thirst... Next time, remember to join the HydroHomies. (Remember to drink water bro)"<<std::endl;
     }
 }
 void end_program(int sig, std::string error){
+    endwin();
     if(sig==-1){
-        endwin();
-        std::cout<<"Bzzt- Something fatal has occured- Error rep.r..d....!@#$%^&*~__+|:<?"<<std::endl;
+        std::cout<<"Bzzt- Something fatal has occurred- Error rep.r..d....!@#$%^&*~__+|:<? *Developer cries in the background*"<<std::endl;
         std::cerr<<error<<std::endl;
         return;
     }
@@ -274,17 +334,24 @@ void init_dungeon(WINDOW *main_win, WINDOW *status_win, WINDOW *interaction_bar,
     draw_level(interaction_bar, Current);
     draw_stats(status_win, User);
     while(true){
-        redraw_dungeon(main_win, Current, monsters, csr_pos);
+        redraw_everything(main_win, status_win, interaction_bar, csr_pos, User, Current, monsters);
         int ch=wgetch(main_win);
         if(ch=='w'||ch=='a'||ch=='s'||ch=='d'||ch==KEY_LEFT||ch==KEY_RIGHT||ch==KEY_DOWN||ch==KEY_UP){
             redraw_dungeon(main_win, Current, monsters, csr_pos);
             char_move(main_win, ch, csr_pos, monsters, User);
+            if(User.saturation<0){
+                end_program(2);
+                return;
+            }
+            if(User.hydration<0){
+                end_program(3);
+                return;
+            }
             draw_stats(status_win, User);
         }
         if(ch=='z'){
             move_door(doors, monsters, Current, csr_pos);
-            redraw_dungeon(main_win, Current, monsters, csr_pos);
-            draw_level(interaction_bar, Current);
+            redraw_everything(main_win, status_win, interaction_bar, csr_pos, User, Current, monsters);
         }
         if(ch=='x'){
             std::pair<bool,bool> attack_status=attack_monster(main_win, status_win, monsters, csr_pos, User, Current);
@@ -300,14 +367,11 @@ void init_dungeon(WINDOW *main_win, WINDOW *status_win, WINDOW *interaction_bar,
         if(ch=='c'){
             if(move_staircase(Current, csr_pos)){
                 generate_doors(doors, Current);
-                redraw_dungeon(main_win, Current, monsters, csr_pos);
-                draw_level(interaction_bar, Current);
+                redraw_everything(main_win, status_win, interaction_bar, csr_pos, User, Current, monsters);
             }
         }
         if(ch=='r'){
-            redraw_dungeon(main_win, Current, monsters, csr_pos);
-            draw_level(interaction_bar, Current);
-            draw_stats(status_win, User);
+            redraw_everything(main_win, status_win, interaction_bar, csr_pos, User, Current, monsters);
         }
         if(ch=='i'){
             if(!User.inv.item.empty()){
@@ -315,9 +379,18 @@ void init_dungeon(WINDOW *main_win, WINDOW *status_win, WINDOW *interaction_bar,
                 redraw_everything(main_win, status_win, interaction_bar, csr_pos, User, Current, monsters);
             }
         }
+        if(ch=='e'){
+            eat_drink_mode(main_win, status_win, User);
+        }
         if(ch=='q'){
-            end_program(0);
-            return;
+            wclear(interaction_bar);
+            mvwaddstr(interaction_bar,0,0,"Do you really wish to quit? [y] to quit, any other key to abort.");
+            wrefresh(interaction_bar);
+            ch=wgetch(main_win);
+            if(ch=='y'){
+                end_program(0);
+                return;
+            }
         }
     }
 }
@@ -350,7 +423,7 @@ int main(){
     noecho();
     curs_set(0);
     WINDOW *main_win=newwin(50, 80, 1, 0); // 50 rows, 80 columns
-    WINDOW *status_win=newwin(1, 100, 51, 0); // Status bar
+    WINDOW *status_win=newwin(3, 100, 51, 0); // Status bar
     WINDOW *interaction_bar=newwin(1, 200, 0, 0);
     Player User;
     User.init(); // IMPORTANT
@@ -382,7 +455,6 @@ int main(){
 
     }
     init(main_win, status_win, interaction_bar, csr_pos, User, Current);
-    std::cin.get();
     return 0;
 
     /*
