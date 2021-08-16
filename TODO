@@ -1,9 +1,9 @@
 TODO Features
-	- Save data to file / Retrieve data from file
 	- Mob drops gold
-    - Lose all equipped items upon death
 	- Hunger, Thrist and Auto-health regen
 	- Misc items (Food, water)
+	- Save data to file / Retrieve data from file
+	- Lose all equipped items upon death
 	- Bar (Bartender, Farmer, Merchant)
 	
 	-1.0-
@@ -12,4 +12,3 @@ TODO Features
     - Pet
 
 TODO Bugs
-	- Recalibrating items doesn't update the user's current stats (reinitialize_item() and initialize_item())
