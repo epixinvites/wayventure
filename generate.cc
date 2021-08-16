@@ -2,8 +2,8 @@
 char generate_loot_rarity(char type){ // monster types: e, b, x, f
     std::random_device device;
     std::mt19937 generator(device());
-    std::uniform_int_distribution<int> loot_type(1,1000);
-    int loot = loot_type(generator);
+    std::uniform_int_distribution<int> loot_type(1, 1000);
+    int loot=loot_type(generator);
     if(type=='e'){
         if(loot<500){
             return 'c';
@@ -50,31 +50,31 @@ char generate_loot_rarity(char type){ // monster types: e, b, x, f
     }
     return '0';
 }
-char generate_loot_type() {
+char generate_loot_type(){
     std::random_device device;
     std::mt19937 generator(device());
-    std::uniform_int_distribution<int> loot_type(1,100);
-    int loot = loot_type(generator);
+    std::uniform_int_distribution<int> loot_type(1, 100);
+    int loot=loot_type(generator);
     if(loot<=100){
         return 'c'; // chestplate
     }
     /*
-    else if(loot<=40){
-        return 'h'; // helmet
-    }
-    else if(loot<=60){
-        return 'g'; // greaves
-    }
-    else if(loot<=80){
-        return 'w'; // weapon
-    }
-    else if(loot<=90){
-        return 'b'; // boots
-    }
-    else if(loot<=100){
-        return 's'; // shield
-    }
-    */
+     else if(loot<=40){
+     return 'h'; // helmet
+     }
+     else if(loot<=60){
+     return 'g'; // greaves
+     }
+     else if(loot<=80){
+     return 'w'; // weapon
+     }
+     else if(loot<=90){
+     return 'b'; // boots
+     }
+     else if(loot<=100){
+     return 's'; // shield
+     }
+     */
     return '0';
 }
 double rarity_value(char rarity){
@@ -98,13 +98,13 @@ double rarity_value(char rarity){
     }
     return 0;
 }
-Item generate_loot(char type) {
-    char loot_rarity = generate_loot_rarity(type);
-    char loot_type = generate_loot_type();
+Item generate_loot(char type){
+    char loot_rarity=generate_loot_rarity(type);
+    char loot_type=generate_loot_type();
     std::random_device device;
     std::mt19937 generator(device());
-    std::uniform_int_distribution<int> deviation(-25,25);
-    std::uniform_int_distribution<int> bonus_stats(1,100);
+    std::uniform_int_distribution<int> deviation(-25, 25);
+    std::uniform_int_distribution<int> bonus_stats(1, 100);
     std::string name;
     int hp=0, attk=0, def=0, shield=0, crit_chance=0, crit_dmg=0;
     if(loot_type=='c'){ // chestplate
@@ -157,14 +157,14 @@ Item generate_loot(char type) {
 void generate_monsters(std::vector<monster> &monsters, level Current, std::pair<int,int> csr_pos){
     std::random_device device;
     std::mt19937 generator(device());
-    std::uniform_int_distribution<int> x_generator(1,78);
-    std::uniform_int_distribution<int> y_generator(1,48);
-    std::uniform_int_distribution<int> monster_type(1,30);
-    std::uniform_int_distribution<int> amount(9,18);
-    for(int i = 0; i<amount(generator); i++){
+    std::uniform_int_distribution<int> x_generator(1, 78);
+    std::uniform_int_distribution<int> y_generator(1, 48);
+    std::uniform_int_distribution<int> monster_type(1, 30);
+    std::uniform_int_distribution<int> amount(9, 18);
+    for(int i=0; i<amount(generator); i++){
         monster tmp_monster;
-        tmp_monster.x = x_generator(generator);
-        tmp_monster.y = y_generator(generator);
+        tmp_monster.x=x_generator(generator);
+        tmp_monster.y=y_generator(generator);
         if(Current.x==1&&Current.y==1&&Current.lvl>1){
             if(tmp_monster.x==39&&tmp_monster.y==24){
                 i--;
@@ -183,10 +183,10 @@ void generate_monsters(std::vector<monster> &monsters, level Current, std::pair<
             continue;
         }
         if(monster_type(generator)==30){
-            tmp_monster.type = 'b';
+            tmp_monster.type='b';
         }
         else{
-            tmp_monster.type = 'e';
+            tmp_monster.type='e';
         }
         monsters.push_back(tmp_monster);
     }
@@ -195,10 +195,10 @@ void generate_monsters(std::vector<monster> &monsters, level Current, std::pair<
         tmp_monster.x=39;
         tmp_monster.y=24;
         if(Current.lvl<5){
-            tmp_monster.type = 'x';
+            tmp_monster.type='x';
         }
         if(Current.lvl==5){
-            tmp_monster.type = 'f';
+            tmp_monster.type='f';
         }
         monsters.push_back(tmp_monster);
     }
@@ -206,10 +206,10 @@ void generate_monsters(std::vector<monster> &monsters, level Current, std::pair<
 monster_stats create_monster(level Current, char type){
     std::random_device device;
     std::mt19937 generator(device());
-    std::uniform_int_distribution<int> diff_generator(-20,20);
+    std::uniform_int_distribution<int> diff_generator(-20, 20);
     monster_stats monster;
-    double x = Current.x + Current.y;
-    double lvl = Current.lvl;
+    double x=Current.x+Current.y;
+    double lvl=Current.lvl;
     monster.hp=monster.hp*(lvl+(x/5.0))+diff_generator(generator);
     monster.attk=monster.attk*(lvl+(x/5.0))+diff_generator(generator);
     if(diff_generator(generator)>10){
@@ -238,8 +238,8 @@ monster_stats create_monster(level Current, char type){
 bool return_chance(int chance){
     std::random_device device;
     std::mt19937 generator(device());
-    std::uniform_int_distribution<int> probability(1,100);
-    return(chance>=probability(generator));
+    std::uniform_int_distribution<int> probability(1, 100);
+    return (chance>=probability(generator));
 }
 void generate_doors(std::vector<std::pair<int,int>> &doors, level Current){
     if(Current.y>1){ // {x , y}
@@ -258,18 +258,18 @@ void generate_doors(std::vector<std::pair<int,int>> &doors, level Current){
 int generate_gold(char type){
     std::random_device device;
     std::mt19937 generator(device());
-    std::uniform_int_distribution<int> gold(0,10);
-	if(type=='e'){
-		return(gold(generator));
-	}
-	if(type=='b'){
-		return(gold(generator)*gold(generator));
-	}
-	if(type=='x'){
-		return(gold(generator)*20);
-	}
-	if(type=='f'){
-		return(gold(generator)*50);
-	}
-	return 0;
+    std::uniform_int_distribution<int> gold(0, 10);
+    if(type=='e'){
+        return (gold(generator));
+    }
+    if(type=='b'){
+        return (gold(generator)*gold(generator));
+    }
+    if(type=='x'){
+        return (gold(generator)*20);
+    }
+    if(type=='f'){
+        return (gold(generator)*50);
+    }
+    return 0;
 }
