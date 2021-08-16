@@ -17,6 +17,7 @@ The keys for navigate the dungeon is simple:
 'i' to open inventory mode (Your inventory is initially empty, so the inventory will not open)
 'r' to redraw the dungeon
 'e' to eat or drink
+'.' to regain hitpoints, but at the cost of saturation
 'q' to quit
 Inventory mode keybinds:
     'w' 'a' 's' 'd' to go up, left, down and right respectively

@@ -339,14 +339,6 @@ void init_dungeon(WINDOW *main_win, WINDOW *status_win, WINDOW *interaction_bar,
         if(ch=='w'||ch=='a'||ch=='s'||ch=='d'||ch==KEY_LEFT||ch==KEY_RIGHT||ch==KEY_DOWN||ch==KEY_UP){
             redraw_dungeon(main_win, Current, monsters, csr_pos);
             char_move(main_win, ch, csr_pos, monsters, User);
-            if(User.saturation<0){
-                end_program(2);
-                return;
-            }
-            if(User.hydration<0){
-                end_program(3);
-                return;
-            }
             draw_stats(status_win, User);
         }
         if(ch=='z'){
@@ -382,6 +374,15 @@ void init_dungeon(WINDOW *main_win, WINDOW *status_win, WINDOW *interaction_bar,
         if(ch=='e'){
             eat_drink_mode(main_win, status_win, User);
         }
+        if(ch=='.'){
+            if(User.cur_hp<User.ori_hp){
+                User.saturation-=1;
+                User.cur_hp+=(User.ori_hp*0.015);
+            }
+            if(User.cur_hp>User.ori_hp){
+                User.cur_hp=User.ori_hp;
+            }
+        }
         if(ch=='q'){
             wclear(interaction_bar);
             mvwaddstr(interaction_bar,0,0,"Do you really wish to quit? [y] to quit, any other key to abort.");
@@ -391,6 +392,14 @@ void init_dungeon(WINDOW *main_win, WINDOW *status_win, WINDOW *interaction_bar,
                 end_program(0);
                 return;
             }
+        }
+        if(User.saturation<=0){
+            end_program(2);
+            return;
+        }
+        if(User.hydration<=0){
+            end_program(3);
+            return;
         }
     }
 }
