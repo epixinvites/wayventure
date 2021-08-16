@@ -7,7 +7,7 @@ ______          _           _     _____
               _/ |
              |__/
 
-This project is currently in Alpha stage, it contains many many bugs, and many more that are yet to be found! Please create an issue if you find one!
+This is the Beta branch of this project, please report any bugs you encounter or any features you want to request via the Github issue system.
 
 The keys for navigate the dungeon is simple:
 'w' 'a' 's' 'd' to go up, left, down and right respectively
@@ -28,3 +28,5 @@ Attack mode keybinds:
     '1' to deal basic attack
     '2' to put up your shield
     '3' to heal
+
+*And yes I don't like using Markdown
