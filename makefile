@@ -10,6 +10,6 @@ draw.o: draw.cc
 generate.o: generate.cc
 	g++ -g -c -std=c++17 generate.cc -o generate.o
 main: main.o inventory_mode.o classes.o draw.o generate.o
-	g++ -g -lncurses -std=c++17 main.o inventory_mode.o classes.o draw.o generate.o -o main
+	g++ -g -std=c++17 main.o inventory_mode.o classes.o draw.o generate.o -lncurses -o main
 clean:
 	rm -f main.o inventory_mode.o classes.o draw.o generate.o
