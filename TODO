@@ -1,7 +1,6 @@
 TODO Features
     -1.0-
-    - Lose all equipped items upon death
-    - Bar (Bartender, Farmer, Merchant)
+    - Bar (Bartender, Farmer, Merchant) (Chest, Bank)
     - Limit how many litres of water you can bring and how much food you can bring
     - Give item names
     - Clean up code

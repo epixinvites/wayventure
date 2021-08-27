@@ -330,9 +330,6 @@ void end_program(int sig, std::string error){
 bool is_empty(std::ifstream& pFile){
     return pFile.peek() == std::ifstream::traits_type::eof();
 }
-void find_save_dir(){
-
-}
 void init_data(Player &User, level &Current, Csr &csr_pos, std::vector<monster> &monsters){
     std::ifstream ifile("save/user.save");
     if(!is_empty(ifile)){
@@ -345,6 +342,19 @@ void save_data(Player User, level Current, Csr csr_pos, std::vector<monster> mon
     cereal::BinaryOutputArchive archive(ofile);
     User.uninitialize_stats();
     archive(User,Current,csr_pos,monsters);
+}
+void drop_items_on_death(Player &User){
+    User.uninitialize_stats();
+    User.equip.boots=nullptr;
+    User.equip.chestplate=nullptr;
+    User.equip.greaves=nullptr;
+    User.equip.helmet=nullptr;
+    User.equip.shield=nullptr;
+    User.equip.weapon=nullptr;
+    User.inv.item.clear();
+    User.gold=0;
+    User.cur_hp=User.ori_hp;
+    User.cur_shield=User.ori_shield;
 }
 void init_dungeon(WINDOW *main_win, WINDOW *status_win, WINDOW *interaction_bar, Csr &csr_pos, Player &User, level &Current, std::vector<monster> &monsters){
     std::vector<std::pair<int,int>> doors;
@@ -370,6 +380,8 @@ void init_dungeon(WINDOW *main_win, WINDOW *status_win, WINDOW *interaction_bar,
             std::pair<bool,bool> attack_status=attack_monster(main_win, status_win, monsters, csr_pos, User, Current);
             if(attack_status.first&&!attack_status.second){ // If dead return to main menu
                 end_program(1);
+                drop_items_on_death(User);
+                save_data(User, Current, csr_pos, monsters);
                 return;
             }
             if(attack_status.first&&attack_status.second){ // If win redraw dungeon and move on
@@ -417,10 +429,14 @@ void init_dungeon(WINDOW *main_win, WINDOW *status_win, WINDOW *interaction_bar,
         }
         if(User.saturation<=0){
             end_program(2);
+            drop_items_on_death(User);
+            save_data(User, Current, csr_pos, monsters);
             return;
         }
         if(User.hydration<=0){
             end_program(3);
+            drop_items_on_death(User);
+            save_data(User, Current, csr_pos, monsters);
             return;
         }
     }
