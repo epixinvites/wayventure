@@ -1,7 +1,5 @@
 #include <iostream>
-#include <vector>
 #include <random>
-#include <string>
 #include <sstream>
 #include <curses.h>
 #include <fstream>
@@ -331,6 +329,9 @@ void end_program(int sig, std::string error){
 }
 bool is_empty(std::ifstream& pFile){
     return pFile.peek() == std::ifstream::traits_type::eof();
+}
+void find_save_dir(){
+
 }
 void init_data(Player &User, level &Current, Csr &csr_pos, std::vector<monster> &monsters){
     std::ifstream ifile("save/user.save");
