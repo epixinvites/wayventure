@@ -78,6 +78,7 @@ public:
     void initialize_stats();
     void uninitialize_stats();
     void add_item(Item input);
+    void recover_original_stats();
     template<class Archive>void serialize(Archive &archive){archive(steps,saturation,hydration,gold,cur_hp,cur_shield,inv);}
 };
 struct level{

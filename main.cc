@@ -342,6 +342,7 @@ void init_data(Player &User, level &Current, Csr &csr_pos){
 void save_data(Player User, level Current, Csr csr_pos){
     std::ofstream ofile("save/user.save",std::ios::trunc);
     cereal::BinaryOutputArchive archive(ofile);
+    User.uninitialize_stats();
     archive(User,Current,csr_pos);
 }
 void init_dungeon(WINDOW *main_win, WINDOW *status_win, WINDOW *interaction_bar, Csr &csr_pos, Player &User, level &Current){

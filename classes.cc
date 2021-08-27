@@ -70,7 +70,6 @@ void Player::uninitialize_stats(){
     uninitialize_gear(equip.shield);
     uninitialize_gear(equip.weapon);
 }
-
 void Item::calculate_calibration(){
     int pow=2;
     for(int i=0;; i++){
