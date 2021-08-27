@@ -373,6 +373,9 @@ void init_dungeon(WINDOW *main_win, WINDOW *status_win, WINDOW *interaction_bar,
             draw_stats(status_win, User);
         }
         if(ch=='z'){
+            if(Current.lvl==1&&Current.x==1&&Current.y==1&&csr_pos.first==39&&csr_pos.second==48){
+                bar_mode(main_win, status_win, interaction_bar, User);
+            }
             move_door(doors, monsters, Current, csr_pos);
             redraw_everything(main_win, status_win, interaction_bar, csr_pos, User, Current, monsters);
         }

@@ -1,6 +1,5 @@
 TODO Features
     -1.0-
-    - Bar (Bartender, Farmer, Merchant) (Chest, Bank)
     - Limit how many litres of water you can bring and how much food you can bring
     - Give item names
     - Clean up code
@@ -13,3 +12,4 @@ TODO Features
 TODO Bugs
 
 TODO Current
+    - Bar (Bartender, Farmer, Merchant) (Chest, Bank)
