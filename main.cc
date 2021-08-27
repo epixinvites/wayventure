@@ -10,7 +10,6 @@
 #include "headers/draw.h"
 #include "headers/generate.h"
 #include "headers/mode.h"
-#include "headers/parser.h"
 #include <cereal/archives/binary.hpp>
 #include <cereal/types/vector.hpp>
 #include <cereal/types/string.hpp>
