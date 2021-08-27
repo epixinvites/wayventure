@@ -10,6 +10,10 @@
 #include "headers/draw.h"
 #include "headers/generate.h"
 #include "headers/mode.h"
+#include "headers/parser.h"
+#include <cereal/archives/binary.hpp>
+#include <cereal/types/vector.hpp>
+#include <cereal/types/string.hpp>
 bool check_surroundings(std::vector<monster> monsters, int x, int y){
     for(int i=0; i<monsters.size(); i++){
         if(x==monsters[i].x&&y==monsters[i].y){
@@ -26,7 +30,7 @@ std::pair<int,char> check_monster_pos(std::vector<monster> monsters, int x, int 
     }
     return{-1,'0'};
 }
-void char_move(WINDOW *main_win, int ch, std::pair<int,int> &csr_pos, std::vector<monster> monsters, Player &User){
+void char_move(WINDOW *main_win, int ch, Csr &csr_pos, std::vector<monster> monsters, Player &User){
     bool require_move=false;
     if((ch=='a'||ch==KEY_LEFT)&&csr_pos.first>1&&!check_surroundings(monsters, csr_pos.first-1, csr_pos.second)){
         mvwaddch(main_win, csr_pos.second, csr_pos.first, ' ');
@@ -161,7 +165,7 @@ bool player_battle(WINDOW *main_win, WINDOW *status_win, Player &User, level Cur
     }
     return false;
 }
-std::pair<bool,bool> attack_monster(WINDOW *main_win, WINDOW *status_win, std::vector<monster> &monsters, std::pair<int,int> csr_pos, Player &User, level Current){
+std::pair<bool,bool> attack_monster(WINDOW *main_win, WINDOW *status_win, std::vector<monster> &monsters, Csr csr_pos, Player &User, level Current){
     std::pair<bool,bool> attack_status{false,false}; // .first = if surroundings have monsters, .second is_alive
     std::pair<int,char> pos;
     if(check_surroundings(monsters, csr_pos.first-1, csr_pos.second)){
@@ -190,7 +194,7 @@ std::pair<bool,bool> attack_monster(WINDOW *main_win, WINDOW *status_win, std::v
     }
     return{attack_status};
 }
-void move_door(std::vector<std::pair<int,int>> &doors, std::vector<monster> &monsters, level &Current, std::pair<int,int> &csr_pos){
+void move_door(std::vector<std::pair<int,int>> &doors, std::vector<monster> &monsters, level &Current, Csr &csr_pos){
     for(int i=0; i<doors.size(); i++){
         if(doors[i].first==csr_pos.first&&doors[i].second==csr_pos.second-1){
             ++Current.y;
@@ -230,7 +234,7 @@ void move_door(std::vector<std::pair<int,int>> &doors, std::vector<monster> &mon
         }
     }
 }
-bool move_staircase(level &Current, std::pair<int,int> csr_pos){
+bool move_staircase(level &Current, Csr csr_pos){
     if(Current.lvl<5&&Current.x==5&&Current.y==5){ // go down
         if(csr_pos.first==39&&csr_pos.second==24){
             Current.lvl++;
@@ -326,7 +330,22 @@ void end_program(int sig, std::string error){
         return;
     }
 }
-void init_dungeon(WINDOW *main_win, WINDOW *status_win, WINDOW *interaction_bar, std::pair<int,int> &csr_pos, Player &User, level &Current){
+bool is_empty(std::ifstream& pFile){
+    return pFile.peek() == std::ifstream::traits_type::eof();
+}
+void init_data(Player &User, level &Current, Csr &csr_pos){
+    std::ifstream ifile("save/user.save");
+    if(!is_empty(ifile)){
+        cereal::BinaryInputArchive retrieve(ifile);
+        retrieve(User,Current,csr_pos);
+    }
+}
+void save_data(Player User, level Current, Csr csr_pos){
+    std::ofstream ofile("save/user.save",std::ios::trunc);
+    cereal::BinaryOutputArchive archive(ofile);
+    archive(User,Current,csr_pos);
+}
+void init_dungeon(WINDOW *main_win, WINDOW *status_win, WINDOW *interaction_bar, Csr &csr_pos, Player &User, level &Current){
     std::vector<monster> monsters;
     std::vector<std::pair<int,int>> doors;
     generate_monsters(monsters, Current, csr_pos);
@@ -390,6 +409,7 @@ void init_dungeon(WINDOW *main_win, WINDOW *status_win, WINDOW *interaction_bar,
             ch=wgetch(main_win);
             if(ch=='y'){
                 end_program(0);
+                save_data(User, Current, csr_pos);
                 return;
             }
         }
@@ -403,11 +423,9 @@ void init_dungeon(WINDOW *main_win, WINDOW *status_win, WINDOW *interaction_bar,
         }
     }
 }
-void save_data(Player User, level Current, std::pair<int,int> csr_pos){
-    std::ofstream inventory_file("save/user.save", std::ofstream::out|std::ofstream::trunc);
-    std::ofstream status_file("save/status.save", std::ofstream::out|std::ofstream::trunc);
-}
-void init(WINDOW *main_win, WINDOW *status_win, WINDOW *interaction_bar, std::pair<int,int> &csr_pos, Player &User, level &Current){
+void init(WINDOW *main_win, WINDOW *status_win, WINDOW *interaction_bar, Csr &csr_pos, Player &User, level &Current){
+    init_data(User, Current, csr_pos);
+    User.init(); // original stats gone
     std::ifstream ascii_wayfarer("res/wayfarer.txt");
     if(!ascii_wayfarer){
         end_program(-1, "wayfarer.txt not found!");
@@ -435,10 +453,9 @@ int main(){
     WINDOW *status_win=newwin(3, 100, 51, 0); // Status bar
     WINDOW *interaction_bar=newwin(1, 200, 0, 0);
     Player User;
-    User.init(); // IMPORTANT
     level Current{1,1,1};
     keypad(main_win, TRUE);
-    std::pair<int,int> csr_pos{1,1}; // x, y
+    Csr csr_pos{1,1}; // x, y
     if(has_colors()){
         start_color();
         init_pair(1, COLOR_CYAN, COLOR_BLACK); // Player

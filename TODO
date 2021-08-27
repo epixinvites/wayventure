@@ -1,10 +1,10 @@
 TODO Features
     -1.0-
-    - Save data to file / Retrieve data from file
     - Give item names
     - Lose all equipped items upon death
     - Bar (Bartender, Farmer, Merchant)
     - Limit how many litres of water you can bring and how much food you can bring
+    - Clean up code
     -1.1-
     - Status effects (Runes)
     - Tutorial level
@@ -14,3 +14,5 @@ TODO Features
 TODO Bugs
 
 TODO Current
+    - Retrieve data from file and initialize it
+    - Create default values for cur_hp and cur_shield if savefile not found

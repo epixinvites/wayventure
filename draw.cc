@@ -104,14 +104,15 @@ void draw_doors(WINDOW *main_win, level Current){
         mvwaddch(main_win, 24, 39, '>');
     }
 }
-void redraw_dungeon(WINDOW *main_win, level Current, std::vector<monster> monsters, std::pair<int,int> csr_pos){
+
+void redraw_dungeon(WINDOW *main_win, level Current, std::vector<monster> monsters, Csr csr_pos){
     wclear(main_win);
     draw_border(main_win);
     draw_doors(main_win, Current);
     draw_player(main_win, csr_pos.first, csr_pos.second);
     draw_monster(main_win, monsters);
 }
-void redraw_everything(WINDOW *main_win, WINDOW *status_win, WINDOW *interaction_bar, std::pair<int,int> csr_pos, Player User, level Current, std::vector<monster> monsters){
+void redraw_everything(WINDOW *main_win, WINDOW *status_win, WINDOW *interaction_bar, Csr csr_pos, Player User, level Current, std::vector<monster> monsters){
     wclear(main_win);
     wclear(status_win);
     wclear(interaction_bar);

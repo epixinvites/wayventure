@@ -6,7 +6,7 @@ Player::Player(int ori_hp, int attk, int def, int ori_shield, int crit_chance, i
 ;
 void Player::init(){
     for(int i=0; i<inv.item.size(); i++){ // loops through every single item and finds all items that is_equipped
-        inv.item[i].initialize_item();
+        inv.item[i].recover_item();
         if(inv.item[i].is_equipped){
             if(inv.item[i].type=='h'){
                 equip.helmet=&inv.item[i];
@@ -29,8 +29,6 @@ void Player::init(){
         }
     }
     initialize_stats();
-    cur_hp=ori_hp;
-    cur_shield=ori_shield;
 }
 void Player::initialize_gear(Item *gear){
     if(gear!=nullptr){
@@ -84,6 +82,21 @@ void Item::calculate_calibration(){
     }
 }
 void Item::reinitialize_item(){
+    attk=original.attk;
+    hp=original.hp;
+    def=original.def;
+    shield=original.shield;
+    crit_chance=original.crit_chance;
+    crit_dmg=original.crit_dmg;
+    calculate_calibration();
+    attk*=(1.0+(calibration/20.0));
+    hp*=(1.0+(calibration/20.0));
+    def*=(1.0+(calibration/20.0));
+    shield*=(1.0+(calibration/20.0));
+    crit_chance*=(1.0+(calibration/20.0));
+    crit_dmg*=(1.0+(calibration/20.0));
+}
+void Item::recover_item(){
     attk=original.attk;
     hp=original.hp;
     def=original.def;

@@ -174,7 +174,7 @@ Item generate_loot(char type){
     }
     return{"Placeholder",loot_type,loot_rarity,false,hp,attk,def,shield,crit_chance,crit_dmg,0,0};
 }
-void generate_monsters(std::vector<monster> &monsters, level Current, std::pair<int,int> csr_pos){
+void generate_monsters(std::vector<monster> &monsters, level Current, Csr csr_pos){
     std::random_device device;
     std::mt19937 generator(device());
     std::uniform_int_distribution<int> x_generator(1, 78);
