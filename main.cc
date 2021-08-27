@@ -332,23 +332,24 @@ void end_program(int sig, std::string error){
 bool is_empty(std::ifstream& pFile){
     return pFile.peek() == std::ifstream::traits_type::eof();
 }
-void init_data(Player &User, level &Current, Csr &csr_pos){
+void init_data(Player &User, level &Current, Csr &csr_pos, std::vector<monster> &monsters){
     std::ifstream ifile("save/user.save");
     if(!is_empty(ifile)){
         cereal::BinaryInputArchive retrieve(ifile);
-        retrieve(User,Current,csr_pos);
+        retrieve(User,Current,csr_pos,monsters);
     }
 }
-void save_data(Player User, level Current, Csr csr_pos){
+void save_data(Player User, level Current, Csr csr_pos, std::vector<monster> monsters){
     std::ofstream ofile("save/user.save",std::ios::trunc);
     cereal::BinaryOutputArchive archive(ofile);
     User.uninitialize_stats();
-    archive(User,Current,csr_pos);
+    archive(User,Current,csr_pos,monsters);
 }
-void init_dungeon(WINDOW *main_win, WINDOW *status_win, WINDOW *interaction_bar, Csr &csr_pos, Player &User, level &Current){
-    std::vector<monster> monsters;
+void init_dungeon(WINDOW *main_win, WINDOW *status_win, WINDOW *interaction_bar, Csr &csr_pos, Player &User, level &Current, std::vector<monster> &monsters){
     std::vector<std::pair<int,int>> doors;
-    generate_monsters(monsters, Current, csr_pos);
+    if(monsters.empty()){
+        generate_monsters(monsters, Current, csr_pos);
+    }
     generate_doors(doors, Current);
     draw_level(interaction_bar, Current);
     draw_stats(status_win, User);
@@ -409,7 +410,7 @@ void init_dungeon(WINDOW *main_win, WINDOW *status_win, WINDOW *interaction_bar,
             ch=wgetch(main_win);
             if(ch=='y'){
                 end_program(0);
-                save_data(User, Current, csr_pos);
+                save_data(User, Current, csr_pos, monsters);
                 return;
             }
         }
@@ -424,8 +425,9 @@ void init_dungeon(WINDOW *main_win, WINDOW *status_win, WINDOW *interaction_bar,
     }
 }
 void init(WINDOW *main_win, WINDOW *status_win, WINDOW *interaction_bar, Csr &csr_pos, Player &User, level &Current){
-    init_data(User, Current, csr_pos);
-    User.init(); // original stats gone
+    std::vector<monster> monsters;
+    init_data(User, Current, csr_pos, monsters);
+    User.init();
     std::ifstream ascii_wayfarer("res/wayfarer.txt");
     if(!ascii_wayfarer){
         end_program(-1, "wayfarer.txt not found!");
@@ -442,7 +444,7 @@ void init(WINDOW *main_win, WINDOW *status_win, WINDOW *interaction_bar, Csr &cs
     wrefresh(main_win);
     ascii_wayfarer.close();
     getchar();
-    init_dungeon(main_win, status_win, interaction_bar, csr_pos, User, Current);
+    init_dungeon(main_win, status_win, interaction_bar, csr_pos, User, Current, monsters);
 }
 int main(){
     initscr();

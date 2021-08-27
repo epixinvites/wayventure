@@ -5,6 +5,7 @@
 struct monster{
     int x, y; // x cords and y cords
     char type; // 'e' for enemy, 'b' for boss
+    template<class Archive>void serialize(Archive &archive){archive(x,y,type);}
 };
 struct Csr{
     int first = 0, second = 0;
