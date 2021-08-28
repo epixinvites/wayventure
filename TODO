@@ -1,15 +1,21 @@
 TODO Features
     -1.0-
-    - Limit how many litres of water you can bring and how much food you can bring
+    - Check character values / inventory / position / level on startup in case of data corruption
     - Give item names
     - Clean up code
     -1.1-
-    - Status effects (Runes)
-    - Tutorial level
-    - Pet
-    - Give item lores (if possible)
+    - Status effects (Runes) (Final boss has a chance to drop)
+    - Dungeon layouts
 
 TODO Bugs
 
 TODO Current
-    - Bar (Bartender, Farmer, Merchant) (Chest, Bank)
+    - Bartender
+    - Farmer
+    - Gear Merchant
+    - Mysterious Trader (Sells Artifact Gear)
+    - Chest
+    - Bank
+    - Reforging furnace
+    - Limit amount of gear in inventory
+    - Limit amount of water and food being brough

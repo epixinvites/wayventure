@@ -4,6 +4,7 @@
 #include <curses.h>
 #include <fstream>
 #include <unordered_map>
+#include <filesystem>
 #include "headers/classes.h"
 #include "headers/draw.h"
 #include "headers/generate.h"
@@ -335,6 +336,8 @@ void init_data(Player &User, level &Current, Csr &csr_pos, std::vector<monster> 
     if(!is_empty(ifile)){
         cereal::BinaryInputArchive retrieve(ifile);
         retrieve(User,Current,csr_pos,monsters);
+        std::filesystem::remove("save/user.save.1");
+        std::filesystem::copy("save/user.save","save/user.save.1");
     }
 }
 void save_data(Player User, level Current, Csr csr_pos, std::vector<monster> monsters){

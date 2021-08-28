@@ -129,10 +129,10 @@ Item generate_loot(char type){
     int hp=0, attk=0, def=0, shield=0, crit_chance=0, crit_dmg=0;
     if(loot_type=='c'){ // chestplate
         hp=(100+deviation(generator))*rarity_value(loot_rarity);
-        if(bonus_stats(generator)<=60){
+        if(bonus_stats(generator)<=20*rarity_bonus(type)){
             def=15*rarity_value(loot_rarity);
         }
-        if(bonus_stats(generator)<=10){
+        if(bonus_stats(generator)<=5*rarity_bonus(type)){
             crit_dmg=2*rarity_value(loot_rarity);
         }
     }
@@ -159,10 +159,10 @@ Item generate_loot(char type){
     }
     if(loot_type=='w'){ // weapon
         attk=(200+deviation(generator))*rarity_value(loot_rarity);
-        if(bonus_stats(generator)<=(50*rarity_bonus(type))){
+        if(bonus_stats(generator)<=(25*rarity_bonus(type))){
             crit_dmg=10*rarity_value(loot_rarity);
         }
-        if(bonus_stats(generator)<=(30*rarity_bonus(type))){
+        if(bonus_stats(generator)<=(15*rarity_bonus(type))){
             crit_chance=5*rarity_value(loot_rarity);
         }
     }

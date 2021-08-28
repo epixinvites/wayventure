@@ -1,0 +1,9 @@
+*.o
+.kdev4/
+wayfarer.kdev4
+.settings/
+.cproject
+.project
+.metadata/
+save/user.save
+save/user.save.1
