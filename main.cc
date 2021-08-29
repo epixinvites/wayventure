@@ -332,16 +332,17 @@ bool is_empty(std::ifstream& pFile){
     return pFile.peek() == std::ifstream::traits_type::eof();
 }
 void init_data(Player &User, level &Current, Csr &csr_pos, std::vector<monster> &monsters){
-    std::ifstream ifile("save/user.save");
+    std::ifstream ifile("save/user.save",std::ios::binary);
     if(!is_empty(ifile)){
         cereal::BinaryInputArchive retrieve(ifile);
         retrieve(User,Current,csr_pos,monsters);
+        // Insert data corruption checks
         std::filesystem::remove("save/user.save.1");
         std::filesystem::copy("save/user.save","save/user.save.1");
     }
 }
 void save_data(Player User, level Current, Csr csr_pos, std::vector<monster> monsters){
-    std::ofstream ofile("save/user.save",std::ios::trunc);
+    std::ofstream ofile("save/user.save",std::ios::trunc|std::ios::binary);
     cereal::BinaryOutputArchive archive(ofile);
     User.uninitialize_stats();
     archive(User,Current,csr_pos,monsters);
@@ -376,9 +377,6 @@ void init_dungeon(WINDOW *main_win, WINDOW *status_win, WINDOW *interaction_bar,
             draw_stats(status_win, User);
         }
         if(ch=='z'){
-            if(Current.lvl==1&&Current.x==1&&Current.y==1&&csr_pos.first==39&&csr_pos.second==48){
-                bar_mode(main_win, status_win, interaction_bar, User);
-            }
             move_door(doors, monsters, Current, csr_pos);
             redraw_everything(main_win, status_win, interaction_bar, csr_pos, User, Current, monsters);
         }
@@ -399,6 +397,11 @@ void init_dungeon(WINDOW *main_win, WINDOW *status_win, WINDOW *interaction_bar,
             if(move_staircase(Current, csr_pos)){
                 generate_doors(doors, Current);
                 redraw_everything(main_win, status_win, interaction_bar, csr_pos, User, Current, monsters);
+            }
+        }
+        if(ch=='t'){
+            if(Current.lvl==1&&Current.x==1&&Current.y==1&&csr_pos.first==1&&csr_pos.second==48){
+                bar_mode(main_win, status_win, interaction_bar, User);
             }
         }
         if(ch=='r'){
@@ -494,7 +497,7 @@ int main(){
         init_pair(9, COLOR_YELLOW, COLOR_BLACK); // legendary
         init_pair(10, COLOR_RED, COLOR_BLACK); // artifact
         init_pair(11, COLOR_BLACK, COLOR_WHITE); // doors
-        init_pair(12, COLOR_WHITE, COLOR_MAGENTA); // special doors
+        init_pair(12, COLOR_MAGENTA, COLOR_BLACK); // special doors
         init_pair(13, COLOR_BLACK, COLOR_YELLOW); // level boss
         init_pair(14, COLOR_WHITE, COLOR_MAGENTA); // final boss
         init_pair(15, COLOR_BLACK, COLOR_WHITE); // common inverted

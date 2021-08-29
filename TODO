@@ -1,6 +1,7 @@
 TODO Features
     -1.0-
     - Check character values / inventory / position / level on startup in case of data corruption
+    - implement something like skill points or something
     - Give item names
     - Clean up code
     -1.1-
@@ -10,12 +11,13 @@ TODO Features
 TODO Bugs
 
 TODO Current
-    - Bartender
-    - Farmer
-    - Gear Merchant
-    - Mysterious Trader (Sells Artifact Gear)
+    - Bartender (NPC)
+    - Farmer (NPC)
+    - Gear Merchant (NPC)
+    - Mysterious Trader (Sells Artifact Gear) (NPC)
     - Chest
-    - Bank
+    - Bank (Interest)
+    - Give discounts based of friendliness
+    - Add dialogues to them
     - Reforging furnace
-    - Limit amount of gear in inventory
     - Limit amount of water and food being brough

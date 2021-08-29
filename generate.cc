@@ -197,8 +197,11 @@ void generate_monsters(std::vector<monster> &monsters, level Current, Csr csr_po
                 continue;
             }
         }
-
         if(tmp_monster.x==csr_pos.first&&tmp_monster.y==csr_pos.second){
+            i--;
+            continue;
+        }
+        if(Current.lvl==1&&Current.x==1&&Current.y==1&&tmp_monster.x==1&&tmp_monster.y==48){
             i--;
             continue;
         }

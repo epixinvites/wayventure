@@ -94,7 +94,7 @@ void draw_doors(WINDOW *main_win, level Current){
     wattroff(main_win, COLOR_PAIR(11));
     if(Current.x==1&&Current.y==1&&Current.lvl==1){
         wattron(main_win, COLOR_PAIR(12));
-        mvwaddch(main_win, 49, 39, '+'); // Bar
+        mvwaddch(main_win, 48, 1, 'T'); // Bar
         wattroff(main_win, COLOR_PAIR(12));
     }
     if(Current.x==1&&Current.y==1&&Current.lvl>1){
@@ -119,9 +119,9 @@ void redraw_everything(WINDOW *main_win, WINDOW *status_win, WINDOW *interaction
     draw_level(interaction_bar, Current);
     draw_stats(status_win, User);
     draw_player(main_win, csr_pos.first, csr_pos.second);
-    draw_monster(main_win, monsters);
     draw_border(main_win);
     draw_doors(main_win, Current);
+    draw_monster(main_win, monsters);
     wrefresh(main_win);
     wrefresh(status_win);
     wrefresh(interaction_bar);
