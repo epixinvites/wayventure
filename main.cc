@@ -491,8 +491,8 @@ int main(){
         init_pair(3, COLOR_WHITE, COLOR_BLACK); // boss
         init_pair(4, COLOR_YELLOW, COLOR_BLACK); // loot
         init_pair(5, COLOR_WHITE, COLOR_BLACK); // common
-        init_pair(6, COLOR_GREEN, COLOR_BLACK); // uncommon
-        init_pair(7, COLOR_BLUE, COLOR_BLACK); // rare
+        init_pair(6, COLOR_GREEN, COLOR_BLACK); // uncommon & grass
+        init_pair(7, COLOR_BLUE, COLOR_BLACK); // rare & water
         init_pair(8, COLOR_MAGENTA, COLOR_BLACK); // epic
         init_pair(9, COLOR_YELLOW, COLOR_BLACK); // legendary
         init_pair(10, COLOR_RED, COLOR_BLACK); // artifact
