@@ -1,8 +1,11 @@
 #include <curses.h>
 #include <fstream>
+#include <random>
+#include <sstream>
 #include "headers/mode.h"
 #include "headers/classes.h"
 #include "headers/draw.h"
+#include "headers/generate.h"
 #include <cereal/archives/binary.hpp>
 #include <cereal/types/vector.hpp>
 #include <cereal/types/string.hpp>
@@ -18,11 +21,12 @@ struct Bank{
     double interest = 0.01;
     unsigned long long last_applied = 0;
 };
-class Chest{
+struct Chest{
     std::vector<Item> storage;
 };
-class Merchant{
+struct Merchant{
     int relation = 50;
+    unsigned long long last_refresh = 0;
     std::vector<Item> store;
 };
 struct NPC{
@@ -33,42 +37,33 @@ struct NPC{
     Merchant gear_merchant;
     Merchant mysterious_trader;
 };
-void char_move(int ch, WINDOW *main_win, Csr &csr_pos, const std::vector<std::string> &pub_layout){
-    if((ch=='a'||ch==KEY_LEFT)&&csr_pos.first>1&&pub_layout[csr_pos.second][csr_pos.first-1]==' '){
-        mvwaddch(main_win, csr_pos.second, csr_pos.first,' ');
-        csr_pos.first--;
-        draw_player(main_win, csr_pos.first, csr_pos.second);
-        wrefresh(main_win);
-    }
-    if((ch=='d'||ch==KEY_RIGHT)&&csr_pos.first<78&&pub_layout[csr_pos.second][csr_pos.first+1]==' '){
-        mvwaddch(main_win, csr_pos.second, csr_pos.first, ' ');
-        csr_pos.first++;
-        draw_player(main_win, csr_pos.first, csr_pos.second);
-        wrefresh(main_win);
-    }
-    if((ch=='w'||ch==KEY_UP)&&csr_pos.second>1&&pub_layout[csr_pos.second-1][csr_pos.first]==' '){
-        mvwaddch(main_win, csr_pos.second, csr_pos.first, ' ');
-        csr_pos.second--;
-        draw_player(main_win, csr_pos.first, csr_pos.second);
-        wrefresh(main_win);
-    }
-    if((ch=='s'||ch==KEY_DOWN)&&csr_pos.second<48&&pub_layout[csr_pos.second+1][csr_pos.first]==' '){
-        mvwaddch(main_win, csr_pos.second, csr_pos.first,' ');
-        csr_pos.second++;
-        draw_player(main_win, csr_pos.first, csr_pos.second);
-        wrefresh(main_win);
+void refresh_gear_merchant_store(Merchant &gear_merchant){
+    std::random_device device;
+    std::mt19937 generator(device());
+    std::uniform_int_distribution<int> item_type(1, 100);
+    for(int i = 0; i<20; i++){
+        int item=item_type(generator);
+        if(item<20){
+            gear_merchant.store.push_back(generate_loot_from_rarity_type('c'));
+        }
+        else if(item<40){
+            gear_merchant.store.push_back(generate_loot_from_rarity_type('u'));
+        }
+        else if(item<70){
+            gear_merchant.store.push_back(generate_loot_from_rarity_type('r'));
+        }
+        else if(item<90){
+            gear_merchant.store.push_back(generate_loot_from_rarity_type('e'));
+        }
+        else{
+            gear_merchant.store.push_back(generate_loot_from_rarity_type('l'));
+        }
     }
 }
-void bar_mode(WINDOW *main_win, WINDOW *status_win, WINDOW *interaction_bar,Player &User){
-    Csr csr_pos{78,1};
-    std::ifstream pub_layout_file("res/bar_layout.txt");
-    std::vector<std::string> pub_layout; // {50,80}
-    for(int i = 0; i<50; i++){
-        std::string line; std::getline(pub_layout_file,line);
-        pub_layout.push_back(line);
-    }
+void redraw_bar(WINDOW *main_win, WINDOW *interaction_bar, std::vector<std::string> pub_layout, Csr csr_pos){
     wclear(main_win);
     wclear(interaction_bar);
+    mvwaddstr(interaction_bar,0,0,"Pub");
     for(int i = 0; i<pub_layout.size(); i++){
         for(int j = 0; j<pub_layout[i].size(); j++){
             if(pub_layout[i][j]=='.'){
@@ -86,23 +81,226 @@ void bar_mode(WINDOW *main_win, WINDOW *status_win, WINDOW *interaction_bar,Play
                 mvwaddch(main_win,i,j,pub_layout[i][j]);
                 wattroff(main_win,COLOR_PAIR(10));
             }
+            else if(pub_layout[i][j]=='M'||pub_layout[i][j]=='B'||pub_layout[i][j]=='F'||pub_layout[i][j]=='G'||pub_layout[i][j]=='C'||pub_layout[i][j]=='T'){
+                wattron(main_win,COLOR_PAIR(12));
+                mvwaddch(main_win,i,j,'@');
+                wattroff(main_win,COLOR_PAIR(12));
+            }
             else{
                 mvwaddch(main_win,i,j,pub_layout[i][j]);
             }
         }
     }
-    mvwaddstr(interaction_bar,0,0,"Pub");
+    wattron(main_win,COLOR_PAIR(12));
+    mvwaddch(main_win,1,78,'>');
+    wattroff(main_win,COLOR_PAIR(12));
     draw_player(main_win, csr_pos.first, csr_pos.second);
     wrefresh(interaction_bar);
     wrefresh(main_win);
+}
+void refresh_mysterious_merchant_store(Merchant &mysterious_trader){
+    mysterious_trader.store.push_back(generate_loot_from_rarity_type('a'));
+    mysterious_trader.store.push_back(generate_loot_from_rarity_type('a'));
+}
+char search_surroundings(std::vector<std::string> pub_layout, int x, int y){
+    if(pub_layout[y][x-1]!='#'&&pub_layout[y][x-1]!=' '){
+        return pub_layout[y][x-1];
+    }
+    else if(pub_layout[y][x+1]!='#'&&pub_layout[y][x+1]!=' '){
+        return pub_layout[y][x+1];
+    }
+    else if(pub_layout[y-1][x]!='#'&&pub_layout[y-1][x]!=' '){
+        return pub_layout[y-1][x];
+    }
+    else if(pub_layout[y+1][x]!='#'&&pub_layout[y+1][x]!=' '){
+        return pub_layout[y+1][x];
+    }
+    return '0';
+}
+void redraw_bartender_mode(WINDOW *main_win, Bartender bartender, Player &User){
+    wclear(main_win);
+    mvwaddstr(main_win,2,0,"[Bartender] How can I serve you today?");
+    std::stringstream output;
+    mvwaddstr(main_win,4,0,"1. A bottle of water (Bottle included)");
+    output<<"Price: "<<5+50*((100.0-bartender.relation)/100.0);
+    mvwaddstr(main_win,5,0,output.str().c_str());
+    mvwaddstr(main_win,7,0,"2. A can of sparking juice (Might contain diabetes so don't drink too much)");
+    output.str(std::string());
+    output<<"Price: "<<20+100*((100.0-bartender.relation)/100.0);
+    mvwaddstr(main_win,8,0,output.str().c_str());
+    output.str(std::string());
+    mvwaddstr(main_win,12,0,"Backpack:");
+    output<<"Water:"<<User.inv.water.water<<"/8"<<" Sparking Juice:"<<User.inv.water.sparkling_juice<<"/10";
+    mvwaddstr(main_win,13,0,output.str().c_str());
+    wrefresh(main_win);
+}
+void redraw_bartender_mode(WINDOW *main_win, WINDOW *interaction_bar, Bartender bartender, Player &User){
+    wclear(main_win);
+    wclear(interaction_bar);
+    mvwaddstr(interaction_bar,0,0,"[Bartender] Welcome to the Bar!");
+    mvwaddstr(main_win,2,0,"[Bartender] How can I serve you today?");
+    std::stringstream output;
+    mvwaddstr(main_win,4,0,"1. A bottle of water (Bottle included)");
+    output<<"Price: "<<5+50*((100.0-bartender.relation)/100.0);
+    mvwaddstr(main_win,5,0,output.str().c_str());
+    mvwaddstr(main_win,7,0,"2. A can of sparking juice (Might contain diabetes so don't drink too much)");
+    output.str(std::string());
+    output<<"Price: "<<20+100*((100.0-bartender.relation)/100.0);
+    mvwaddstr(main_win,8,0,output.str().c_str());
+    output.str(std::string());
+    mvwaddstr(main_win,12,0,"Backpack:");
+    output<<"Water:"<<User.inv.water.water<<"/8"<<" Sparking Juice:"<<User.inv.water.sparkling_juice<<"/10";
+    mvwaddstr(main_win,13,0,output.str().c_str());
+    wrefresh(main_win);
+    wrefresh(interaction_bar);
+}
+void bartender_mode(WINDOW *main_win, WINDOW *interaction_bar, Bartender &bartender, Player &User){
+    redraw_bartender_mode(main_win, interaction_bar, bartender, User);
+    int ch;
+    while(true){
+        ch=wgetch(main_win);
+        if(ch=='1'){
+            if(User.gold<5+50*((100.0-bartender.relation)/100.0)){
+                wclear(interaction_bar);
+                mvwaddstr(interaction_bar,0,0,"[Bartender] Don't waste my time if you don't have enough gold.");
+                if(bartender.relation>=5){
+                    bartender.relation-=5;
+                }
+                wrefresh(interaction_bar);
+                redraw_bartender_mode(main_win, bartender, User);
+                continue;
+            }
+            else if(User.inv.water.water>=8){
+                wclear(interaction_bar);
+                mvwaddstr(interaction_bar,0,0,"[System] You've reached the limit of water you can carry.");
+                wrefresh(interaction_bar);
+                continue;
+            }
+            else{
+                wclear(interaction_bar);
+                mvwaddstr(interaction_bar,0,0,"[Bartender] Confirm you want to purchase a bottle of water? [y/n]");
+                wrefresh(interaction_bar);
+                ch=wgetch(main_win);
+                if(ch=='y'){
+                    User.gold-=5+50*((100.0-bartender.relation)/100.0);
+                    User.inv.water.water++;
+                    if(bartender.relation<100){
+                        bartender.relation+=((100.0-bartender.relation)/100.0);
+                        if(bartender.relation>100){
+                            bartender.relation=100;
+                        }
+                    }
+                }
+                redraw_bartender_mode(main_win, interaction_bar, bartender, User);
+            }
+        }
+        if(ch=='2'){
+            if(User.gold<20+100*((100.0-bartender.relation)/100.0)){
+                wclear(interaction_bar);
+                mvwaddstr(interaction_bar,0,0,"[Bartender] Don't waste my time if you don't have enough gold.");
+                if(bartender.relation>=5){
+                    bartender.relation-=5;
+                }
+                wrefresh(interaction_bar);
+                redraw_bartender_mode(main_win, bartender, User);
+                continue;
+            }
+            else if(User.inv.water.sparkling_juice>=10){
+                wclear(interaction_bar);
+                mvwaddstr(interaction_bar,0,0,"[System] You've reached the limit of sparking water you can carry.");
+                wrefresh(interaction_bar);
+                continue;
+            }
+            else{
+                wclear(interaction_bar);
+                mvwaddstr(interaction_bar,0,0,"[Bartender] Confirm you want to purchase a bottle of water? [y/n]");
+                wrefresh(interaction_bar);
+                ch=wgetch(main_win);
+                if(ch=='y'){
+                    User.gold-=20+100*((100.0-bartender.relation)/100.0);
+                    User.inv.water.water++;
+                    if(bartender.relation<100){
+                        bartender.relation+=((100.0-bartender.relation)/50.0);
+                        if(bartender.relation>100){
+                            bartender.relation=100;
+                        }
+                    }
+                }
+                redraw_bartender_mode(main_win, interaction_bar, bartender, User);
+            }
+        }
+        if(ch=='q'){
+            return;
+        }
+    }
+}
+void char_move(int ch, WINDOW *main_win, Csr &csr_pos, const std::vector<std::string> &pub_layout){
+    if((ch=='a'||ch==KEY_LEFT)&&csr_pos.first>1&&pub_layout[csr_pos.second][csr_pos.first-1]==' '){
+        mvwaddch(main_win, csr_pos.second, csr_pos.first,' ');
+        csr_pos.first--;
+    }
+    if((ch=='d'||ch==KEY_RIGHT)&&csr_pos.first<78&&pub_layout[csr_pos.second][csr_pos.first+1]==' '){
+        mvwaddch(main_win, csr_pos.second, csr_pos.first, ' ');
+        csr_pos.first++;
+    }
+    if((ch=='w'||ch==KEY_UP)&&csr_pos.second>1&&pub_layout[csr_pos.second-1][csr_pos.first]==' '){
+        mvwaddch(main_win, csr_pos.second, csr_pos.first, ' ');
+        csr_pos.second--;
+    }
+    if((ch=='s'||ch==KEY_DOWN)&&csr_pos.second<48&&pub_layout[csr_pos.second+1][csr_pos.first]==' '){
+        mvwaddch(main_win, csr_pos.second, csr_pos.first,' ');
+        csr_pos.second++;
+    }
+}
+void bar_mode(WINDOW *main_win, WINDOW *status_win, WINDOW *interaction_bar,Player &User){
+    Csr csr_pos{78,1};
+    NPC npc;
+    std::ifstream pub_layout_file("res/bar_layout.txt");
+    std::vector<std::string> pub_layout; // {50,80}
+    for(int i = 0; i<50; i++){
+        std::string line; std::getline(pub_layout_file,line);
+        pub_layout.push_back(line);
+    }
+    redraw_bar(main_win, interaction_bar, pub_layout, csr_pos);
     int ch;
     while(true){
         ch=wgetch(main_win);
         if(ch=='w'||ch=='a'||ch=='s'||ch=='d'||ch==KEY_LEFT||ch==KEY_RIGHT||ch==KEY_DOWN||ch==KEY_UP){
             char_move(ch, main_win, csr_pos, pub_layout);
+            redraw_bar(main_win, interaction_bar, pub_layout, csr_pos);
         }
         if(ch=='x'){
-
+            char target = search_surroundings(pub_layout, csr_pos.first, csr_pos.second);
+            if(target=='0'){
+                continue;
+            }
+            else if(target=='M'){
+                // Mysterious Trader
+            }
+            else if(target=='B'){
+                bartender_mode(main_win, interaction_bar, npc.bartender, User);
+                redraw_bar(main_win, interaction_bar, pub_layout, csr_pos);
+            }
+            else if(target=='F'){
+                // Farmer
+            }
+            else if(target=='G'){
+                // Gear Merchant & Sells First Aid Kits
+            }
+            else if(target=='C'){
+                // Chest
+            }
+            else if(target=='T'){
+                // Bank
+            }
+        }
+        if(ch=='r'){
+            redraw_bar(main_win, interaction_bar, pub_layout, csr_pos);
+        }
+        if(ch=='c'){
+            if(csr_pos.first==78&&csr_pos.second==1){
+                return;
+            }
         }
     }
 }

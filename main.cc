@@ -9,7 +9,7 @@
 #include "headers/draw.h"
 #include "headers/generate.h"
 #include "headers/mode.h"
-#include <cereal/archives/binary.hpp>
+#include <cereal/archives/portable_binary.hpp>
 #include <cereal/types/vector.hpp>
 #include <cereal/types/string.hpp>
 bool check_surroundings(std::vector<monster> monsters, int x, int y){
@@ -125,7 +125,7 @@ bool player_battle(WINDOW *main_win, WINDOW *status_win, Player &User, level Cur
             }
             if(monster.hp<=0){
                 User.gold+=generate_gold(monster_type);
-                Item loot=generate_loot(monster_type);
+                Item loot=generate_loot_from_monster_type(monster_type);
                 wclear(main_win);
                 mvwaddstr(main_win, 0, 0, "Press any key to keep and [r] to trash");
                 print_description(main_win, &loot, 1);
@@ -334,7 +334,7 @@ bool is_empty(std::ifstream& pFile){
 void init_data(Player &User, level &Current, Csr &csr_pos, std::vector<monster> &monsters){
     std::ifstream ifile("save/user.save",std::ios::binary);
     if(!is_empty(ifile)){
-        cereal::BinaryInputArchive retrieve(ifile);
+        cereal::PortableBinaryInputArchive retrieve(ifile);
         retrieve(User,Current,csr_pos,monsters);
         // Insert data corruption checks
         std::filesystem::remove("save/user.save.1");
@@ -343,7 +343,7 @@ void init_data(Player &User, level &Current, Csr &csr_pos, std::vector<monster> 
 }
 void save_data(Player User, level Current, Csr csr_pos, std::vector<monster> monsters){
     std::ofstream ofile("save/user.save",std::ios::trunc|std::ios::binary);
-    cereal::BinaryOutputArchive archive(ofile);
+    cereal::PortableBinaryOutputArchive archive(ofile);
     User.uninitialize_stats();
     archive(User,Current,csr_pos,monsters);
 }
@@ -372,8 +372,8 @@ void init_dungeon(WINDOW *main_win, WINDOW *status_win, WINDOW *interaction_bar,
         redraw_everything(main_win, status_win, interaction_bar, csr_pos, User, Current, monsters);
         int ch=wgetch(main_win);
         if(ch=='w'||ch=='a'||ch=='s'||ch=='d'||ch==KEY_LEFT||ch==KEY_RIGHT||ch==KEY_DOWN||ch==KEY_UP){
-            redraw_dungeon(main_win, Current, monsters, csr_pos);
             char_move(main_win, ch, csr_pos, monsters, User);
+            redraw_dungeon(main_win, Current, monsters, csr_pos);
             draw_stats(status_win, User);
         }
         if(ch=='z'){
@@ -398,9 +398,7 @@ void init_dungeon(WINDOW *main_win, WINDOW *status_win, WINDOW *interaction_bar,
                 generate_doors(doors, Current);
                 redraw_everything(main_win, status_win, interaction_bar, csr_pos, User, Current, monsters);
             }
-        }
-        if(ch=='t'){
-            if(Current.lvl==1&&Current.x==1&&Current.y==1&&csr_pos.first==1&&csr_pos.second==48){
+            else if(Current.lvl==1&&Current.x==1&&Current.y==1&&csr_pos.first==1&&csr_pos.second==48){
                 bar_mode(main_win, status_win, interaction_bar, User);
             }
         }
@@ -497,7 +495,7 @@ int main(){
         init_pair(9, COLOR_YELLOW, COLOR_BLACK); // legendary
         init_pair(10, COLOR_RED, COLOR_BLACK); // artifact
         init_pair(11, COLOR_BLACK, COLOR_WHITE); // doors
-        init_pair(12, COLOR_MAGENTA, COLOR_BLACK); // special doors
+        init_pair(12, COLOR_MAGENTA, COLOR_BLACK); // special doors & NPCs
         init_pair(13, COLOR_BLACK, COLOR_YELLOW); // level boss
         init_pair(14, COLOR_WHITE, COLOR_MAGENTA); // final boss
         init_pair(15, COLOR_BLACK, COLOR_WHITE); // common inverted

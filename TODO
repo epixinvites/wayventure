@@ -1,16 +1,19 @@
 TODO Features
     -1.0-
     - Check character values / inventory / position / level on startup in case of data corruption
-    - implement something like skill points or something
-    - Give item names
+    - implement something like stats points or something
+    - Give item & monsters names
     - Clean up code
     -1.1-
-    - Status effects (Runes) (Final boss has a chance to drop)
+    - Status effects (Runes) (Final boss drop)
     - Dungeon layouts
+    - Lores
+    - Optimize code?
 
 TODO Bugs
 
 TODO Current
-    - Add dialogues to them
+    - Add dialogues to NPCs based on friendliness
     - Reforging furnace
-    - Limit amount of water and food being brought
+    - Sort the inventory based on Equipped/Type/Rarity
+    - Increase final boss difficulty everything being beaten
