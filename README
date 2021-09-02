@@ -7,8 +7,9 @@ ______          _           _     _____
               _/ |
              |__/
 
-This is the Beta branch of this project, please report any bugs you encounter or any features you want to request via the Github issue system.
+This is the Developing branch of this project, please report any bugs you encounter or any features you want to request via the Github issue system.
 
+*Outdated*
 The keys for navigate the dungeon is simple:
 'w' 'a' 's' 'd' to go up, left, down and right respectively
 'z' to open doors
