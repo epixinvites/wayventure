@@ -1,6 +1,6 @@
 TODO Features
     -1.0- Base features
-    - Check character values / inventory / position / level on startup in case of data corruption
+    
     - Damage log during battles
     - Add in-game help page/guide (about keybinds)
     - Let players rename items
@@ -8,20 +8,22 @@ TODO Features
     - Make dungeon bigger (Maybe 5x10x10 or 10x10x10?)
     -1.1- More complexity and balance
     - Status effects (Runes) (Final boss drop)
-    - implement something like skills for artifact gear? 
+    - implement something like skills for artifact gear? only obtainable via reforging
         - Valhalla's Gate (Kills the enemy instantly while leaving the user with 1HP - Usable every 500 turns) - Weapon (Active)
         - Judgement Slash (Has a chance to instantly kill enemy or self) - Weapon (Active)
         - Blood Seeker (Has a chance to turn damage into heal) - Chestplate (Passive)
-        - Mirror Attack (Has a chance to turn enemy's attack against itself) - Shield (Passive)
+        - Mirror Deflection (Has a chance to turn enemy's attack against itself) - Shield (Passive)
         - Sonic Speed (Has a chance to evade enemy attack) - Boots (Passive)
         - Solidify (Increases defence by 1000 for 5 turns) - Greaves (Active)
     - Let users configure stat points? Probably add exp, levels, every level grants 10 stat points?
     - Stats/Monster/Gear/Loot drop rebalance
-    - Secret keybind summons command panel (Only available when program is launched with -d)
     - Different Dungeon layouts (ah fuck)
-    -1.2- Content
-    - Add some fancy colors and animations (maybe?) 
+    -1.2- Content & Security Updates
+    - Check character values / inventory / position / level on startup in case of data corruption
+    - Secret keybind summons command panel (Only available when program is launched with -d) 
+        - Let users save data as human readable JSON to import data between versions 
     - Tutorial level
+    - Promote(?) game after finishing support for windoze
     - Create better dialogues and more names
     - Lores
     
@@ -37,9 +39,8 @@ TODO Current
     - Remove README help page & Create Github Wiki for game
     
 TODO Important
-    - Figure out how the hell I'm supposed to make this work on Windows
-    - Clean code up
-    - Optimize code?
+    - Figure out how the hell I'm supposed to make this work on windoze
+    - Kleen le spaghetti
     
 NOTE TO SELF: STOP ADDING FEATURES AAAAAAAAAAAAAAAA
     
