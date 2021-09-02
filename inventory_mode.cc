@@ -244,6 +244,10 @@ void print_description(WINDOW *main_win, const Item *cur_item, int line){
     }
     line++;
     std::stringstream ss;
+    ss<<"Durability: "<<cur_item->durability<<"%";
+    mvwaddstr(main_win,line,0,ss.str().c_str());
+    ss.str(std::string());
+    line++;
     if(cur_item->uses>0){
         ss<<"Uses: "<<cur_item->uses;
         mvwaddstr(main_win, line, 0, ss.str().c_str());

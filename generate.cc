@@ -170,7 +170,7 @@ Item generate_loot(char loot_rarity){
             def=20*rarity_value(loot_rarity);
         }
     }
-    return{"Placeholder",loot_type,loot_rarity,false,hp,attk,def,shield,crit_chance,crit_dmg,0,0};
+    return{"Placeholder",loot_type,loot_rarity,false,hp,attk,def,shield,crit_chance,crit_dmg,0,0,100.0};
 }
 Item generate_loot_from_monster_type(char type){
     char loot_rarity=generate_loot_rarity(type);

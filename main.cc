@@ -5,10 +5,12 @@
 #include <fstream>
 #include <unordered_map>
 #include <filesystem>
+#include <unistd.h>
 #include "headers/classes.h"
 #include "headers/draw.h"
 #include "headers/generate.h"
 #include "headers/mode.h"
+#include "headers/bar.h"
 #include <cereal/archives/portable_binary.hpp>
 #include <cereal/types/vector.hpp>
 #include <cereal/types/string.hpp>
@@ -96,27 +98,69 @@ bool player_battle(WINDOW *main_win, WINDOW *status_win, Player &User, level Cur
             User.uninitialize_stats();
             if(User.equip.weapon!=nullptr){
                 User.equip.weapon->uses++;
-                User.equip.weapon->reinitialize_item();
+                User.equip.weapon->durability-=((101.0-User.equip.weapon->durability)/50.0);
+                if(User.equip.weapon->durability<=0.0){
+                    User.inv.item.erase(User.inv.item.begin()+std::distance(User.inv.item.data(),User.equip.weapon));
+                    User.equip.weapon=nullptr;
+                }
+                else{
+                    User.equip.weapon->reinitialize_item();
+                }
             }
             if(User.equip.helmet!=nullptr){
                 User.equip.helmet->uses++;
-                User.equip.helmet->reinitialize_item();
+                User.equip.helmet->durability-=((101.0-User.equip.helmet->durability)/50.0);
+                if(User.equip.helmet->durability<=0.0){
+                    User.inv.item.erase(User.inv.item.begin()+std::distance(User.inv.item.data(),User.equip.helmet));
+                    User.equip.helmet=nullptr;
+                }
+                else{
+                    User.equip.helmet->reinitialize_item();
+                }
             }
             if(User.equip.chestplate!=nullptr){
                 User.equip.chestplate->uses++;
-                User.equip.chestplate->reinitialize_item();
+                User.equip.chestplate->durability-=((101.0-User.equip.chestplate->durability)/50.0);
+                if(User.equip.chestplate->durability<=0.0){
+                    User.inv.item.erase(User.inv.item.begin()+std::distance(User.inv.item.data(),User.equip.chestplate));
+                    User.equip.chestplate=nullptr;
+                }
+                else{
+                    User.equip.chestplate->reinitialize_item();
+                }
             }
             if(User.equip.greaves!=nullptr){
                 User.equip.greaves->uses++;
-                User.equip.greaves->reinitialize_item();
+                User.equip.greaves->durability-=((101.0-User.equip.greaves->durability)/50.0);
+                if(User.equip.greaves->durability<=0.0){
+                    User.inv.item.erase(User.inv.item.begin()+std::distance(User.inv.item.data(),User.equip.greaves));
+                    User.equip.greaves=nullptr;
+                }
+                else{
+                    User.equip.greaves->reinitialize_item();
+                }
             }
             if(User.equip.boots!=nullptr){
                 User.equip.boots->uses++;
-                User.equip.boots->reinitialize_item();
+                User.equip.boots->durability-=((101.0-User.equip.boots->durability)/50.0);
+                if(User.equip.boots->durability<=0.0){
+                    User.inv.item.erase(User.inv.item.begin()+std::distance(User.inv.item.data(),User.equip.boots));
+                    User.equip.boots=nullptr;
+                }
+                else{
+                    User.equip.boots->reinitialize_item();
+                }
             }
             if(User.equip.shield!=nullptr){
                 User.equip.shield->uses++;
-                User.equip.shield->reinitialize_item();
+                User.equip.shield->durability-=((101.0-User.equip.shield->durability)/50.0);
+                if(User.equip.shield->durability<=0.0){
+                    User.inv.item.erase(User.inv.item.begin()+std::distance(User.inv.item.data(),User.equip.shield));
+                    User.equip.shield=nullptr;
+                }
+                else{
+                    User.equip.shield->reinitialize_item();
+                }
             }
             User.initialize_stats();
             calculate_damage(User, monster);
@@ -289,7 +333,7 @@ void eat_drink_mode(WINDOW *main_win, WINDOW *status_win, Player &User){
             User.drink(&User.inv.water.water);
         }
         if(ch=='5'&&User.inv.water.sparkling_juice>0){
-            User.eat(&User.inv.water.sparkling_juice);
+            User.drink(&User.inv.water.sparkling_juice);
         }
         if(ch=='q'){
             return;
@@ -360,7 +404,7 @@ void drop_items_on_death(Player &User){
     User.cur_hp=User.ori_hp;
     User.cur_shield=User.ori_shield;
 }
-void init_dungeon(WINDOW *main_win, WINDOW *status_win, WINDOW *interaction_bar, Csr &csr_pos, Player &User, level &Current, std::vector<monster> &monsters){
+void init_dungeon(WINDOW *main_win, WINDOW *status_win, WINDOW *interaction_bar, Csr &csr_pos, Player &User, level &Current, std::vector<monster> &monsters, NPC &npc){
     std::vector<std::pair<int,int>> doors;
     if(monsters.empty()){
         generate_monsters(monsters, Current, csr_pos);
@@ -399,7 +443,7 @@ void init_dungeon(WINDOW *main_win, WINDOW *status_win, WINDOW *interaction_bar,
                 redraw_everything(main_win, status_win, interaction_bar, csr_pos, User, Current, monsters);
             }
             else if(Current.lvl==1&&Current.x==1&&Current.y==1&&csr_pos.first==1&&csr_pos.second==48){
-                bar_mode(main_win, status_win, interaction_bar, User);
+                bar_mode(main_win, status_win, interaction_bar, User, npc);
             }
         }
         if(ch=='r'){
@@ -422,6 +466,13 @@ void init_dungeon(WINDOW *main_win, WINDOW *status_win, WINDOW *interaction_bar,
             if(User.cur_hp>User.ori_hp){
                 User.cur_hp=User.ori_hp;
             }
+        }
+        if(ch=='S'){
+            save_data(User, Current, csr_pos, monsters);
+            wclear(interaction_bar);
+            mvwaddstr(interaction_bar,0,0,"Data saved successfully!");
+            wrefresh(interaction_bar);
+            sleep(1);
         }
         if(ch=='q'){
             wclear(interaction_bar);
@@ -448,7 +499,7 @@ void init_dungeon(WINDOW *main_win, WINDOW *status_win, WINDOW *interaction_bar,
         }
     }
 }
-void init(WINDOW *main_win, WINDOW *status_win, WINDOW *interaction_bar, Csr &csr_pos, Player &User, level &Current){
+void init(WINDOW *main_win, WINDOW *status_win, WINDOW *interaction_bar, Csr &csr_pos, Player &User, level &Current, NPC &npc){
     std::vector<monster> monsters;
     init_data(User, Current, csr_pos, monsters);
     User.init();
@@ -468,7 +519,7 @@ void init(WINDOW *main_win, WINDOW *status_win, WINDOW *interaction_bar, Csr &cs
     wrefresh(main_win);
     ascii_wayfarer.close();
     getchar();
-    init_dungeon(main_win, status_win, interaction_bar, csr_pos, User, Current, monsters);
+    init_dungeon(main_win, status_win, interaction_bar, csr_pos, User, Current, monsters, npc);
 }
 int main(){
     initscr();
@@ -480,6 +531,7 @@ int main(){
     WINDOW *interaction_bar=newwin(1, 200, 0, 0);
     Player User;
     level Current{1,1,1};
+    NPC npc;
     keypad(main_win, TRUE);
     Csr csr_pos{1,1}; // x, y
     if(has_colors()){
@@ -504,9 +556,12 @@ int main(){
         init_pair(18, COLOR_BLACK, COLOR_MAGENTA); // epic inverted
         init_pair(19, COLOR_BLACK, COLOR_YELLOW); // legendary inverted
         init_pair(20, COLOR_BLACK, COLOR_RED); // artifact inverted
-
+        init(main_win, status_win, interaction_bar, csr_pos, User, Current, npc);
     }
-    init(main_win, status_win, interaction_bar, csr_pos, User, Current);
+    else{
+        endwin();
+        throw std::runtime_error("This program requires colors to function properly.");
+    }
     return 0;
 
     /*

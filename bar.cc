@@ -3,40 +3,12 @@
 #include <random>
 #include <sstream>
 #include "headers/mode.h"
-#include "headers/classes.h"
+#include "headers/bar.h"
 #include "headers/draw.h"
 #include "headers/generate.h"
 #include <cereal/archives/binary.hpp>
 #include <cereal/types/vector.hpp>
 #include <cereal/types/string.hpp>
-struct Bartender{
-    int relation = 50;
-};
-struct Farmer{
-    int relation = 50;
-};
-struct Bank{
-    unsigned int saved_gold = 0;
-    unsigned int total_gold = 0;
-    double interest = 0.01;
-    unsigned long long last_applied = 0;
-};
-struct Chest{
-    std::vector<Item> storage;
-};
-struct Merchant{
-    int relation = 50;
-    unsigned long long last_refresh = 0;
-    std::vector<Item> store;
-};
-struct NPC{
-    Bartender bartender;
-    Farmer farmer;
-    Bank bank;
-    Chest chest;
-    Merchant gear_merchant;
-    Merchant mysterious_trader;
-};
 void refresh_gear_merchant_store(Merchant &gear_merchant){
     std::random_device device;
     std::mt19937 generator(device());
@@ -81,7 +53,7 @@ void redraw_bar(WINDOW *main_win, WINDOW *interaction_bar, std::vector<std::stri
                 mvwaddch(main_win,i,j,pub_layout[i][j]);
                 wattroff(main_win,COLOR_PAIR(10));
             }
-            else if(pub_layout[i][j]=='M'||pub_layout[i][j]=='B'||pub_layout[i][j]=='F'||pub_layout[i][j]=='G'||pub_layout[i][j]=='C'||pub_layout[i][j]=='T'){
+            else if(pub_layout[i][j]=='M'||pub_layout[i][j]=='B'||pub_layout[i][j]=='F'||pub_layout[i][j]=='G'||pub_layout[i][j]=='C'||pub_layout[i][j]=='T'||pub_layout[i][j]=='S'){
                 wattron(main_win,COLOR_PAIR(12));
                 mvwaddch(main_win,i,j,'@');
                 wattroff(main_win,COLOR_PAIR(12));
@@ -117,7 +89,7 @@ char search_surroundings(std::vector<std::string> pub_layout, int x, int y){
     }
     return '0';
 }
-void redraw_bartender_mode(WINDOW *main_win, Bartender bartender, Player &User){
+void draw_bartender_mode(WINDOW *main_win, Bartender bartender, Player &User){
     wclear(main_win);
     mvwaddstr(main_win,2,0,"[Bartender] How can I serve you today?");
     std::stringstream output;
@@ -134,9 +106,10 @@ void redraw_bartender_mode(WINDOW *main_win, Bartender bartender, Player &User){
     mvwaddstr(main_win,13,0,output.str().c_str());
     wrefresh(main_win);
 }
-void redraw_bartender_mode(WINDOW *main_win, WINDOW *interaction_bar, Bartender bartender, Player &User){
+void draw_bartender_mode(WINDOW *main_win, WINDOW *interaction_bar, WINDOW *status_win, Bartender bartender, Player &User){
     wclear(main_win);
     wclear(interaction_bar);
+    draw_stats(status_win, User);
     mvwaddstr(interaction_bar,0,0,"[Bartender] Welcome to the Bar!");
     mvwaddstr(main_win,2,0,"[Bartender] How can I serve you today?");
     std::stringstream output;
@@ -154,8 +127,8 @@ void redraw_bartender_mode(WINDOW *main_win, WINDOW *interaction_bar, Bartender 
     wrefresh(main_win);
     wrefresh(interaction_bar);
 }
-void bartender_mode(WINDOW *main_win, WINDOW *interaction_bar, Bartender &bartender, Player &User){
-    redraw_bartender_mode(main_win, interaction_bar, bartender, User);
+void bartender_mode(WINDOW *main_win, WINDOW *interaction_bar, WINDOW *status_win, Bartender &bartender, Player &User){
+    draw_bartender_mode(main_win, interaction_bar, status_win, bartender, User);
     int ch;
     while(true){
         ch=wgetch(main_win);
@@ -167,7 +140,7 @@ void bartender_mode(WINDOW *main_win, WINDOW *interaction_bar, Bartender &barten
                     bartender.relation-=5;
                 }
                 wrefresh(interaction_bar);
-                redraw_bartender_mode(main_win, bartender, User);
+                draw_bartender_mode(main_win, bartender, User);
                 continue;
             }
             else if(User.inv.water.water>=8){
@@ -191,7 +164,7 @@ void bartender_mode(WINDOW *main_win, WINDOW *interaction_bar, Bartender &barten
                         }
                     }
                 }
-                redraw_bartender_mode(main_win, interaction_bar, bartender, User);
+                draw_bartender_mode(main_win, interaction_bar, status_win, bartender, User);
             }
         }
         if(ch=='2'){
@@ -202,7 +175,7 @@ void bartender_mode(WINDOW *main_win, WINDOW *interaction_bar, Bartender &barten
                     bartender.relation-=5;
                 }
                 wrefresh(interaction_bar);
-                redraw_bartender_mode(main_win, bartender, User);
+                draw_bartender_mode(main_win, bartender, User);
                 continue;
             }
             else if(User.inv.water.sparkling_juice>=10){
@@ -213,12 +186,12 @@ void bartender_mode(WINDOW *main_win, WINDOW *interaction_bar, Bartender &barten
             }
             else{
                 wclear(interaction_bar);
-                mvwaddstr(interaction_bar,0,0,"[Bartender] Confirm you want to purchase a bottle of water? [y/n]");
+                mvwaddstr(interaction_bar,0,0,"[Bartender] Confirm you want to purchase a can of sparkling water? [y/n]");
                 wrefresh(interaction_bar);
                 ch=wgetch(main_win);
                 if(ch=='y'){
                     User.gold-=20+100*((100.0-bartender.relation)/100.0);
-                    User.inv.water.water++;
+                    User.inv.water.sparkling_juice++;
                     if(bartender.relation<100){
                         bartender.relation+=((100.0-bartender.relation)/50.0);
                         if(bartender.relation>100){
@@ -226,7 +199,168 @@ void bartender_mode(WINDOW *main_win, WINDOW *interaction_bar, Bartender &barten
                         }
                     }
                 }
-                redraw_bartender_mode(main_win, interaction_bar, bartender, User);
+                draw_bartender_mode(main_win, interaction_bar, status_win, bartender, User);
+            }
+        }
+        if(ch=='q'){
+            return;
+        }
+    }
+}
+void draw_farmer_mode(WINDOW *main_win, Farmer farmer, Player &User){
+    wclear(main_win);
+    mvwaddstr(main_win,2,0,"[Farmer] What brings you here today?");
+    std::stringstream output;
+    mvwaddstr(main_win,4,0,"1. A piece of bread");
+    output<<"Price: "<<5+50*((100.0-farmer.relation)/100.0);
+    mvwaddstr(main_win,5,0,output.str().c_str());
+    mvwaddstr(main_win,7,0,"2. A packet of waffles");
+    output.str(std::string());
+    output<<"Price: "<<20+100*((100.0-farmer.relation)/100.0);
+    mvwaddstr(main_win,8,0,output.str().c_str());
+    output.str(std::string());
+    mvwaddstr(main_win,10,0,"3. An energy bar");
+    output<<"Price: "<<50+150*((100.0-farmer.relation)/100.0);
+    mvwaddstr(main_win,11,0,output.str().c_str());
+    output.str(std::string());
+    mvwaddstr(main_win,15,0,"Backpack:");
+    output<<"Bread:"<<User.inv.food.bread<<"/8"<<" Waffles:"<<User.inv.food.waffle<<"/10"<<" Energy Bar:"<<User.inv.food.energy_bar<<"/10";
+    mvwaddstr(main_win,16,0,output.str().c_str());
+    wrefresh(main_win);
+}
+void draw_farmer_mode(WINDOW *main_win, WINDOW *interaction_bar, WINDOW *status_win, Farmer farmer, Player &User){
+    wclear(main_win);
+    wclear(interaction_bar);
+    draw_stats(status_win, User);
+    mvwaddstr(interaction_bar,0,0,"[Farmer] Welcome to my farm!");
+    mvwaddstr(main_win,2,0,"[Farmer] What brings you here today?");
+    std::stringstream output;
+    mvwaddstr(main_win,4,0,"1. A piece of bread");
+    output<<"Price: "<<5+50*((100.0-farmer.relation)/100.0);
+    mvwaddstr(main_win,5,0,output.str().c_str());
+    mvwaddstr(main_win,7,0,"2. A packet of waffles");
+    output.str(std::string());
+    output<<"Price: "<<20+100*((100.0-farmer.relation)/100.0);
+    mvwaddstr(main_win,8,0,output.str().c_str());
+    output.str(std::string());
+    mvwaddstr(main_win,10,0,"3. An energy bar");
+    output<<"Price: "<<50+150*((100.0-farmer.relation)/100.0);
+    mvwaddstr(main_win,11,0,output.str().c_str());
+    output.str(std::string());
+    mvwaddstr(main_win,15,0,"Backpack:");
+    output<<"Bread:"<<User.inv.food.bread<<"/8"<<" Waffles:"<<User.inv.food.waffle<<"/10"<<" Energy Bar:"<<User.inv.food.energy_bar<<"/10";
+    mvwaddstr(main_win,16,0,output.str().c_str());
+    wrefresh(main_win);
+    wrefresh(interaction_bar);
+}
+void farmer_mode(WINDOW *main_win, WINDOW *interaction_bar, WINDOW *status_win, Farmer &farmer, Player &User){
+    draw_farmer_mode(main_win, interaction_bar, status_win, farmer, User);
+    int ch;
+    while(true){
+        ch=wgetch(main_win);
+        if(ch=='1'){
+            if(User.gold<5+50*((100.0-farmer.relation)/100.0)){
+                wclear(interaction_bar);
+                mvwaddstr(interaction_bar,0,0,"[Farmer] Don't waste my time if you don't have enough gold.");
+                if(farmer.relation>=5){
+                    farmer.relation-=5;
+                }
+                wrefresh(interaction_bar);
+                draw_farmer_mode(main_win, farmer, User);
+                continue;
+            }
+            else if(User.inv.food.bread>=8){
+                wclear(interaction_bar);
+                mvwaddstr(interaction_bar,0,0,"[Farmer] You've reached the limit of bread you can carry.");
+                wrefresh(interaction_bar);
+                continue;
+            }
+            else{
+                wclear(interaction_bar);
+                mvwaddstr(interaction_bar,0,0,"[Farmer] Confirm you want to purchase a piece of bread? [y/n]");
+                wrefresh(interaction_bar);
+                ch=wgetch(main_win);
+                if(ch=='y'){
+                    User.gold-=5+50*((100.0-farmer.relation)/100.0);
+                    User.inv.food.bread++;
+                    if(farmer.relation<100){
+                        farmer.relation+=((100.0-farmer.relation)/100.0);
+                        if(farmer.relation>100){
+                            farmer.relation=100;
+                        }
+                    }
+                }
+                draw_farmer_mode(main_win, interaction_bar, status_win, farmer, User);
+            }
+        }
+        if(ch=='2'){
+            if(User.gold<20+100*((100.0-farmer.relation)/100.0)){
+                wclear(interaction_bar);
+                mvwaddstr(interaction_bar,0,0,"[Farmer] Don't waste my time if you don't have enough gold.");
+                if(farmer.relation>=5){
+                    farmer.relation-=5;
+                }
+                wrefresh(interaction_bar);
+                draw_farmer_mode(main_win, farmer, User);
+                continue;
+            }
+            else if(User.inv.food.waffle>=10){
+                wclear(interaction_bar);
+                mvwaddstr(interaction_bar,0,0,"[Farmer] You've reached the limit of waffles you can carry.");
+                wrefresh(interaction_bar);
+                continue;
+            }
+            else{
+                wclear(interaction_bar);
+                mvwaddstr(interaction_bar,0,0,"[Farmer] Confirm you want to purchase a packet of waffles? [y/n]");
+                wrefresh(interaction_bar);
+                ch=wgetch(main_win);
+                if(ch=='y'){
+                    User.gold-=20+100*((100.0-farmer.relation)/100.0);
+                    User.inv.food.waffle++;
+                    if(farmer.relation<100){
+                        farmer.relation+=((100.0-farmer.relation)/100.0);
+                        if(farmer.relation>100){
+                            farmer.relation=100;
+                        }
+                    }
+                }
+                draw_farmer_mode(main_win, interaction_bar, status_win, farmer, User);
+            }
+        }
+        if(ch=='3'){
+            if(User.gold<50+150*((100.0-farmer.relation)/100.0)){
+                wclear(interaction_bar);
+                mvwaddstr(interaction_bar,0,0,"[Farmer] Don't waste my time if you don't have enough gold.");
+                if(farmer.relation>=5){
+                    farmer.relation-=5;
+                }
+                wrefresh(interaction_bar);
+                draw_farmer_mode(main_win, farmer, User);
+                continue;
+            }
+            else if(User.inv.food.energy_bar>=10){
+                wclear(interaction_bar);
+                mvwaddstr(interaction_bar,0,0,"[Farmer] You've reached the limit of energy bars you can carry.");
+                wrefresh(interaction_bar);
+                continue;
+            }
+            else{
+                wclear(interaction_bar);
+                mvwaddstr(interaction_bar,0,0,"[Farmer] Confirm you want to purchase a energy bar? [y/n]");
+                wrefresh(interaction_bar);
+                ch=wgetch(main_win);
+                if(ch=='y'){
+                    User.gold-=50+150*((100.0-farmer.relation)/100.0);
+                    User.inv.food.energy_bar++;
+                    if(farmer.relation<100){
+                        farmer.relation+=((100.0-farmer.relation)/100.0);
+                        if(farmer.relation>100){
+                            farmer.relation=100;
+                        }
+                    }
+                }
+                draw_farmer_mode(main_win, interaction_bar, status_win, farmer, User);
             }
         }
         if(ch=='q'){
@@ -252,9 +386,8 @@ void char_move(int ch, WINDOW *main_win, Csr &csr_pos, const std::vector<std::st
         csr_pos.second++;
     }
 }
-void bar_mode(WINDOW *main_win, WINDOW *status_win, WINDOW *interaction_bar,Player &User){
+void bar_mode(WINDOW *main_win, WINDOW *status_win, WINDOW *interaction_bar, Player &User, NPC &npc){
     Csr csr_pos{78,1};
-    NPC npc;
     std::ifstream pub_layout_file("res/bar_layout.txt");
     std::vector<std::string> pub_layout; // {50,80}
     for(int i = 0; i<50; i++){
@@ -278,11 +411,12 @@ void bar_mode(WINDOW *main_win, WINDOW *status_win, WINDOW *interaction_bar,Play
                 // Mysterious Trader
             }
             else if(target=='B'){
-                bartender_mode(main_win, interaction_bar, npc.bartender, User);
+                bartender_mode(main_win, interaction_bar, status_win, npc.bartender, User);
                 redraw_bar(main_win, interaction_bar, pub_layout, csr_pos);
             }
             else if(target=='F'){
-                // Farmer
+                farmer_mode(main_win, interaction_bar, status_win, npc.farmer, User);
+                redraw_bar(main_win, interaction_bar, pub_layout, csr_pos);
             }
             else if(target=='G'){
                 // Gear Merchant & Sells First Aid Kits
@@ -292,6 +426,9 @@ void bar_mode(WINDOW *main_win, WINDOW *status_win, WINDOW *interaction_bar,Play
             }
             else if(target=='T'){
                 // Bank
+            }
+            else if(target=='S'){
+                // Blacksmith (Reforging & Repairing gear)
             }
         }
         if(ch=='r'){

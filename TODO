@@ -1,19 +1,45 @@
 TODO Features
-    -1.0-
+    -1.0- Base features
     - Check character values / inventory / position / level on startup in case of data corruption
-    - implement something like stats points or something
-    - Give item & monsters names
-    - Clean up code
-    -1.1-
+    - Damage log during battles
+    - Add in-game help page/guide (about keybinds)
+    - Let players rename items
+    - Give item & monsters names (Just the structure)
+    - Make dungeon bigger (Maybe 5x10x10 or 10x10x10?)
+    -1.1- More complexity and balance
     - Status effects (Runes) (Final boss drop)
-    - Dungeon layouts
+    - implement something like skills for artifact gear? 
+        - Valhalla's Gate (Kills the enemy instantly while leaving the user with 1HP - Usable every 500 turns) - Weapon (Active)
+        - Judgement Slash (Has a chance to instantly kill enemy or self) - Weapon (Active)
+        - Blood Seeker (Has a chance to turn damage into heal) - Chestplate (Passive)
+        - Mirror Attack (Has a chance to turn enemy's attack against itself) - Shield (Passive)
+        - Sonic Speed (Has a chance to evade enemy attack) - Boots (Passive)
+        - Solidify (Increases defence by 1000 for 5 turns) - Greaves (Active)
+    - Let users configure stat points? Probably add exp, levels, every level grants 10 stat points?
+    - Stats/Monster/Gear/Loot drop rebalance
+    - Secret keybind summons command panel (Only available when program is launched with -d)
+    - Different Dungeon layouts (ah fuck)
+    -1.2- Content
+    - Add some fancy colors and animations (maybe?) 
+    - Tutorial level
+    - Create better dialogues and more names
     - Lores
-    - Optimize code?
+    
 
 TODO Bugs
-
+    - no idea why bartender/farmer prices change after quit
+    
 TODO Current
-    - Add dialogues to NPCs based on friendliness
-    - Reforging furnace
+    - Save NPC data
+    - Make Level Bosses drop "Crystallium" and "Ancient Cores" ("Crystallium" is used to buy Artifact gear from Mysterious Traders, with "Ancient Cores" items will not break and have a higher chance have stats increased)
     - Sort the inventory based on Equipped/Type/Rarity
     - Increase final boss difficulty everything being beaten
+    - Remove README help page & Create Github Wiki for game
+    
+TODO Important
+    - Figure out how the hell I'm supposed to make this work on Windows
+    - Clean code up
+    - Optimize code?
+    
+NOTE TO SELF: STOP ADDING FEATURES AAAAAAAAAAAAAAAA
+    
