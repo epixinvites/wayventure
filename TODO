@@ -1,35 +1,31 @@
 TODO Features
     -1.0- Base features
-    
     - Damage log during battles
-    - Add in-game help page/guide (about keybinds)
+    - C-h shows help for current mode
     - Let players rename items
     - Give item & monsters names (Just the structure)
     - Make dungeon bigger (Maybe 5x10x10 or 10x10x10?)
     -1.1- More complexity and balance
     - Status effects (Runes) (Final boss drop)
     - implement something like skills for artifact gear? only obtainable via reforging
-        - Valhalla's Gate (Kills the enemy instantly while leaving the user with 1HP - Usable every 500 turns) - Weapon (Active)
+        - Valhalla's Gate (Kills the enemy instantly while leaving the user with 1HP - Usable every 2000 steps) - Weapon (Active)
         - Judgement Slash (Has a chance to instantly kill enemy or self) - Weapon (Active)
         - Blood Seeker (Has a chance to turn damage into heal) - Chestplate (Passive)
-        - Mirror Deflection (Has a chance to turn enemy's attack against itself) - Shield (Passive)
-        - Sonic Speed (Has a chance to evade enemy attack) - Boots (Passive)
-        - Solidify (Increases defence by 1000 for 5 turns) - Greaves (Active)
+        - Decoy (Has a chance to turn enemy's attack against itself) - Shield (Passive)
+        - Evasive Tactics (Has a chance to evade enemy attack) - Boots (Passive)
     - Let users configure stat points? Probably add exp, levels, every level grants 10 stat points?
     - Stats/Monster/Gear/Loot drop rebalance
-    - Different Dungeon layouts (ah fuck)
+    - Different Dungeon layouts (ah shit)
     -1.2- Content & Security Updates
     - Check character values / inventory / position / level on startup in case of data corruption
     - Secret keybind summons command panel (Only available when program is launched with -d) 
         - Let users save data as human readable JSON to import data between versions 
-    - Tutorial level
     - Promote(?) game after finishing support for windoze
     - Create better dialogues and more names
     - Lores
     
 
 TODO Bugs
-    - no idea why bartender/farmer prices change after quit
     
 TODO Current
     - Save NPC data

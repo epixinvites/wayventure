@@ -3,7 +3,6 @@
 #include <random>
 #include <sstream>
 #include "headers/mode.h"
-#include "headers/bar.h"
 #include "headers/draw.h"
 #include "headers/generate.h"
 #include <cereal/archives/binary.hpp>
@@ -53,7 +52,7 @@ void redraw_bar(WINDOW *main_win, WINDOW *interaction_bar, std::vector<std::stri
                 mvwaddch(main_win,i,j,pub_layout[i][j]);
                 wattroff(main_win,COLOR_PAIR(10));
             }
-            else if(pub_layout[i][j]=='M'||pub_layout[i][j]=='B'||pub_layout[i][j]=='F'||pub_layout[i][j]=='G'||pub_layout[i][j]=='C'||pub_layout[i][j]=='T'||pub_layout[i][j]=='S'){
+            else if(pub_layout[i][j]=='M'||pub_layout[i][j]=='B'||pub_layout[i][j]=='F'||pub_layout[i][j]=='G'||pub_layout[i][j]=='T'||pub_layout[i][j]=='S'){
                 wattron(main_win,COLOR_PAIR(12));
                 mvwaddch(main_win,i,j,'@');
                 wattroff(main_win,COLOR_PAIR(12));
@@ -368,6 +367,12 @@ void farmer_mode(WINDOW *main_win, WINDOW *interaction_bar, WINDOW *status_win, 
         }
     }
 }
+void draw_blacksmith_mode(WINDOW *main_win, WINDOW *interaction_bar, WINDOW *status_bar, Player &User){
+
+}
+void blacksmith_mode(WINDOW *main_win, WINDOW *interaction_bar, WINDOW *status_bar, Player &User){
+    draw_blacksmith_mode(main_win, interaction_bar, status_bar, User);
+}
 void char_move(int ch, WINDOW *main_win, Csr &csr_pos, const std::vector<std::string> &pub_layout){
     if((ch=='a'||ch==KEY_LEFT)&&csr_pos.first>1&&pub_layout[csr_pos.second][csr_pos.first-1]==' '){
         mvwaddch(main_win, csr_pos.second, csr_pos.first,' ');
@@ -421,14 +426,14 @@ void bar_mode(WINDOW *main_win, WINDOW *status_win, WINDOW *interaction_bar, Pla
             else if(target=='G'){
                 // Gear Merchant & Sells First Aid Kits
             }
-            else if(target=='C'){
-                // Chest
-            }
             else if(target=='T'){
-                // Bank
+                // Bank & Chest
             }
             else if(target=='S'){
-                // Blacksmith (Reforging & Repairing gear)
+                if(!User.inv.item.empty()){
+                    reforge_repair_mode(main_win, status_win, interaction_bar, User);
+                    redraw_bar(main_win, interaction_bar, pub_layout, csr_pos);
+                }
             }
         }
         if(ch=='r'){
@@ -438,6 +443,19 @@ void bar_mode(WINDOW *main_win, WINDOW *status_win, WINDOW *interaction_bar, Pla
             if(csr_pos.first==78&&csr_pos.second==1){
                 return;
             }
+        }
+        if(ch=='i'){
+            if(!User.inv.item.empty()){
+                inventory_mode(main_win, status_win, interaction_bar, User);
+                redraw_bar(main_win, interaction_bar, pub_layout, csr_pos);
+            }
+        }
+        if(ch=='e'){
+            eat_drink_mode(main_win, status_win, User);
+            redraw_bar(main_win, interaction_bar, pub_layout, csr_pos);
+        }
+        if(ch=='q'){
+            return;
         }
     }
 }

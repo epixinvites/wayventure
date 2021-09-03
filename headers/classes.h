@@ -47,12 +47,18 @@ struct Water{
 	int sparkling_juice=0; // Fill up entire hydration
 	template<class Archive>void serialize(Archive &archive){archive(water,sparkling_juice);}
 };
+struct Miscellaneous{
+    unsigned int ancient_core = 0;
+    unsigned int crystallium = 0;
+    template<class Archive> void serialize(Archive &archive){archive(ancient_core,crystallium);}
+};
 struct Inventory{
     std::vector<Item> item;
     Food food;
     Water water;
+    Miscellaneous misc;
     int heal_amount=20;
-    template<class Archive>void serialize(Archive &archive){archive(food,water,heal_amount,item);} // fix vector
+    template<class Archive>void serialize(Archive &archive){archive(food,water,heal_amount,item,misc);}
 };
 struct Equipped{
     Item *helmet=nullptr;
@@ -80,6 +86,7 @@ public:
     void initialize_stats();
     void uninitialize_stats();
     void add_item(Item input);
+    void remove_item(int pos);
     void recover_original_stats();
     template<class Archive>void serialize(Archive &archive){archive(steps,saturation,hydration,gold,cur_hp,cur_shield,inv);}
 };
@@ -97,5 +104,39 @@ struct level{
     }
     level(int lvl, int x, int y):lvl{lvl},x{x},y{y}{};
     template<class Archive>void serialize(Archive &archive){archive(lvl,x,y);}
+};
+struct Bartender{
+    int relation = 50;
+    template<class Archive>void serialize(Archive &archive){archive(relation);}
+};
+struct Farmer{
+    int relation = 50;
+    template<class Archive>void serialize(Archive &archive){archive(relation);}
+};
+struct Bank{
+    unsigned int saved_gold = 0;
+    unsigned int total_gold = 0;
+    double interest = 0.01;
+    unsigned long long last_applied = 0;
+    template<class Archive>void serialize(Archive &archive){archive(saved_gold,total_gold<interest,last_applied);}
+};
+struct Chest{
+    std::vector<Item> storage;
+    template<class Archive>void serialize(Archive &archive){archive(storage);}
+};
+struct Merchant{
+    int relation = 50;
+    unsigned long long last_refresh = 0;
+    std::vector<Item> store;
+    template<class Archive>void serialize(Archive &archive){archive(relation,last_refresh,store);}
+};
+struct NPC{
+    Bartender bartender;
+    Farmer farmer;
+    Bank bank;
+    Chest chest;
+    Merchant gear_merchant;
+    Merchant mysterious_trader;
+    template<class Archive>void serialize(Archive &archive){archive(bartender,farmer,bank,chest,gear_merchant,mysterious_trader);}
 };
 

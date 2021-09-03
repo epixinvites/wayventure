@@ -151,6 +151,31 @@ void Player::add_item(Item input){
     }
     inv.item[inv.item.size()-1].initialize_item();
 }
+void Player::remove_item(int pos){
+    inv.item.erase(inv.item.begin()+pos);
+    for(int i=0; i<inv.item.size(); i++){ // loops through every single item and finds all items that is_equipped
+        if(inv.item[i].is_equipped){
+            if(inv.item[i].type=='h'){
+                equip.helmet=&inv.item[i];
+            }
+            if(inv.item[i].type=='c'){
+                equip.chestplate=&inv.item[i];
+            }
+            if(inv.item[i].type=='g'){
+                equip.greaves=&inv.item[i];
+            }
+            if(inv.item[i].type=='b'){
+                equip.boots=&inv.item[i];
+            }
+            if(inv.item[i].type=='s'){
+                equip.shield=&inv.item[i];
+            }
+            if(inv.item[i].type=='w'){
+                equip.weapon=&inv.item[i];
+            }
+        }
+    }
+}
 void Player::eat(int *food){
     if(saturation<100){
         if(food==&inv.food.bread&&*food>0){

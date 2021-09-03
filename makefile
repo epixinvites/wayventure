@@ -1,4 +1,4 @@
-all: main
+all: project-cosmos
 main.o: main.cc
 	g++ -g -c -std=c++17 -Iinclude/ main.cc -o main.o
 inventory_mode.o: inventory_mode.cc
@@ -11,7 +11,7 @@ generate.o: generate.cc
 	g++ -g -c -std=c++17 generate.cc -o generate.o
 bar.o: bar.cc
 	g++ -g -c -std=c++17 -Iinclude/ bar.cc -o bar.o
-main: main.o inventory_mode.o classes.o draw.o generate.o bar.o
-	g++ -g -std=c++17 main.o inventory_mode.o classes.o draw.o generate.o bar.o -lncurses -o main
+project-cosmos: main.o inventory_mode.o classes.o draw.o generate.o bar.o
+	g++ -g -std=c++17 main.o inventory_mode.o classes.o draw.o generate.o bar.o -lncurses -o project-cosmos
 clean:
 	rm -f main.o inventory_mode.o classes.o draw.o generate.o bar.o

@@ -461,7 +461,11 @@ void inventory_mode(WINDOW *main_win, WINDOW *status_win, WINDOW *interaction_ba
             ch=wgetch(main_win);
             if(ch=='y'){
                 unequip_item(User, csr_pos, page_num);
-                User.inv.item.erase(User.inv.item.begin()+(csr_pos+(page_num*30)));
+                User.remove_item(csr_pos+(page_num*30));
+                if((page_num*30+csr_pos)>=User.inv.item.size()){csr_pos--;}
+                if(User.inv.item.empty()){
+                    return;
+                }
             }
             clear_screen(main_win);
             draw_stats(status_win, User);
@@ -471,6 +475,82 @@ void inventory_mode(WINDOW *main_win, WINDOW *status_win, WINDOW *interaction_ba
             }
             print_description(main_win, &User.inv.item[page_num*30+csr_pos], 35);
             print_bold_item(main_win, &User.inv.item[page_num*30+csr_pos], csr_pos);
+        }
+        if(ch=='q'){
+            return;
+        }
+    }
+}
+void reforge_repair_mode(WINDOW *main_win, WINDOW *status_win, WINDOW *interaction_bar, Player &User){
+    clear_screen(main_win, interaction_bar);
+    unsigned int page_num=0;
+    unsigned int csr_pos=0;
+    for(int i=page_num*30, iterator=0; i<User.inv.item.size()&&iterator<30; i++, iterator++){
+        print_item(main_win, &User.inv.item[i], iterator);
+    }
+    wrefresh(main_win);
+    draw_base(main_win, interaction_bar, 34, User.inv.item.size(), page_num);
+    print_bold_item(main_win, &User.inv.item[page_num*30], 0);
+    print_description(main_win, &User.inv.item[page_num*30], 35);
+    while(true){
+        int ch=wgetch(main_win);
+        if((ch=='s'||ch==KEY_DOWN)&&((csr_pos+page_num*30)<User.inv.item.size()-1&&csr_pos<29)){
+            csr_pos++;
+            clear_screen(main_win);
+            draw_base(main_win, interaction_bar, 34, User.inv.item.size(), page_num);
+            for(int i=page_num*30, iterator=0; i<User.inv.item.size()&&iterator<30; i++, iterator++){
+                print_item(main_win, &User.inv.item[i], iterator);
+            }
+            print_description(main_win, &User.inv.item[page_num*30+csr_pos], 35);
+            print_bold_item(main_win, &User.inv.item[page_num*30+csr_pos], csr_pos);
+
+        }
+        if((ch=='w'||ch==KEY_UP)&&csr_pos>0){
+            csr_pos--;
+            clear_screen(main_win);
+            draw_base(main_win, interaction_bar, 34, User.inv.item.size(), page_num);
+            for(int i=page_num*30, iterator=0; i<User.inv.item.size()&&iterator<30; i++, iterator++){
+                print_item(main_win, &User.inv.item[i], iterator);
+            }
+            print_description(main_win, &User.inv.item[page_num*30+csr_pos], 35);
+            print_bold_item(main_win, &User.inv.item[page_num*30+csr_pos], csr_pos);
+
+        }
+        if(ch=='a'||ch==KEY_LEFT){
+            if(page_num>0){
+                page_num--;
+                csr_pos=0;
+                clear_screen(main_win);
+                draw_base(main_win, interaction_bar, 34, User.inv.item.size(), page_num);
+                for(int i=page_num*30, iterator=0; i<User.inv.item.size()&&iterator<30; i++, iterator++){
+                    print_item(main_win, &User.inv.item[i], iterator);
+                }
+                print_description(main_win, &User.inv.item[page_num*30], 35);
+                print_bold_item(main_win, &User.inv.item[page_num*30], 0);
+            }
+        }
+        if(ch=='d'||ch==KEY_RIGHT){
+            if((page_num+1)*30<User.inv.item.size()){
+                page_num++;
+                csr_pos=0;
+                clear_screen(main_win);
+                draw_base(main_win, interaction_bar, 34, User.inv.item.size(), page_num);
+                for(int i=page_num*30, iterator=0; i<User.inv.item.size()&&iterator<30; i++, iterator++){
+                    print_item(main_win, &User.inv.item[i], iterator);
+                }
+                print_description(main_win, &User.inv.item[page_num*30], 35);
+                print_bold_item(main_win, &User.inv.item[page_num*30], 0);
+                wrefresh(main_win);
+            }
+        }
+        if(ch=='r'){
+            wclear(interaction_bar);
+            std::stringstream ss;
+            // ss<<"Attempt repair? Cost:"<<csr_pos+(page_num*30)
+        }
+        if(ch=='f'){
+            wclear(interaction_bar);
+            // reforge
         }
         if(ch=='q'){
             return;

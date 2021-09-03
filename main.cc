@@ -10,7 +10,6 @@
 #include "headers/draw.h"
 #include "headers/generate.h"
 #include "headers/mode.h"
-#include "headers/bar.h"
 #include <cereal/archives/portable_binary.hpp>
 #include <cereal/types/vector.hpp>
 #include <cereal/types/string.hpp>
@@ -100,7 +99,7 @@ bool player_battle(WINDOW *main_win, WINDOW *status_win, Player &User, level Cur
                 User.equip.weapon->uses++;
                 User.equip.weapon->durability-=((101.0-User.equip.weapon->durability)/50.0);
                 if(User.equip.weapon->durability<=0.0){
-                    User.inv.item.erase(User.inv.item.begin()+std::distance(User.inv.item.data(),User.equip.weapon));
+                    User.equip.weapon->is_equipped = false;
                     User.equip.weapon=nullptr;
                 }
                 else{
@@ -111,7 +110,7 @@ bool player_battle(WINDOW *main_win, WINDOW *status_win, Player &User, level Cur
                 User.equip.helmet->uses++;
                 User.equip.helmet->durability-=((101.0-User.equip.helmet->durability)/50.0);
                 if(User.equip.helmet->durability<=0.0){
-                    User.inv.item.erase(User.inv.item.begin()+std::distance(User.inv.item.data(),User.equip.helmet));
+                    User.equip.helmet->is_equipped = false;
                     User.equip.helmet=nullptr;
                 }
                 else{
@@ -122,7 +121,7 @@ bool player_battle(WINDOW *main_win, WINDOW *status_win, Player &User, level Cur
                 User.equip.chestplate->uses++;
                 User.equip.chestplate->durability-=((101.0-User.equip.chestplate->durability)/50.0);
                 if(User.equip.chestplate->durability<=0.0){
-                    User.inv.item.erase(User.inv.item.begin()+std::distance(User.inv.item.data(),User.equip.chestplate));
+                    User.equip.chestplate->is_equipped = false;
                     User.equip.chestplate=nullptr;
                 }
                 else{
@@ -133,7 +132,7 @@ bool player_battle(WINDOW *main_win, WINDOW *status_win, Player &User, level Cur
                 User.equip.greaves->uses++;
                 User.equip.greaves->durability-=((101.0-User.equip.greaves->durability)/50.0);
                 if(User.equip.greaves->durability<=0.0){
-                    User.inv.item.erase(User.inv.item.begin()+std::distance(User.inv.item.data(),User.equip.greaves));
+                    User.equip.greaves->is_equipped = false;
                     User.equip.greaves=nullptr;
                 }
                 else{
@@ -144,7 +143,7 @@ bool player_battle(WINDOW *main_win, WINDOW *status_win, Player &User, level Cur
                 User.equip.boots->uses++;
                 User.equip.boots->durability-=((101.0-User.equip.boots->durability)/50.0);
                 if(User.equip.boots->durability<=0.0){
-                    User.inv.item.erase(User.inv.item.begin()+std::distance(User.inv.item.data(),User.equip.boots));
+                    User.equip.boots->is_equipped = false;
                     User.equip.boots=nullptr;
                 }
                 else{
@@ -155,7 +154,7 @@ bool player_battle(WINDOW *main_win, WINDOW *status_win, Player &User, level Cur
                 User.equip.shield->uses++;
                 User.equip.shield->durability-=((101.0-User.equip.shield->durability)/50.0);
                 if(User.equip.shield->durability<=0.0){
-                    User.inv.item.erase(User.inv.item.begin()+std::distance(User.inv.item.data(),User.equip.shield));
+                    User.equip.shield->is_equipped = false;
                     User.equip.shield=nullptr;
                 }
                 else{
