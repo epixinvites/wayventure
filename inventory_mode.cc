@@ -517,10 +517,10 @@ void reforge_repair_mode(WINDOW *main_win, WINDOW *status_win, WINDOW *interacti
                 }
             }
         }
-        // Enhance
-        // Reforge
-        // Forging
-        // Salvage
+        // Enhance ('e')
+        // Reforge ('f')
+        // Crafting ('c')
+        // Salvage ('S')
         if(ch=='q'){
             return;
         }

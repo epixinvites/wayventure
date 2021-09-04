@@ -48,9 +48,29 @@ struct Water{
 	template<class Archive>void serialize(Archive &archive){archive(water,sparkling_juice);}
 };
 struct Miscellaneous{
+    struct Material_rarity{
+        unsigned int common = 0;
+        unsigned int uncommon = 0;
+        unsigned int rare = 0;
+        unsigned int epic = 0;
+        unsigned int legendary = 0;
+        unsigned int artifact = 0;
+        template<class Archive> void serialize(Archive &archive){archive(common,uncommon,rare,epic,legendary,artifact);}
+    };
+    struct Type{
+        unsigned int helmet = 0;
+        unsigned int chestplate = 0;
+        unsigned int greaves = 0;
+        unsigned int boots = 0;
+        unsigned int shield = 0;
+        unsigned int weapon = 0;
+        template<class Archive> void serialize(Archive &archive){archive(helmet,chestplate,greaves,boots,shield,weapon);}
+    };
     unsigned int ancient_core = 0;
     unsigned int crystallium = 0;
-    template<class Archive> void serialize(Archive &archive){archive(ancient_core,crystallium);}
+    Material_rarity materials;
+    Type blueprint;
+    template<class Archive> void serialize(Archive &archive){archive(ancient_core,crystallium,materials,blueprint);}
 };
 struct Inventory{
     std::vector<Item> item;
