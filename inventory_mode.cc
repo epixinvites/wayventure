@@ -517,14 +517,10 @@ void reforge_repair_mode(WINDOW *main_win, WINDOW *status_win, WINDOW *interacti
                 }
             }
         }
-        if(ch=='f'){
-            wclear(interaction_bar);
-            mvwaddstr(interaction_bar,0,0,"[System] Attempt reforge on current gear? [y/n]");
-            int ch = wgetch(main_win);
-            if(ch=='y'){
-
-            }
-        }
+        // Enhance
+        // Reforge
+        // Forging
+        // Salvage
         if(ch=='q'){
             return;
         }
