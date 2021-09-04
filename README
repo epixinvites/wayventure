@@ -1,33 +1,19 @@
-______          _           _     _____
-| ___ \        (_)         | |   /  __ \
-| |_/ / __ ___  _  ___  ___| |_  | /  \/ ___  ___ _ __ ___   ___  ___
-|  __/ '__/ _ \| |/ _ \/ __| __| | |    / _ \/ __| '_ ` _ \ / _ \/ __|
-| |  | | | (_) | |  __/ (__| |_  | \__/\ (_) \__ \ | | | | | (_) \__ \
-\_|  |_|  \___/| |\___|\___|\__|  \____/\___/|___/_| |_| |_|\___/|___/
-              _/ |
-             |__/
+ __          __                         _                  
+ \ \        / /                        | |                 
+  \ \  /\  / /_ _ _   ___   _____ _ __ | |_ _   _ _ __ ___ 
+   \ \/  \/ / _` | | | \ \ / / _ \ '_ \| __| | | | '__/ _ \
+    \  /\  / (_| | |_| |\ V /  __/ | | | |_| |_| | | |  __/
+     \/  \/ \__,_|\__, | \_/ \___|_| |_|\__|\__,_|_|  \___|
+                   __/ |                                   
+                  |___/                                    
 
 This is the Developing branch of this project, please report any bugs you encounter or any features you want to request via the Github issue system.
 
-*Outdated*
-The keys for navigate the dungeon is simple:
-'w' 'a' 's' 'd' to go up, left, down and right respectively
-'z' to open doors
-'x' to attack monsters
-'c' to interact with staircases ('>' and '<') Note: You have to stand on top of it to interact with it
-'i' to open inventory mode (Your inventory is initially empty, so the inventory will not open)
-'r' to redraw the dungeon
-'e' to eat or drink
-'.' to regain hitpoints, but at the cost of saturation
-'q' to quit
-Inventory mode keybinds:
-    'w' 'a' 's' 'd' to go up, left, down and right respectively
-    'e' to equip and unequip items
-    'r' to delete items from your inventory
-    'q' to quit the inventory
-Attack mode keybinds:
-    '1' to deal basic attack
-    '2' to put up your shield
-    '3' to heal
+Installation instructions:
+Dependencies: g++, make and libncurses
+Build instructions: make
+Run ./project-cosmos to start playing
+
+Press 'Shift+h' to learn about the keybindings, if you're curious about how this game works, good luck reading through my spaghetti.
 
 *And yes I don't like using Markdown
