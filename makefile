@@ -12,6 +12,6 @@ generate.o: generate.cc
 bar.o: bar.cc
 	g++ -g -c -std=c++17 -Iinclude/ bar.cc -o bar.o
 project-cosmos: main.o inventory_mode.o classes.o draw.o generate.o bar.o
-	g++ -static -g -std=c++17 main.o inventory_mode.o classes.o draw.o generate.o bar.o -o project-cosmos /home/skynet/build/ncurses-6.2/lib/libncurses.a
+	g++ -g -std=c++17 main.o inventory_mode.o classes.o draw.o generate.o bar.o -o project-cosmos -lncurses
 clean:
 	rm -f main.o inventory_mode.o classes.o draw.o generate.o bar.o
