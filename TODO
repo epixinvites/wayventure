@@ -1,7 +1,6 @@
 TODO Features
     -1.0- Base features
     - Damage log during battles
-    - C-h shows help for current mode
     - Give item & monsters names (Just the structure)
     - Make dungeon bigger (Maybe 5x10x10 or 10x10x10?)
     -1.1- More complexity and balance
@@ -16,10 +15,10 @@ TODO Features
     - Stats/Monster/Gear/Loot drop rebalance
     - Different Dungeon layouts (ah shit)
     -1.2- Content & Security Updates
+    - Settings page to tweak character username
     - Check character values / inventory / position / level on startup in case of data corruption
     - Secret keybind summons command panel (Only available when program is launched with -d) 
         - Let users save data as human readable JSON to import data between versions 
-    - Promote(?) game after finishing support for windoze
     - Create better dialogues and more names
     - Lores
     
@@ -28,14 +27,13 @@ TODO Bugs
     - (inventory_mode) fix rare case where csr_pos turns -1 when its the first item starting from the second page and the last item in the inventory
     
 TODO Current
-    - Save NPC data
-    - Make Level Bosses drop "Crystallium" and "Ancient Cores" ("Crystallium" is used to buy Artifact gear from Mysterious Traders, with "Ancient Cores" items will not break and have a higher chance have stats increased)
+    - Add Shift-h as help page for every single mode
+    - Make Level Bosses drop "Crystallium" and "Ancient Cores" ("Crystallium" is used to buy Artifact gear from Mysterious Traders, with "Ancient Cores" artifact gears will obtain a new skill)
+    - Add additional page in inventory showing Miscellaneous items
     - Sort the inventory based on Equipped/Type/Rarity
-    - Increase final boss difficulty everything being beaten
-    - Remove README help page & Create Github Wiki for game
+    - Increase final boss difficulty after being beaten
     
 TODO Important
-    - Figure out how the hell I'm supposed to make this work on windoze
     - Try using magic constants
     
 NOTE TO SELF: STOP ADDING FEATURES AAAAAAAAAAAAAAAA

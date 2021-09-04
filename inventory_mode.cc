@@ -519,7 +519,11 @@ void reforge_repair_mode(WINDOW *main_win, WINDOW *status_win, WINDOW *interacti
         }
         if(ch=='f'){
             wclear(interaction_bar);
-            // reforge
+            mvwaddstr(interaction_bar,0,0,"[System] Attempt reforge on current gear? [y/n]");
+            int ch = wgetch(main_win);
+            if(ch=='y'){
+
+            }
         }
         if(ch=='q'){
             return;
