@@ -1,6 +1,5 @@
 *.o
-.kdev4/
-wayfarer.kdev4
+project-cosmos
 .settings/
 .cproject
 .project
