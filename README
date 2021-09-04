@@ -7,8 +7,6 @@
                    __/ |                                   
                   |___/                                    
 
-This is the Developing branch of this project, please report any bugs you encounter or any features you want to request via the Github issue system.
-
 Installation instructions:
 Dependencies: g++, make and libncurses
 Build instructions: make
@@ -16,4 +14,4 @@ Run ./project-cosmos to start playing
 
 Press 'Shift+h' to learn about the keybindings, if you're curious about how this game works, good luck reading through my spaghetti.
 
-*And yes I don't like using Markdown
+*yes I don't fancy Markdown
