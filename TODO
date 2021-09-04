@@ -2,7 +2,6 @@ TODO Features
     -1.0- Base features
     - Damage log during battles
     - C-h shows help for current mode
-    - Let players rename items
     - Give item & monsters names (Just the structure)
     - Make dungeon bigger (Maybe 5x10x10 or 10x10x10?)
     -1.1- More complexity and balance
@@ -26,6 +25,7 @@ TODO Features
     
 
 TODO Bugs
+    - (inventory_mode) fix rare case where csr_pos turns -1 when its the first item starting from the second page and the last item in the inventory
     
 TODO Current
     - Save NPC data
@@ -36,7 +36,7 @@ TODO Current
     
 TODO Important
     - Figure out how the hell I'm supposed to make this work on windoze
-    - Kleen le spaghetti
+    - Try using magic constants
     
 NOTE TO SELF: STOP ADDING FEATURES AAAAAAAAAAAAAAAA
     

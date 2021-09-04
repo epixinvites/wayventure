@@ -82,7 +82,7 @@ public:
     void eat(int *food);
     void drink(int *water);
     void initialize_gear(Item *gear);
-    void uninitialize_gear(Item *gear);
+    void uninitialize_gear(Item *&gear);
     void initialize_stats();
     void uninitialize_stats();
     void add_item(Item input);

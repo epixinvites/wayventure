@@ -42,7 +42,7 @@ void Player::initialize_gear(Item *gear){
         crit_dmg+=gear->crit_dmg;
     }
 }
-void Player::uninitialize_gear(Item *gear){
+void Player::uninitialize_gear(Item *&gear){
     if(gear!=nullptr){
         ori_hp-=gear->hp;
         cur_hp-=gear->hp;

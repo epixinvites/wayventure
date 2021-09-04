@@ -8,3 +8,4 @@ monster_stats create_monster(level Current, char type);
 bool return_chance(int chance);
 void generate_doors(std::vector<std::pair<int,int>> &doors, level Current);
 int generate_gold(char type);
+double rarity_value(char rarity);

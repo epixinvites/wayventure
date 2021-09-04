@@ -80,6 +80,20 @@ void calculate_damage(Player &User, monster_stats &monster){
         User.cur_hp-=(monster.attk-User.def);
     }
 }
+void process_gear(Player &User, Item *&processed_item){
+    if(processed_item!=nullptr){
+        processed_item->uses++;
+        processed_item->durability-=((101.0-processed_item->durability)/50.0);
+        if(processed_item->durability<=0.0){
+            processed_item->is_equipped = false;
+            User.uninitialize_gear(processed_item);
+            processed_item=nullptr;
+        }
+        else{
+            processed_item->reinitialize_item();
+        }
+    }
+}
 bool player_battle(WINDOW *main_win, WINDOW *status_win, Player &User, level Current, char monster_type){
     monster_stats monster=create_monster(Current, monster_type);
     while(true){
@@ -95,72 +109,12 @@ bool player_battle(WINDOW *main_win, WINDOW *status_win, Player &User, level Cur
         int ch=wgetch(main_win);
         if(ch=='1'){
             User.uninitialize_stats();
-            if(User.equip.weapon!=nullptr){
-                User.equip.weapon->uses++;
-                User.equip.weapon->durability-=((101.0-User.equip.weapon->durability)/50.0);
-                if(User.equip.weapon->durability<=0.0){
-                    User.equip.weapon->is_equipped = false;
-                    User.equip.weapon=nullptr;
-                }
-                else{
-                    User.equip.weapon->reinitialize_item();
-                }
-            }
-            if(User.equip.helmet!=nullptr){
-                User.equip.helmet->uses++;
-                User.equip.helmet->durability-=((101.0-User.equip.helmet->durability)/50.0);
-                if(User.equip.helmet->durability<=0.0){
-                    User.equip.helmet->is_equipped = false;
-                    User.equip.helmet=nullptr;
-                }
-                else{
-                    User.equip.helmet->reinitialize_item();
-                }
-            }
-            if(User.equip.chestplate!=nullptr){
-                User.equip.chestplate->uses++;
-                User.equip.chestplate->durability-=((101.0-User.equip.chestplate->durability)/50.0);
-                if(User.equip.chestplate->durability<=0.0){
-                    User.equip.chestplate->is_equipped = false;
-                    User.equip.chestplate=nullptr;
-                }
-                else{
-                    User.equip.chestplate->reinitialize_item();
-                }
-            }
-            if(User.equip.greaves!=nullptr){
-                User.equip.greaves->uses++;
-                User.equip.greaves->durability-=((101.0-User.equip.greaves->durability)/50.0);
-                if(User.equip.greaves->durability<=0.0){
-                    User.equip.greaves->is_equipped = false;
-                    User.equip.greaves=nullptr;
-                }
-                else{
-                    User.equip.greaves->reinitialize_item();
-                }
-            }
-            if(User.equip.boots!=nullptr){
-                User.equip.boots->uses++;
-                User.equip.boots->durability-=((101.0-User.equip.boots->durability)/50.0);
-                if(User.equip.boots->durability<=0.0){
-                    User.equip.boots->is_equipped = false;
-                    User.equip.boots=nullptr;
-                }
-                else{
-                    User.equip.boots->reinitialize_item();
-                }
-            }
-            if(User.equip.shield!=nullptr){
-                User.equip.shield->uses++;
-                User.equip.shield->durability-=((101.0-User.equip.shield->durability)/50.0);
-                if(User.equip.shield->durability<=0.0){
-                    User.equip.shield->is_equipped = false;
-                    User.equip.shield=nullptr;
-                }
-                else{
-                    User.equip.shield->reinitialize_item();
-                }
-            }
+            process_gear(User, User.equip.helmet);
+            process_gear(User, User.equip.chestplate);
+            process_gear(User, User.equip.greaves);
+            process_gear(User, User.equip.boots);
+            process_gear(User, User.equip.shield);
+            process_gear(User, User.equip.weapon);
             User.initialize_stats();
             calculate_damage(User, monster);
             if(User.cur_hp<=0){
@@ -177,7 +131,7 @@ bool player_battle(WINDOW *main_win, WINDOW *status_win, Player &User, level Cur
                 if(ch=='r'){
                     return true;
                 }
-                User.add_item(loot); // Problematic fucking pointers and memory
+                User.add_item(loot);
                 return true;
             }
         }
@@ -374,21 +328,21 @@ void end_program(int sig, std::string error){
 bool is_empty(std::ifstream& pFile){
     return pFile.peek() == std::ifstream::traits_type::eof();
 }
-void init_data(Player &User, level &Current, Csr &csr_pos, std::vector<monster> &monsters){
+void init_data(Player &User, level &Current, Csr &csr_pos, std::vector<monster> &monsters, NPC &npc){
     std::ifstream ifile("save/user.save",std::ios::binary);
     if(!is_empty(ifile)){
         cereal::PortableBinaryInputArchive retrieve(ifile);
-        retrieve(User,Current,csr_pos,monsters);
+        retrieve(User,Current,csr_pos,monsters,npc);
         // Insert data corruption checks
         std::filesystem::remove("save/user.save.1");
         std::filesystem::copy("save/user.save","save/user.save.1");
     }
 }
-void save_data(Player User, level Current, Csr csr_pos, std::vector<monster> monsters){
+void save_data(Player User, level Current, Csr csr_pos, std::vector<monster> monsters, NPC npc){
     std::ofstream ofile("save/user.save",std::ios::trunc|std::ios::binary);
     cereal::PortableBinaryOutputArchive archive(ofile);
     User.uninitialize_stats();
-    archive(User,Current,csr_pos,monsters);
+    archive(User,Current,csr_pos,monsters,npc);
 }
 void drop_items_on_death(Player &User){
     User.uninitialize_stats();
@@ -428,7 +382,7 @@ void init_dungeon(WINDOW *main_win, WINDOW *status_win, WINDOW *interaction_bar,
             if(attack_status.first&&!attack_status.second){ // If dead return to main menu
                 end_program(1);
                 drop_items_on_death(User);
-                save_data(User, Current, csr_pos, monsters);
+                save_data(User, Current, csr_pos, monsters, npc);
                 return;
             }
             if(attack_status.first&&attack_status.second){ // If win redraw dungeon and move on
@@ -467,7 +421,7 @@ void init_dungeon(WINDOW *main_win, WINDOW *status_win, WINDOW *interaction_bar,
             }
         }
         if(ch=='S'){
-            save_data(User, Current, csr_pos, monsters);
+            save_data(User, Current, csr_pos, monsters, npc);
             wclear(interaction_bar);
             mvwaddstr(interaction_bar,0,0,"Data saved successfully!");
             wrefresh(interaction_bar);
@@ -480,27 +434,27 @@ void init_dungeon(WINDOW *main_win, WINDOW *status_win, WINDOW *interaction_bar,
             ch=wgetch(main_win);
             if(ch=='y'){
                 end_program(0);
-                save_data(User, Current, csr_pos, monsters);
+                save_data(User, Current, csr_pos, monsters, npc);
                 return;
             }
         }
         if(User.saturation<=0){
             end_program(2);
             drop_items_on_death(User);
-            save_data(User, Current, csr_pos, monsters);
+            save_data(User, Current, csr_pos, monsters, npc);
             return;
         }
         if(User.hydration<=0){
             end_program(3);
             drop_items_on_death(User);
-            save_data(User, Current, csr_pos, monsters);
+            save_data(User, Current, csr_pos, monsters, npc);
             return;
         }
     }
 }
 void init(WINDOW *main_win, WINDOW *status_win, WINDOW *interaction_bar, Csr &csr_pos, Player &User, level &Current, NPC &npc){
     std::vector<monster> monsters;
-    init_data(User, Current, csr_pos, monsters);
+    init_data(User, Current, csr_pos, monsters, npc);
     User.init();
     std::ifstream ascii_wayfarer("res/wayfarer.txt");
     if(!ascii_wayfarer){
@@ -520,7 +474,7 @@ void init(WINDOW *main_win, WINDOW *status_win, WINDOW *interaction_bar, Csr &cs
     getchar();
     init_dungeon(main_win, status_win, interaction_bar, csr_pos, User, Current, monsters, npc);
 }
-int main(){
+int main(int argc, char *argv[]){
     initscr();
     cbreak();
     noecho();

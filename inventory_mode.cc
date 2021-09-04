@@ -5,6 +5,7 @@
 #include "headers/classes.h"
 #include "headers/mode.h"
 #include "headers/draw.h"
+#include "headers/generate.h"
 void clear_screen(WINDOW *main_win){
     wclear(main_win);
     wrefresh(main_win);
@@ -25,6 +26,16 @@ void draw_base(WINDOW *main_win, WINDOW *interaction_bar, int y, unsigned int si
     }
     wrefresh(interaction_bar);
     wrefresh(main_win);
+}
+void print_string_with_color(WINDOW *main_win, std::string ss, int color_pair, int line){
+    wattron(main_win, COLOR_PAIR(color_pair));
+    mvwaddstr(main_win, line, 0, ss.c_str());
+    wattroff(main_win, COLOR_PAIR(color_pair));
+}
+void print_string_with_color(WINDOW *main_win, std::string ss, int color_pair, int y, int x){
+    wattron(main_win, COLOR_PAIR(color_pair));
+    mvwaddstr(main_win, y, x, ss.c_str());
+    wattroff(main_win, COLOR_PAIR(color_pair));
 }
 void print_item(WINDOW *main_win, const Item *cur_item, int line){
     std::stringstream ss;
@@ -60,34 +71,22 @@ void print_item(WINDOW *main_win, const Item *cur_item, int line){
     }
     switch(cur_item->rarity){
         case 'c':
-            wattron(main_win, COLOR_PAIR(5));
-            mvwaddstr(main_win, line, 0, ss.str().c_str());
-            wattroff(main_win, COLOR_PAIR(5));
+            print_string_with_color(main_win, ss.str(), 5, line);
             break;
         case 'u':
-            wattron(main_win, COLOR_PAIR(6));
-            mvwaddstr(main_win, line, 0, ss.str().c_str());
-            wattroff(main_win, COLOR_PAIR(6));
+            print_string_with_color(main_win, ss.str(), 6, line);
             break;
         case 'r':
-            wattron(main_win, COLOR_PAIR(7));
-            mvwaddstr(main_win, line, 0, ss.str().c_str());
-            wattroff(main_win, COLOR_PAIR(7));
+            print_string_with_color(main_win, ss.str(), 7, line);
             break;
         case 'e':
-            wattron(main_win, COLOR_PAIR(8));
-            mvwaddstr(main_win, line, 0, ss.str().c_str());
-            wattroff(main_win, COLOR_PAIR(8));
+            print_string_with_color(main_win, ss.str(), 8, line);
             break;
         case 'l':
-            wattron(main_win, COLOR_PAIR(9));
-            mvwaddstr(main_win, line, 0, ss.str().c_str());
-            wattroff(main_win, COLOR_PAIR(9));
+            print_string_with_color(main_win, ss.str(), 9, line);
             break;
         case 'a':
-            wattron(main_win, COLOR_PAIR(10));
-            mvwaddstr(main_win, line, 0, ss.str().c_str());
-            wattroff(main_win, COLOR_PAIR(10));
+            print_string_with_color(main_win, ss.str(), 10, line);
             break;
         default:
             mvwaddstr(main_win, line, 0, "Error");
@@ -128,34 +127,22 @@ void print_bold_item(WINDOW *main_win, const Item *cur_item, int line){
     }
     switch(cur_item->rarity){
         case 'c':
-            wattron(main_win, COLOR_PAIR(15));
-            mvwaddstr(main_win, line, 0, ss.str().c_str());
-            wattroff(main_win, COLOR_PAIR(15));
+            print_string_with_color(main_win, ss.str(), 15, line);
             break;
         case 'u':
-            wattron(main_win, COLOR_PAIR(16));
-            mvwaddstr(main_win, line, 0, ss.str().c_str());
-            wattroff(main_win, COLOR_PAIR(16));
+            print_string_with_color(main_win, ss.str(), 16, line);
             break;
         case 'r':
-            wattron(main_win, COLOR_PAIR(17));
-            mvwaddstr(main_win, line, 0, ss.str().c_str());
-            wattroff(main_win, COLOR_PAIR(17));
+            print_string_with_color(main_win, ss.str(), 17, line);
             break;
         case 'e':
-            wattron(main_win, COLOR_PAIR(18));
-            mvwaddstr(main_win, line, 0, ss.str().c_str());
-            wattroff(main_win, COLOR_PAIR(18));
+            print_string_with_color(main_win, ss.str(), 18, line);
             break;
         case 'l':
-            wattron(main_win, COLOR_PAIR(19));
-            mvwaddstr(main_win, line, 0, ss.str().c_str());
-            wattroff(main_win, COLOR_PAIR(19));
+            print_string_with_color(main_win, ss.str(), 19, line);
             break;
         case 'a':
-            wattron(main_win, COLOR_PAIR(20));
-            mvwaddstr(main_win, line, 0, ss.str().c_str());
-            wattroff(main_win, COLOR_PAIR(20));
+            print_string_with_color(main_win, ss.str(), 20, line);
             break;
         default:
             mvwaddstr(main_win, line, 0, "Error");
@@ -165,42 +152,25 @@ void print_bold_item(WINDOW *main_win, const Item *cur_item, int line){
 void print_description(WINDOW *main_win, const Item *cur_item, int line){
     mvwaddstr(main_win, line, 0, "Name: ");
     mvwaddstr(main_win, line+1, 0, "Rarity: ");
+    mvwaddstr(main_win, line, 6, cur_item->name.c_str());
     switch(cur_item->rarity){
         case 'c':
-            mvwaddstr(main_win, line, 6, cur_item->name.c_str());
-            wattron(main_win, COLOR_PAIR(5));
-            mvwaddstr(main_win, line+1, 8, "Common");
-            wattroff(main_win, COLOR_PAIR(5));
+            print_string_with_color(main_win, "Common", 5, line+1, 8);
             break;
         case 'u':
-            mvwaddstr(main_win, line, 6, cur_item->name.c_str());
-            wattron(main_win, COLOR_PAIR(6));
-            mvwaddstr(main_win, line+1, 8, "Uncommon");
-            wattroff(main_win, COLOR_PAIR(6));
+            print_string_with_color(main_win, "Uncommon", 6, line+1, 8);
             break;
         case 'r':
-            mvwaddstr(main_win, line, 6, cur_item->name.c_str());
-            wattron(main_win, COLOR_PAIR(7));
-            mvwaddstr(main_win, line+1, 8, "Rare");
-            wattroff(main_win, COLOR_PAIR(7));
+            print_string_with_color(main_win, "Rare", 7, line+1, 8);
             break;
         case 'e':
-            mvwaddstr(main_win, line, 6, cur_item->name.c_str());
-            wattron(main_win, COLOR_PAIR(8));
-            mvwaddstr(main_win, line+1, 8, "Epic");
-            wattroff(main_win, COLOR_PAIR(8));
+            print_string_with_color(main_win, "Epic", 8, line+1, 8);
             break;
         case 'l':
-            mvwaddstr(main_win, line, 6, cur_item->name.c_str());
-            wattron(main_win, COLOR_PAIR(9));
-            mvwaddstr(main_win, line+1, 8, "Legendary");
-            wattroff(main_win, COLOR_PAIR(9));
+            print_string_with_color(main_win, "Legendary", 9, line+1, 8);
             break;
         case 'a':
-            mvwaddstr(main_win, line, 6, cur_item->name.c_str());
-            wattron(main_win, COLOR_PAIR(10));
-            mvwaddstr(main_win, line+1, 8, "Artifact");
-            wattroff(main_win, COLOR_PAIR(10));
+            print_string_with_color(main_win, "Artifact", 10, line+1, 8);
             break;
         default:
             mvwaddstr(main_win, line, 0, "-Error-");
@@ -376,85 +346,92 @@ void unequip_item(Player &User, unsigned int csr_pos, unsigned int page_num){
         User.equip.weapon=nullptr;
     }
 }
-void inventory_mode(WINDOW *main_win, WINDOW *status_win, WINDOW *interaction_bar, Player &User){
-    clear_screen(main_win, interaction_bar);
-    unsigned int page_num=0;
-    unsigned int csr_pos=0;
+void draw_inventory(WINDOW *main_win, WINDOW *interaction_bar, WINDOW *status_win, const Player &User, unsigned int page_num, unsigned int csr_pos){
+    clear_screen(main_win);
+    draw_base(main_win, interaction_bar, 34, User.inv.item.size(), page_num);
+    draw_stats(status_win, User);
     for(int i=page_num*30, iterator=0; i<User.inv.item.size()&&iterator<30; i++, iterator++){
         print_item(main_win, &User.inv.item[i], iterator);
     }
+    print_description(main_win, &User.inv.item[page_num*30+csr_pos], 35);
+    print_bold_item(main_win, &User.inv.item[page_num*30+csr_pos], csr_pos);
     wrefresh(main_win);
-    draw_base(main_win, interaction_bar, 34, User.inv.item.size(), page_num);
-    print_bold_item(main_win, &User.inv.item[page_num*30], 0);
-    print_description(main_win, &User.inv.item[page_num*30], 35);
+    wrefresh(interaction_bar);
+}
+std::string get_string(WINDOW *main_win, WINDOW *interaction_bar, std::string original){
+    std::string input;
+    wclear(interaction_bar);
+    mvwaddstr(interaction_bar,0,0,"Rename item to: ");
+    wrefresh(interaction_bar);
+    curs_set(1);
+    char ch;
+    while(true){
+        ch=wgetch(main_win);
+        if(ch==10){ // KEY_ENTER
+            curs_set(0);
+            return input;
+        }
+        if(ch==7){ // KEY_BACKSPACE
+            if(input.length()>0){
+                input.pop_back();
+            }
+        }
+        if(ch==27){ // KEY_ESC
+            return original;
+        }
+        else if(input.length()<30){
+            input.push_back(ch);
+        }
+        std::stringstream ss;
+        ss<<"Rename item to: "<<input;
+        wclear(interaction_bar);
+        mvwaddstr(interaction_bar,0,0,ss.str().c_str());
+        wrefresh(interaction_bar);
+    }
+}
+void inventory_mode(WINDOW *main_win, WINDOW *status_win, WINDOW *interaction_bar, Player &User){
+    unsigned int page_num=0;
+    unsigned int csr_pos=0;
+    draw_inventory(main_win, interaction_bar, status_win, User, page_num, csr_pos);
     while(true){
         int ch=wgetch(main_win);
         if((ch=='s'||ch==KEY_DOWN)&&((csr_pos+page_num*30)<User.inv.item.size()-1&&csr_pos<29)){
             csr_pos++;
-            clear_screen(main_win);
-            draw_base(main_win, interaction_bar, 34, User.inv.item.size(), page_num);
-            for(int i=page_num*30, iterator=0; i<User.inv.item.size()&&iterator<30; i++, iterator++){
-                print_item(main_win, &User.inv.item[i], iterator);
-            }
-            print_description(main_win, &User.inv.item[page_num*30+csr_pos], 35);
-            print_bold_item(main_win, &User.inv.item[page_num*30+csr_pos], csr_pos);
-
+            draw_inventory(main_win, interaction_bar, status_win, User, page_num, csr_pos);
         }
         if((ch=='w'||ch==KEY_UP)&&csr_pos>0){
             csr_pos--;
-            clear_screen(main_win);
-            draw_base(main_win, interaction_bar, 34, User.inv.item.size(), page_num);
-            for(int i=page_num*30, iterator=0; i<User.inv.item.size()&&iterator<30; i++, iterator++){
-                print_item(main_win, &User.inv.item[i], iterator);
-            }
-            print_description(main_win, &User.inv.item[page_num*30+csr_pos], 35);
-            print_bold_item(main_win, &User.inv.item[page_num*30+csr_pos], csr_pos);
-
+            draw_inventory(main_win, interaction_bar, status_win, User, page_num, csr_pos);
         }
         if(ch=='a'||ch==KEY_LEFT){
             if(page_num>0){
                 page_num--;
                 csr_pos=0;
-                clear_screen(main_win);
-                draw_base(main_win, interaction_bar, 34, User.inv.item.size(), page_num);
-                for(int i=page_num*30, iterator=0; i<User.inv.item.size()&&iterator<30; i++, iterator++){
-                    print_item(main_win, &User.inv.item[i], iterator);
-                }
-                print_description(main_win, &User.inv.item[page_num*30], 35);
-                print_bold_item(main_win, &User.inv.item[page_num*30], 0);
+                draw_inventory(main_win, interaction_bar, status_win, User, page_num, csr_pos);
             }
         }
         if(ch=='d'||ch==KEY_RIGHT){
             if((page_num+1)*30<User.inv.item.size()){
                 page_num++;
                 csr_pos=0;
-                clear_screen(main_win);
-                draw_base(main_win, interaction_bar, 34, User.inv.item.size(), page_num);
-                for(int i=page_num*30, iterator=0; i<User.inv.item.size()&&iterator<30; i++, iterator++){
-                    print_item(main_win, &User.inv.item[i], iterator);
-                }
-                print_description(main_win, &User.inv.item[page_num*30], 35);
-                print_bold_item(main_win, &User.inv.item[page_num*30], 0);
-                wrefresh(main_win);
+                draw_inventory(main_win, interaction_bar, status_win, User, page_num, csr_pos);
             }
         }
         if(ch=='e'){
-            if(!User.inv.item[csr_pos+(page_num*30)].is_equipped){ // if there current item is unequipped
+            if(!User.inv.item[csr_pos+(page_num*30)].is_equipped&&User.inv.item[csr_pos+(page_num*30)].durability>0){ // if there current item is unequipped
                 equip_item(User, csr_pos, page_num);
             }
             else if(User.inv.item[csr_pos+(page_num*30)].is_equipped){
                 unequip_item(User, csr_pos, page_num);
             }
-            clear_screen(main_win);
-            draw_stats(status_win, User);
-            draw_base(main_win, interaction_bar, 34, User.inv.item.size(), page_num);
-            for(int i=page_num*30, iterator=0; i<User.inv.item.size()&&iterator<30; i++, iterator++){
-                print_item(main_win, &User.inv.item[i], iterator);
-            }
-            print_description(main_win, &User.inv.item[page_num*30+csr_pos], 35);
-            print_bold_item(main_win, &User.inv.item[page_num*30+csr_pos], csr_pos);
+            draw_inventory(main_win, interaction_bar, status_win, User, page_num, csr_pos);
         }
         if(ch=='r'){
+            std::string input = get_string(main_win, interaction_bar, User.inv.item[csr_pos+(page_num*30)].name);
+            User.inv.item[csr_pos+(page_num*30)].name = input;
+            draw_inventory(main_win, interaction_bar, status_win, User, page_num, csr_pos);
+        }
+        if(ch=='R'){
             wclear(interaction_bar);
             mvwaddstr(interaction_bar, 0, 0, "[System] Are you sure you want to delete this item? Press y to continue, any other key to cancel.");
             wrefresh(interaction_bar);
@@ -467,14 +444,7 @@ void inventory_mode(WINDOW *main_win, WINDOW *status_win, WINDOW *interaction_ba
                     return;
                 }
             }
-            clear_screen(main_win);
-            draw_stats(status_win, User);
-            draw_base(main_win, interaction_bar, 34, User.inv.item.size(), page_num);
-            for(int i=page_num*30, iterator=0; i<User.inv.item.size()&&iterator<30; i++, iterator++){
-                print_item(main_win, &User.inv.item[i], iterator);
-            }
-            print_description(main_win, &User.inv.item[page_num*30+csr_pos], 35);
-            print_bold_item(main_win, &User.inv.item[page_num*30+csr_pos], csr_pos);
+            draw_inventory(main_win, interaction_bar, status_win, User, page_num, csr_pos);
         }
         if(ch=='q'){
             return;
@@ -482,71 +452,70 @@ void inventory_mode(WINDOW *main_win, WINDOW *status_win, WINDOW *interaction_ba
     }
 }
 void reforge_repair_mode(WINDOW *main_win, WINDOW *status_win, WINDOW *interaction_bar, Player &User){
-    clear_screen(main_win, interaction_bar);
     unsigned int page_num=0;
     unsigned int csr_pos=0;
-    for(int i=page_num*30, iterator=0; i<User.inv.item.size()&&iterator<30; i++, iterator++){
-        print_item(main_win, &User.inv.item[i], iterator);
-    }
-    wrefresh(main_win);
-    draw_base(main_win, interaction_bar, 34, User.inv.item.size(), page_num);
-    print_bold_item(main_win, &User.inv.item[page_num*30], 0);
-    print_description(main_win, &User.inv.item[page_num*30], 35);
+    draw_inventory(main_win, interaction_bar, status_win, User, page_num, csr_pos);
     while(true){
         int ch=wgetch(main_win);
         if((ch=='s'||ch==KEY_DOWN)&&((csr_pos+page_num*30)<User.inv.item.size()-1&&csr_pos<29)){
             csr_pos++;
-            clear_screen(main_win);
-            draw_base(main_win, interaction_bar, 34, User.inv.item.size(), page_num);
-            for(int i=page_num*30, iterator=0; i<User.inv.item.size()&&iterator<30; i++, iterator++){
-                print_item(main_win, &User.inv.item[i], iterator);
-            }
-            print_description(main_win, &User.inv.item[page_num*30+csr_pos], 35);
-            print_bold_item(main_win, &User.inv.item[page_num*30+csr_pos], csr_pos);
-
+            draw_inventory(main_win, interaction_bar, status_win, User, page_num, csr_pos);
         }
         if((ch=='w'||ch==KEY_UP)&&csr_pos>0){
             csr_pos--;
-            clear_screen(main_win);
-            draw_base(main_win, interaction_bar, 34, User.inv.item.size(), page_num);
-            for(int i=page_num*30, iterator=0; i<User.inv.item.size()&&iterator<30; i++, iterator++){
-                print_item(main_win, &User.inv.item[i], iterator);
-            }
-            print_description(main_win, &User.inv.item[page_num*30+csr_pos], 35);
-            print_bold_item(main_win, &User.inv.item[page_num*30+csr_pos], csr_pos);
-
+            draw_inventory(main_win, interaction_bar, status_win, User, page_num, csr_pos);
         }
         if(ch=='a'||ch==KEY_LEFT){
             if(page_num>0){
                 page_num--;
                 csr_pos=0;
-                clear_screen(main_win);
-                draw_base(main_win, interaction_bar, 34, User.inv.item.size(), page_num);
-                for(int i=page_num*30, iterator=0; i<User.inv.item.size()&&iterator<30; i++, iterator++){
-                    print_item(main_win, &User.inv.item[i], iterator);
-                }
-                print_description(main_win, &User.inv.item[page_num*30], 35);
-                print_bold_item(main_win, &User.inv.item[page_num*30], 0);
+                draw_inventory(main_win, interaction_bar, status_win, User, page_num, csr_pos);
             }
         }
         if(ch=='d'||ch==KEY_RIGHT){
             if((page_num+1)*30<User.inv.item.size()){
                 page_num++;
                 csr_pos=0;
-                clear_screen(main_win);
-                draw_base(main_win, interaction_bar, 34, User.inv.item.size(), page_num);
-                for(int i=page_num*30, iterator=0; i<User.inv.item.size()&&iterator<30; i++, iterator++){
-                    print_item(main_win, &User.inv.item[i], iterator);
-                }
-                print_description(main_win, &User.inv.item[page_num*30], 35);
-                print_bold_item(main_win, &User.inv.item[page_num*30], 0);
+                draw_inventory(main_win, interaction_bar, status_win, User, page_num, csr_pos);
                 wrefresh(main_win);
             }
         }
         if(ch=='r'){
             wclear(interaction_bar);
-            std::stringstream ss;
-            // ss<<"Attempt repair? Cost:"<<csr_pos+(page_num*30)
+            if(User.inv.item[csr_pos+(page_num*30)].durability<100.0){
+                const unsigned int cost = (100.0-User.inv.item[csr_pos+(page_num*30)].durability)*rarity_value(User.inv.item[csr_pos+(page_num*30)].rarity)*15;
+                std::stringstream ss;
+                ss<<"[System] Attempt repair? Cost: "<<cost<< " [y/n]";
+                mvwaddstr(interaction_bar,0,0,ss.str().c_str());
+                wrefresh(interaction_bar);
+                ch=wgetch(main_win);
+                if(ch=='y'){
+                    if(User.gold>=cost){
+                        User.gold-=cost;
+                        draw_stats(status_win, User);
+                        if(return_chance(User.inv.item[csr_pos+(page_num*30)].durability)){
+                            User.inv.item[csr_pos+(page_num*30)].durability=100.0;
+                            draw_inventory(main_win, interaction_bar, status_win, User, page_num, csr_pos);
+                            wclear(interaction_bar);
+                            mvwaddstr(interaction_bar,0,0,"[System] Success: Item Repaired.");
+                            wrefresh(interaction_bar);
+                        }
+                        else{
+                            wclear(interaction_bar);
+                            mvwaddstr(interaction_bar,0,0,"[System] Error: Repair failed.");
+                            wrefresh(interaction_bar);
+                        }
+                    }
+                    else{
+                        wclear(interaction_bar);
+                        mvwaddstr(interaction_bar,0,0,"[System] Error: Insufficient gold");
+                        wrefresh(interaction_bar);
+                    }
+                }
+                else{
+                    draw_inventory(main_win, interaction_bar, status_win, User, page_num, csr_pos);
+                }
+            }
         }
         if(ch=='f'){
             wclear(interaction_bar);
