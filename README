@@ -12,6 +12,6 @@ Dependencies: g++, make and libncurses
 Build instructions: make
 Run ./project-cosmos to start playing
 
-Press 'Shift+h' to learn about the keybindings, if you're curious about how this game works, good luck reading through my spaghetti. (Shift-h doesn't work just yet) 
+Press 'Shift+h' to learn about the keybindings, if you're curious about how this game works, good luck reading through my spaghetti.
 
 *yes I don't fancy Markdown
