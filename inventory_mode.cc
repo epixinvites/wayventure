@@ -2,6 +2,7 @@
 #include <iostream>
 #include <sstream>
 #include <vector>
+#include <string>
 #include "headers/classes.h"
 #include "headers/mode.h"
 #include "headers/draw.h"
@@ -214,56 +215,38 @@ void print_description(WINDOW *main_win, const Item *cur_item, int line){
     }
     line++;
     std::stringstream ss;
-    ss<<"Durability: "<<cur_item->durability<<"%";
-    mvwaddstr(main_win,line,0,ss.str().c_str());
-    ss.str(std::string());
+    mvwaddstr(main_win,line,0,("Durability: "+std::to_string(cur_item->durability)+"%").c_str());
     line++;
     if(cur_item->uses>0){
-        ss<<"Uses: "<<cur_item->uses;
-        mvwaddstr(main_win, line, 0, ss.str().c_str());
-        ss.str(std::string());
+        mvwaddstr(main_win, line, 0, ("Uses: "+std::to_string(cur_item->uses)).c_str());
         line++;
     }
     if(cur_item->calibration>0){
-        ss<<"Calibration Level: "<<cur_item->calibration;
-        mvwaddstr(main_win, line, 0, ss.str().c_str());
-        ss.str(std::string());
+        mvwaddstr(main_win, line, 0, ("Calibration Level: "+std::to_string(cur_item->calibration)).c_str());
         line++;
     }
     if(cur_item->hp>0){
-        ss<<"Health: "<<cur_item->hp;
-        mvwaddstr(main_win, line, 0, ss.str().c_str());
-        ss.str(std::string());
+        mvwaddstr(main_win, line, 0, ("Health: "+std::to_string(cur_item->hp)).c_str());
         line++;
     }
     if(cur_item->attk>0){
-        ss<<"Damage: "<<cur_item->attk;
-        mvwaddstr(main_win, line, 0, ss.str().c_str());
-        ss.str(std::string());
+        mvwaddstr(main_win, line, 0, ("Damage: "+std::to_string(cur_item->attk)).c_str());
         line++;
     }
     if(cur_item->def>0){
-        ss<<"Defence: "<<cur_item->def;
-        mvwaddstr(main_win, line, 0, ss.str().c_str());
-        ss.str(std::string());
+        mvwaddstr(main_win, line, 0, ("Defence: "+std::to_string(cur_item->def)).c_str());
         line++;
     }
     if(cur_item->shield>0){
-        ss<<"Shield: "<<cur_item->shield;
-        mvwaddstr(main_win, line, 0, ss.str().c_str());
-        ss.str(std::string());
+        mvwaddstr(main_win, line, 0, ("Shield: "+std::to_string(cur_item->shield)).c_str());
         line++;
     }
     if(cur_item->crit_chance>0){
-        ss<<"Critical Chance: "<<cur_item->crit_chance<<"%";
-        mvwaddstr(main_win, line, 0, ss.str().c_str());
-        ss.str(std::string());
+        mvwaddstr(main_win, line, 0, ("Critical Chance: "+std::to_string(cur_item->crit_chance)+"%").c_str());
         line++;
     }
     if(cur_item->crit_dmg>0){
-        ss<<"Critical Damage: "<<cur_item->crit_dmg<<"%";
-        mvwaddstr(main_win, line, 0, ss.str().c_str());
-        ss.str(std::string());
+        mvwaddstr(main_win, line, 0, ("Critical Damage: "+std::to_string(cur_item->crit_dmg)+"%").c_str());
         line++;
     }
     wrefresh(main_win);
@@ -320,30 +303,35 @@ void equip_item(Player &User, unsigned int csr_pos, unsigned int page_num){
     }
 }
 void unequip_item(Player &User, unsigned int csr_pos, unsigned int page_num){
-    User.inv.item[csr_pos+(page_num*30)].is_equipped=false;
     if(User.inv.item[csr_pos+(page_num*30)].type=='h'&&User.cur_hp>User.inv.item[csr_pos+(page_num*30)].hp){
         User.uninitialize_gear(User.equip.helmet);
         User.equip.helmet=nullptr;
+        User.inv.item[csr_pos+(page_num*30)].is_equipped=false;
     }
     if(User.inv.item[csr_pos+(page_num*30)].type=='c'&&User.cur_hp>User.inv.item[csr_pos+(page_num*30)].hp){
         User.uninitialize_gear(User.equip.chestplate);
         User.equip.chestplate=nullptr;
+        User.inv.item[csr_pos+(page_num*30)].is_equipped=false;
     }
     if(User.inv.item[csr_pos+(page_num*30)].type=='g'){
         User.uninitialize_gear(User.equip.greaves);
         User.equip.greaves=nullptr;
+        User.inv.item[csr_pos+(page_num*30)].is_equipped=false;
     }
     if(User.inv.item[csr_pos+(page_num*30)].type=='b'){
         User.uninitialize_gear(User.equip.boots);
         User.equip.boots=nullptr;
+        User.inv.item[csr_pos+(page_num*30)].is_equipped=false;
     }
     if(User.inv.item[csr_pos+(page_num*30)].type=='s'){
         User.uninitialize_gear(User.equip.shield);
         User.equip.shield=nullptr;
+        User.inv.item[csr_pos+(page_num*30)].is_equipped=false;
     }
     if(User.inv.item[csr_pos+(page_num*30)].type=='w'){
         User.uninitialize_gear(User.equip.weapon);
         User.equip.weapon=nullptr;
+        User.inv.item[csr_pos+(page_num*30)].is_equipped=false;
     }
 }
 void draw_inventory(WINDOW *main_win, WINDOW *interaction_bar, WINDOW *status_win, const Player &User, unsigned int page_num, unsigned int csr_pos){
@@ -389,6 +377,101 @@ std::string get_string(WINDOW *main_win, WINDOW *interaction_bar, std::string or
         wrefresh(interaction_bar);
     }
 }
+void print_misc_bold(WINDOW *main_win, Player &User, unsigned int csr_pos){
+    switch (csr_pos){
+        case 0:
+            print_string_with_color(main_win, "Ancient Cores: "+std::to_string(User.inv.misc.ancient_core), 20, 0);
+            break;
+        case 1:
+            print_string_with_color(main_win, "Crystallium: "+std::to_string(User.inv.misc.crystallium), 19, 1);
+            break;
+        case 4:
+            print_string_with_color(main_win, "Common: "+std::to_string(User.inv.misc.materials.common), 15, 4);
+            break;
+        case 5:
+            print_string_with_color(main_win, "Uncommon: "+std::to_string(User.inv.misc.materials.uncommon), 16, 5);
+            break;
+        case 6:
+            print_string_with_color(main_win, "Rare: "+std::to_string(User.inv.misc.materials.rare), 17, 6);
+            break;
+        case 7:
+            print_string_with_color(main_win, "Epic: "+std::to_string(User.inv.misc.materials.epic), 18, 7);
+            break;
+        case 8:
+            print_string_with_color(main_win, "Legendary: "+std::to_string(User.inv.misc.materials.legendary), 19, 8);
+            break;
+        case 9:
+            print_string_with_color(main_win, "Artifact: "+std::to_string(User.inv.misc.materials.artifact), 20, 9);
+            break;
+        case 12:
+            print_string_with_color(main_win, ("Helmet: "+std::to_string(User.inv.misc.blueprint.helmet)).c_str(), 15, 12);
+            break;
+        case 13:
+            print_string_with_color(main_win, ("Chestplate: "+std::to_string(User.inv.misc.blueprint.chestplate)).c_str(), 15, 13);
+            break;
+        case 14:
+            print_string_with_color(main_win, ("Greaves: "+std::to_string(User.inv.misc.blueprint.greaves)).c_str(), 15, 14);
+            break;
+        case 15:
+            print_string_with_color(main_win, ("Boots: "+std::to_string(User.inv.misc.blueprint.boots)).c_str(), 15, 15);
+            break;
+        case 16:
+            print_string_with_color(main_win, ("Shield: "+std::to_string(User.inv.misc.blueprint.shield)).c_str(), 15, 16);
+            break;
+        case 17:
+            print_string_with_color(main_win, ("Weapon: "+std::to_string(User.inv.misc.blueprint.weapon)).c_str(), 15, 17);
+            break;
+        default:
+            print_string_with_color(main_win, "Invalid cursor position", 10, csr_pos);
+    }
+}
+void print_misc_item(WINDOW *main_win, Player &User, unsigned int csr_pos){
+    wclear(main_win);
+    print_string_with_color(main_win, "Ancient Cores: "+std::to_string(User.inv.misc.ancient_core), 10, 0);
+    print_string_with_color(main_win, "Crystallium: "+std::to_string(User.inv.misc.crystallium), 9, 1);
+    mvwaddstr(main_win,3,0,"Materials:");
+    print_string_with_color(main_win, "Common: "+std::to_string(User.inv.misc.materials.common), 5, 4);
+    print_string_with_color(main_win, "Uncommon: "+std::to_string(User.inv.misc.materials.uncommon), 6, 5);
+    print_string_with_color(main_win, "Rare: "+std::to_string(User.inv.misc.materials.rare), 7, 6);
+    print_string_with_color(main_win, "Epic: "+std::to_string(User.inv.misc.materials.epic), 8, 7);
+    print_string_with_color(main_win, "Legendary: "+std::to_string(User.inv.misc.materials.legendary), 9, 8);
+    print_string_with_color(main_win, "Artifact: "+std::to_string(User.inv.misc.materials.artifact), 10, 9);
+    mvwaddstr(main_win,11,0,"Blueprints:");
+    mvwaddstr(main_win,12,0,("Helmet: "+std::to_string(User.inv.misc.blueprint.helmet)).c_str());
+    mvwaddstr(main_win,13,0,("Chestplate: "+std::to_string(User.inv.misc.blueprint.chestplate)).c_str());
+    mvwaddstr(main_win,14,0,("Greaves: "+std::to_string(User.inv.misc.blueprint.greaves)).c_str());
+    mvwaddstr(main_win,15,0,("Boots: "+std::to_string(User.inv.misc.blueprint.boots)).c_str());
+    mvwaddstr(main_win,16,0,("Shield: "+std::to_string(User.inv.misc.blueprint.shield)).c_str());
+    mvwaddstr(main_win,17,0,("Weapon: "+std::to_string(User.inv.misc.blueprint.weapon)).c_str());
+    print_misc_bold(main_win, User, csr_pos);
+    wrefresh(main_win);
+}
+void show_misc_items(WINDOW *main_win, Player &User){
+    unsigned int csr_pos = 0;
+    while(true){
+        print_misc_item(main_win, User,csr_pos);
+        int ch=wgetch(main_win);
+        if((ch==KEY_DOWN||ch=='s')&&csr_pos<17){
+            if(csr_pos==1||csr_pos==9){
+                csr_pos+=3;
+            }
+            else{
+                csr_pos++;
+            }
+        }
+        if((ch==KEY_UP||ch=='w')&&csr_pos>0){
+            if(csr_pos==4||csr_pos==12){
+                csr_pos-=3;
+            }
+            else{
+                csr_pos--;
+            }
+        }
+        if(ch=='q'){
+            return;
+        }
+    }
+}
 void inventory_mode(WINDOW *main_win, WINDOW *status_win, WINDOW *interaction_bar, Player &User){
     unsigned int page_num=0;
     unsigned int csr_pos=0;
@@ -429,6 +512,10 @@ void inventory_mode(WINDOW *main_win, WINDOW *status_win, WINDOW *interaction_ba
         if(ch=='r'){
             std::string input = get_string(main_win, interaction_bar, User.inv.item[csr_pos+(page_num*30)].name);
             User.inv.item[csr_pos+(page_num*30)].name = input;
+            draw_inventory(main_win, interaction_bar, status_win, User, page_num, csr_pos);
+        }
+        if(ch=='m'){
+            show_misc_items(main_win, User);
             draw_inventory(main_win, interaction_bar, status_win, User, page_num, csr_pos);
         }
         if(ch=='R'){
@@ -479,6 +566,9 @@ void reforge_repair_mode(WINDOW *main_win, WINDOW *status_win, WINDOW *interacti
                 draw_inventory(main_win, interaction_bar, status_win, User, page_num, csr_pos);
                 wrefresh(main_win);
             }
+        }
+        if(ch=='e'){
+            show_misc_items(main_win, User);
         }
         if(ch=='r'){
             wclear(interaction_bar);
