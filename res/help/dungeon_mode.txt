@@ -1,0 +1,17 @@
+'w', 'a', 's', 'd' to move around
+'z' to interact with doors
+'x' to attack enemies / interact with NPCs
+'c' to interact with staircases ('>' and '<')
+'r' to redraw the entire screen, in case you messed something up
+'i' to invoke your backpack (accessible when you have obtained your first item)
+'e' to choose whether to eat or to drink
+'.' to rest at the expense of your saturation
+'S' to save your data (data will still be automatically saved on quit)
+'q' to exit the game
+
+Characters you see on screen:
+'@' are either you or NPCs (which are interactable using 'x')
+    NOTE: There are some NPCs in the Pub where I haven't programmed yet
+'x' are normal enemies, they get tougher as you venture deeper into the dungeon
+'X' are room bosses, level bosses or final bosses
+    I do not recommend you fighting them without good gear

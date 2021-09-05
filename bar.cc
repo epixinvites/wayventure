@@ -428,6 +428,7 @@ void bar_mode(WINDOW *main_win, WINDOW *status_win, WINDOW *interaction_bar, Pla
             }
             else if(target=='T'){
                 // Bank & Chest
+                // show_misc_items()
             }
             else if(target=='S'){
                 if(!User.inv.item.empty()){

@@ -127,46 +127,46 @@ Item generate_loot(char loot_rarity){
     int hp=0, attk=0, def=0, shield=0, crit_chance=0, crit_dmg=0;
     if(loot_type=='c'){ // chestplate
         hp=(100+deviation(generator))*rarity_value(loot_rarity);
-        if(bonus_stats(generator)<=20*rarity_bonus(loot_rarity)){
+        if(bonus_stats(generator)<=5*rarity_bonus(loot_rarity)){
             def=15*rarity_value(loot_rarity);
         }
-        if(bonus_stats(generator)<=5*rarity_bonus(loot_rarity)){
+        if(bonus_stats(generator)<=1*rarity_bonus(loot_rarity)){
             crit_dmg=2*rarity_value(loot_rarity);
         }
     }
     if(loot_type=='h'){ // helmet
         hp=(40+deviation(generator))*rarity_value(loot_rarity);
-        if(bonus_stats(generator)<=(30*rarity_bonus(loot_rarity))){
+        if(bonus_stats(generator)<=(6*rarity_bonus(loot_rarity))){
             def=5*rarity_value(loot_rarity);
         }
-        if(bonus_stats(generator)<=(10*rarity_bonus(loot_rarity))){
+        if(bonus_stats(generator)<=(3*rarity_bonus(loot_rarity))){
             shield=20*rarity_value(loot_rarity);
         }
     }
     if(loot_type=='g'){ // greaves
         def=(50+deviation(generator))*rarity_value(loot_rarity);
-        if(bonus_stats(generator)<=(30*rarity_bonus(loot_rarity))){
+        if(bonus_stats(generator)<=(5*rarity_bonus(loot_rarity))){
             shield=15*rarity_value(loot_rarity);
         }
     }
     if(loot_type=='b'){ // boots
         def=(30+deviation(generator))*rarity_value(loot_rarity);
-        if(bonus_stats(generator)<=(50*rarity_bonus(loot_rarity))){
+        if(bonus_stats(generator)<=(10*rarity_bonus(loot_rarity))){
             crit_chance=5*rarity_value(loot_rarity);
         }
     }
     if(loot_type=='w'){ // weapon
         attk=(200+deviation(generator))*rarity_value(loot_rarity);
-        if(bonus_stats(generator)<=(25*rarity_bonus(loot_rarity))){
+        if(bonus_stats(generator)<=(5*rarity_bonus(loot_rarity))){
             crit_dmg=10*rarity_value(loot_rarity);
         }
-        if(bonus_stats(generator)<=(15*rarity_bonus(loot_rarity))){
+        if(bonus_stats(generator)<=(5*rarity_bonus(loot_rarity))){
             crit_chance=5*rarity_value(loot_rarity);
         }
     }
     if(loot_type=='s'){ // shield
         shield=(100+deviation(generator))*rarity_value(loot_rarity);
-        if(bonus_stats(generator)<=(50*rarity_bonus(loot_rarity))){
+        if(bonus_stats(generator)<=(10*rarity_bonus(loot_rarity))){
             def=20*rarity_value(loot_rarity);
         }
     }

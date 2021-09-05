@@ -66,19 +66,35 @@ void char_move(WINDOW *main_win, int ch, Csr &csr_pos, std::vector<monster> mons
         wrefresh(main_win);
     }
 }
-void calculate_damage(Player &User, monster_stats &monster){
+std::pair<std::string,std::string> calculate_damage(Player &User, monster_stats &monster){
+    std::stringstream first, second;
     if(User.crit_chance>0&&return_chance(User.crit_chance)){ // Calculate damage that enemy takes
         monster.hp=monster.hp-(User.attk*(1+(User.crit_dmg/100.0)));
+        first<<"Critical Hit: "<<"You dealt "<<User.attk*(1+(User.crit_dmg/100.0))<<" damage";
     }
     else{
         monster.hp=monster.hp-(User.attk-monster.def);
+        first<<"You dealt "<<User.attk-monster.def<<" damage";
     }
-    if(User.def>=monster.attk){
-        return;
+    if(User.def<monster.attk){ // Calculate damage I take
+        if(User.cur_shield>monster.attk){
+            User.cur_shield-=monster.attk;
+            second<<"You blocked "<<monster.attk<<" damage";
+        }
+        else if(User.cur_shield<monster.attk&&User.cur_shield>0){
+            User.cur_hp-=(monster.attk-User.cur_shield);
+            second<<"You received "<<monster.attk-User.cur_shield<<" damage";
+            User.cur_shield = 0;
+        }
+        else{
+            User.cur_hp-=(monster.attk-User.def);
+            second<<"You received "<<monster.attk-User.def<<" damage";
+        }
     }
     else{
-        User.cur_hp-=(monster.attk-User.def);
+        second<<"You received no damage";
     }
+    return {first.str(),second.str()};
 }
 void process_gear(Player &User, Item *&processed_item){
     if(processed_item!=nullptr){
@@ -96,6 +112,7 @@ void process_gear(Player &User, Item *&processed_item){
 }
 bool player_battle(WINDOW *main_win, WINDOW *status_win, Player &User, level Current, char monster_type){
     monster_stats monster=create_monster(Current, monster_type);
+    std::pair<std::string,std::string> log;
     while(true){
         wclear(main_win);
         draw_border(main_win);
@@ -106,6 +123,8 @@ bool player_battle(WINDOW *main_win, WINDOW *status_win, Player &User, level Cur
         enemy_output<<"Enemy~ HP:"<<monster.hp<<" Attk:"<<monster.attk<<" Def:"<<monster.def;
         mvwaddstr(main_win, 48, 1, user_output.str().c_str());
         mvwaddstr(main_win, 1, 1, enemy_output.str().c_str());
+        mvwaddstr(main_win,24,10,log.first.c_str());
+        mvwaddstr(main_win,25,10,log.second.c_str());
         int ch=wgetch(main_win);
         if(ch=='1'){
             User.uninitialize_stats();
@@ -116,7 +135,7 @@ bool player_battle(WINDOW *main_win, WINDOW *status_win, Player &User, level Cur
             process_gear(User, User.equip.shield);
             process_gear(User, User.equip.weapon);
             User.initialize_stats();
-            calculate_damage(User, monster);
+            log=calculate_damage(User, monster);
             if(User.cur_hp<=0){
                 return false;
             }
@@ -136,21 +155,6 @@ bool player_battle(WINDOW *main_win, WINDOW *status_win, Player &User, level Cur
             }
         }
         if(ch=='2'){
-            User.cur_shield=User.ori_shield;
-            if(User.def>=monster.attk){
-                continue;
-            }
-            if(User.cur_shield>0){ // Calculate damage that player takes
-                if(User.cur_shield>=monster.attk){
-                    User.cur_shield-=monster.attk;
-                }
-                else{
-                    User.cur_hp=User.cur_hp-(monster.attk-User.def-User.cur_shield);
-                    User.cur_shield=0;
-                }
-            }
-        }
-        if(ch=='3'){
             if(User.inv.heal_amount>0&&User.cur_hp!=User.ori_hp){
                 User.inv.heal_amount--;
                 User.cur_hp=User.ori_hp;
@@ -344,18 +348,10 @@ void save_data(Player User, level Current, Csr csr_pos, std::vector<monster> mon
     User.uninitialize_stats();
     archive(User,Current,csr_pos,monsters,npc);
 }
-void drop_items_on_death(Player &User){
-    User.uninitialize_stats();
-    User.equip.boots=nullptr;
-    User.equip.chestplate=nullptr;
-    User.equip.greaves=nullptr;
-    User.equip.helmet=nullptr;
-    User.equip.shield=nullptr;
-    User.equip.weapon=nullptr;
-    User.inv.item.clear();
-    User.gold=0;
-    User.cur_hp=User.ori_hp;
-    User.cur_shield=User.ori_shield;
+void drop_items_on_death(Player &User, Csr &csr_pos, level &current){
+    User=Player();
+    csr_pos={1,1};
+    current={1,1,1};
 }
 void init_dungeon(WINDOW *main_win, WINDOW *status_win, WINDOW *interaction_bar, Csr &csr_pos, Player &User, level &Current, std::vector<monster> &monsters, NPC &npc){
     std::vector<std::pair<int,int>> doors;
@@ -381,7 +377,7 @@ void init_dungeon(WINDOW *main_win, WINDOW *status_win, WINDOW *interaction_bar,
             std::pair<bool,bool> attack_status=attack_monster(main_win, status_win, monsters, csr_pos, User, Current);
             if(attack_status.first&&!attack_status.second){ // If dead return to main menu
                 end_program(1);
-                drop_items_on_death(User);
+                drop_items_on_death(User,csr_pos,Current);
                 save_data(User, Current, csr_pos, monsters, npc);
                 return;
             }
@@ -427,6 +423,9 @@ void init_dungeon(WINDOW *main_win, WINDOW *status_win, WINDOW *interaction_bar,
             wrefresh(interaction_bar);
             sleep(1);
         }
+        if(ch=='H'){
+            help_mode(main_win, interaction_bar, "dungeon_mode");
+        }
         if(ch=='q'){
             wclear(interaction_bar);
             mvwaddstr(interaction_bar,0,0,"Do you really wish to quit? [y] to quit, any other key to abort.");
@@ -440,13 +439,13 @@ void init_dungeon(WINDOW *main_win, WINDOW *status_win, WINDOW *interaction_bar,
         }
         if(User.saturation<=0){
             end_program(2);
-            drop_items_on_death(User);
+            drop_items_on_death(User,csr_pos,Current);
             save_data(User, Current, csr_pos, monsters, npc);
             return;
         }
         if(User.hydration<=0){
             end_program(3);
-            drop_items_on_death(User);
+            drop_items_on_death(User,csr_pos,Current);
             save_data(User, Current, csr_pos, monsters, npc);
             return;
         }
