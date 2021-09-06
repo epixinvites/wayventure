@@ -83,7 +83,7 @@ void Item::calculate_calibration(){
 }
 double calculate_enhancement(unsigned int enhancement){
     if(enhancement>0){
-        return (1+((log(enhancement)/log(1.1))/100.0));
+        return (1+((log(enhancement+1)/log(1.1))/100.0));
     }
     else{
         return 1;

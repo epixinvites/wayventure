@@ -391,7 +391,7 @@ unsigned int get_int(WINDOW *main_win, WINDOW *interaction_bar, std::string dial
     char ch;
     while(true){
         ch=wgetch(main_win);
-        if(ch==10){ // KEY_ENTER
+        if(ch==10&&input.length()>0){ // KEY_ENTER
             curs_set(0);
             return std::stoi(input);
         }
@@ -645,33 +645,36 @@ void inventory_mode(WINDOW *main_win, WINDOW *status_win, WINDOW *interaction_ba
         }
     }
 }
+bool decrease_materials(char rarity, Miscellaneous &misc, unsigned int amount){
+    if(rarity=='c'&&misc.materials.common>=amount){
+        misc.materials.common-=amount;
+        return true;
+    }
+    else if(rarity=='u'&&misc.materials.uncommon>=amount){
+        misc.materials.uncommon-=amount;
+        return true;
+    }
+    else if(rarity=='r'&&misc.materials.rare>=amount){
+        misc.materials.rare-=amount;
+        return true;
+    }
+    else if(rarity=='e'&&misc.materials.epic>=amount){
+        misc.materials.epic-=amount;
+        return true;
+    }
+    else if(rarity=='l'&&misc.materials.legendary>=amount){
+        misc.materials.legendary-=amount;
+        return true;
+    }
+    else if(rarity=='a'&&misc.materials.artifact>=amount){
+        misc.materials.artifact-=amount;
+        return true;
+    }
+    return false;
+}
 bool enhance_item(Item &item, Miscellaneous &misc, unsigned int amount){
     bool require_enhance = false;
-    if(item.rarity=='c'&&misc.materials.common>=amount){
-        misc.materials.common-=amount;
-        require_enhance=true;
-    }
-    else if(item.rarity=='u'&&misc.materials.uncommon>=amount){
-        misc.materials.uncommon-=amount;
-        require_enhance=true;
-    }
-    else if(item.rarity=='r'&&misc.materials.rare>=amount){
-        misc.materials.rare-=amount;
-        require_enhance=true;
-    }
-    else if(item.rarity=='e'&&misc.materials.epic>=amount){
-        misc.materials.epic-=amount;
-        require_enhance=true;
-    }
-    else if(item.rarity=='l'&&misc.materials.legendary>=amount){
-        misc.materials.legendary-=amount;
-        require_enhance=true;
-    }
-    else if(item.rarity=='a'&&misc.materials.artifact>=amount){
-        misc.materials.artifact-=amount;
-        require_enhance=true;
-    }
-    if(require_enhance){
+    if(decrease_materials(item.rarity, misc, amount)){
         item.enhancement+=amount;
         item.reinitialize_item();
         return true;
@@ -750,8 +753,13 @@ void reforge_repair_mode(WINDOW *main_win, WINDOW *status_win, WINDOW *interacti
         }
         if(ch=='e'){ // Enhance
             unsigned int amount = get_int(main_win, interaction_bar, "[System] Amount of materials you want to use in this enhancement: ");
-            if(amount>0&&enhance_item(User.inv.item[csr_pos+(page_num*30)], User.inv.misc, amount)){
-                draw_inventory(main_win, interaction_bar, status_win, User, page_num, csr_pos);
+            if(amount>0){
+                User.uninitialize_stats();
+                if(enhance_item(User.inv.item[csr_pos+(page_num*30)], User.inv.misc, amount)){
+                    draw_inventory(main_win, interaction_bar, status_win, User, page_num, csr_pos);
+                }
+                User.initialize_stats();
+                draw_stats(status_win, User);
             }
             else{
                 wclear(interaction_bar);
@@ -759,7 +767,39 @@ void reforge_repair_mode(WINDOW *main_win, WINDOW *status_win, WINDOW *interacti
                 wrefresh(interaction_bar);
             }
         }
-        // Reforge ('R')
+        if(ch=='R'){ // Reforge
+            wclear(interaction_bar);
+            mvwaddstr(interaction_bar,0,0,"[System] Reforge item? (This action is irreversible) [y/n]");
+            wrefresh(interaction_bar);
+            int ch = wgetch(main_win);
+            if(ch=='y'){
+                if(decrease_materials(User.inv.item[csr_pos+(page_num)*30].rarity, User.inv.misc, 3)){
+                    unsigned int amount = get_int(main_win, interaction_bar, "Use Ancient Cores? [0 to not use any]: ");
+                    if(User.inv.misc.ancient_core>=amount){
+                        User.inv.misc.ancient_core-=amount;
+                        User.uninitialize_stats();
+                        reforge_item(amount, User.inv.item[csr_pos+(page_num*30)]);
+                        User.inv.item[csr_pos+(page_num*30)].reinitialize_item();
+                        User.initialize_stats();
+                        draw_inventory(main_win, interaction_bar, status_win, User, page_num, csr_pos);
+                        draw_stats(status_win, User);
+                    }
+                    else{
+                        wclear(interaction_bar);
+                        mvwaddstr(interaction_bar,0,0,"[System] Insufficient Ancient Cores");
+                        wrefresh(interaction_bar);
+                    }
+                }
+                else{
+                    wclear(interaction_bar);
+                    mvwaddstr(interaction_bar,0,0,"[System] Insufficient materials");
+                    wrefresh(interaction_bar);
+                }
+            }
+            else{
+                draw_inventory(main_win, interaction_bar, status_win, User, page_num, csr_pos);
+            }
+        }
         // Crafting ('c')
         // Salvage ('S')
         if(ch=='q'){
