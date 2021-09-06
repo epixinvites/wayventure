@@ -1,6 +1,6 @@
 # Welcome to Wayventure's development branch!
 
-![wayventure.gif](wayventure.gif)
+![wayventure.gif](wayventure.gif)  
 *I have no idea why Kazam makes the program jitter*
 
 ```
