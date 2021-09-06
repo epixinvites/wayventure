@@ -1,0 +1,6 @@
+'w', 'a', 's', 'd' to move up and down or to switch pages
+'e' to equip or unequip items
+'r' to rename items
+'R' to remove items
+'m' to show miscellaneous items
+'q' to exit the inventory

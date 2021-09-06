@@ -7,11 +7,13 @@
                    __/ |                                   
                   |___/                                    
 
+![wayventure.gif](wayventure.gif)
+
 Installation instructions:
 Dependencies: g++, make and libncurses
 Build instructions: make
 Run ./project-cosmos to start playing
 
 Press 'Shift+h' to learn about the keybindings, if you're curious about how this game works, good luck reading through my spaghetti.
-
-*yes I don't fancy Markdown
+Wiki will be developed later on after the v1.1 release (along with basic build instructions for most of the main distros)
+Here's my TODO list [https://app.simplenote.com/p/kkFf1V]

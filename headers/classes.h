@@ -27,14 +27,14 @@ struct Item{
     // rarity: 'c' common, 'u' uncommon, 'r' rare, 'e' epic, 'l' legendary, 'a' artifact
     bool is_equipped;
     int hp = 0, attk = 0, def = 0, shield = 0, crit_chance = 0, crit_dmg = 0;
-    unsigned int calibration = 0, uses = 0;
+    unsigned int calibration = 0, uses = 0, enhancement = 0;
     double durability = 100.0;
     Item(std::string name, char type, char rarity, bool is_equipped, int hp, int attk, int def, int shield, int crit_chance, int crit_dmg, unsigned int calibration, unsigned int uses,double durability);
-    void initialize_item(); // MUST RUN BEFORE MODIFYING ANYTHING
+    void initialize_item();
     void reinitialize_item();
     void calculate_calibration();
     void recover_item();
-    template<class Archive>void serialize(Archive &archive){archive(original,name,type,rarity,is_equipped,calibration,uses,durability);}
+    template<class Archive>void serialize(Archive &archive){archive(original,name,type,rarity,is_equipped,calibration,uses,durability,enhancement);}
 };
 struct Food{
 	int bread=5; // 30 points of saturation

@@ -225,6 +225,10 @@ void print_description(WINDOW *main_win, const Item *cur_item, int line){
         mvwaddstr(main_win, line, 0, ("Calibration Level: "+std::to_string(cur_item->calibration)).c_str());
         line++;
     }
+    if(cur_item->enhancement>0){
+        mvwaddstr(main_win, line, 0, ("Enhancement: "+std::to_string(cur_item->enhancement)).c_str());
+        line++;
+    }
     if(cur_item->hp>0){
         mvwaddstr(main_win, line, 0, ("Health: "+std::to_string(cur_item->hp)).c_str());
         line++;
@@ -349,7 +353,7 @@ void draw_inventory(WINDOW *main_win, WINDOW *interaction_bar, WINDOW *status_wi
 std::string get_string(WINDOW *main_win, WINDOW *interaction_bar, std::string original){
     std::string input;
     wclear(interaction_bar);
-    mvwaddstr(interaction_bar,0,0,"Rename item to: ");
+    mvwaddstr(interaction_bar,0,0,"([ESC] to cancel) Rename item to: ");
     wrefresh(interaction_bar);
     curs_set(1);
     char ch;
@@ -365,6 +369,7 @@ std::string get_string(WINDOW *main_win, WINDOW *interaction_bar, std::string or
             }
         }
         if(ch==27){ // KEY_ESC
+            curs_set(0);
             return original;
         }
         else if(input.length()<30&&(isdigit(ch)||isalpha(ch)||isblank(ch))){
@@ -377,10 +382,10 @@ std::string get_string(WINDOW *main_win, WINDOW *interaction_bar, std::string or
         wrefresh(interaction_bar);
     }
 }
-unsigned int get_int(WINDOW *main_win, WINDOW *interaction_bar){
+unsigned int get_int(WINDOW *main_win, WINDOW *interaction_bar, std::string dialogue){
     std::string input;
     wclear(interaction_bar);
-    mvwaddstr(interaction_bar,0,0,"Quantity to be trashed: ");
+    mvwaddstr(interaction_bar,0,0,dialogue.c_str());
     wrefresh(interaction_bar);
     curs_set(1);
     char ch;
@@ -396,13 +401,14 @@ unsigned int get_int(WINDOW *main_win, WINDOW *interaction_bar){
             }
         }
         if(ch==27||ch=='q'){ // KEY_ESC
+            curs_set(0);
             return 0;
         }
-        else if(input.length()<20&&isdigit(ch)){
+        else if(input.length()<8&&isdigit(ch)){
             input.push_back(ch);
         }
         std::stringstream ss;
-        ss<<"Quantity to be trashed: "<<input;
+        ss<<dialogue<<input;
         wclear(interaction_bar);
         mvwaddstr(interaction_bar,0,0,ss.str().c_str());
         wrefresh(interaction_bar);
@@ -466,6 +472,9 @@ bool decrease_amount(unsigned int &original, unsigned int amount){
     }
 }
 bool remove_misc_item(Miscellaneous &User, unsigned int csr_pos, unsigned int amount){
+    if(amount==0){
+        return false;
+    }
     switch (csr_pos){
         case 0:
             return decrease_amount(User.ancient_core,amount);
@@ -529,6 +538,9 @@ void show_misc_items(WINDOW *main_win, WINDOW *interaction_bar, Miscellaneous &U
         print_misc_item(main_win, User, csr_pos);
         int ch=wgetch(main_win);
         if((ch==KEY_DOWN||ch=='s')&&csr_pos<17){
+            wclear(interaction_bar);
+            mvwaddstr(interaction_bar,0,0,"Miscallaneous items:");
+            wrefresh(interaction_bar);
             if(csr_pos==1||csr_pos==9){
                 csr_pos+=3;
             }
@@ -537,6 +549,9 @@ void show_misc_items(WINDOW *main_win, WINDOW *interaction_bar, Miscellaneous &U
             }
         }
         if((ch==KEY_UP||ch=='w')&&csr_pos>0){
+            wclear(interaction_bar);
+            mvwaddstr(interaction_bar,0,0,"Miscallaneous items:");
+            wrefresh(interaction_bar);
             if(csr_pos==4||csr_pos==12){
                 csr_pos-=3;
             }
@@ -545,13 +560,10 @@ void show_misc_items(WINDOW *main_win, WINDOW *interaction_bar, Miscellaneous &U
             }
         }
         if(ch=='r'){
-            unsigned int quantity = get_int(main_win, interaction_bar);
+            unsigned int quantity = get_int(main_win, interaction_bar,"([ESC] to cancel) Quantity to be trashed: ");
             wclear(interaction_bar);
             if(!remove_misc_item(User, csr_pos, quantity)){
-                mvwaddstr(interaction_bar,0,0,"[System] Invalid amount of items");
-            }
-            else{
-                mvwaddstr(interaction_bar,0,0,"[System] Success");
+                mvwaddstr(interaction_bar,0,0,"[System] Invalid amount");
             }
             wrefresh(interaction_bar);
         }
@@ -602,6 +614,14 @@ void inventory_mode(WINDOW *main_win, WINDOW *status_win, WINDOW *interaction_ba
             User.inv.item[csr_pos+(page_num*30)].name = input;
             draw_inventory(main_win, interaction_bar, status_win, User, page_num, csr_pos);
         }
+        if(ch=='m'){
+            show_misc_items(main_win, interaction_bar, User.inv.misc);
+            draw_inventory(main_win, interaction_bar, status_win, User, page_num, csr_pos);
+        }
+        if(ch=='H'){
+            help_mode(main_win,interaction_bar,"inventory_mode");
+            draw_inventory(main_win, interaction_bar, status_win, User, page_num, csr_pos);
+        }
         if(ch=='R'){
             wclear(interaction_bar);
             mvwaddstr(interaction_bar, 0, 0, "[System] Are you sure you want to delete this item? Press y to continue, any other key to cancel.");
@@ -611,6 +631,9 @@ void inventory_mode(WINDOW *main_win, WINDOW *status_win, WINDOW *interaction_ba
                 unequip_item(User, csr_pos, page_num);
                 User.remove_item(csr_pos+(page_num*30));
                 if((page_num*30+csr_pos)>=User.inv.item.size()){csr_pos--;}
+                if(csr_pos<0){
+                    csr_pos=0;
+                }
                 if(User.inv.item.empty()){
                     return;
                 }
@@ -621,6 +644,39 @@ void inventory_mode(WINDOW *main_win, WINDOW *status_win, WINDOW *interaction_ba
             return;
         }
     }
+}
+bool enhance_item(Item &item, Miscellaneous &misc, unsigned int amount){
+    bool require_enhance = false;
+    if(item.rarity=='c'&&misc.materials.common>=amount){
+        misc.materials.common-=amount;
+        require_enhance=true;
+    }
+    else if(item.rarity=='u'&&misc.materials.uncommon>=amount){
+        misc.materials.uncommon-=amount;
+        require_enhance=true;
+    }
+    else if(item.rarity=='r'&&misc.materials.rare>=amount){
+        misc.materials.rare-=amount;
+        require_enhance=true;
+    }
+    else if(item.rarity=='e'&&misc.materials.epic>=amount){
+        misc.materials.epic-=amount;
+        require_enhance=true;
+    }
+    else if(item.rarity=='l'&&misc.materials.legendary>=amount){
+        misc.materials.legendary-=amount;
+        require_enhance=true;
+    }
+    else if(item.rarity=='a'&&misc.materials.artifact>=amount){
+        misc.materials.artifact-=amount;
+        require_enhance=true;
+    }
+    if(require_enhance){
+        item.enhancement+=amount;
+        item.reinitialize_item();
+        return true;
+    }
+    return false;
 }
 void reforge_repair_mode(WINDOW *main_win, WINDOW *status_win, WINDOW *interaction_bar, Player &User){
     unsigned int page_num=0;
@@ -650,6 +706,10 @@ void reforge_repair_mode(WINDOW *main_win, WINDOW *status_win, WINDOW *interacti
                 draw_inventory(main_win, interaction_bar, status_win, User, page_num, csr_pos);
                 wrefresh(main_win);
             }
+        }
+        if(ch=='m'){
+            show_misc_items(main_win, interaction_bar, User.inv.misc);
+            draw_inventory(main_win, interaction_bar, status_win, User, page_num, csr_pos);
         }
         if(ch=='r'){
             wclear(interaction_bar);
@@ -688,8 +748,18 @@ void reforge_repair_mode(WINDOW *main_win, WINDOW *status_win, WINDOW *interacti
                 }
             }
         }
-        // Enhance ('e')
-        // Reforge ('f')
+        if(ch=='e'){ // Enhance
+            unsigned int amount = get_int(main_win, interaction_bar, "[System] Amount of materials you want to use in this enhancement: ");
+            if(amount>0&&enhance_item(User.inv.item[csr_pos+(page_num*30)], User.inv.misc, amount)){
+                draw_inventory(main_win, interaction_bar, status_win, User, page_num, csr_pos);
+            }
+            else{
+                wclear(interaction_bar);
+                mvwaddstr(interaction_bar,0,0,"[System] Failure");
+                wrefresh(interaction_bar);
+            }
+        }
+        // Reforge ('R')
         // Crafting ('c')
         // Salvage ('S')
         if(ch=='q'){
@@ -697,7 +767,4 @@ void reforge_repair_mode(WINDOW *main_win, WINDOW *status_win, WINDOW *interacti
         }
     }
 }
-// type: 'h' helmet, 'c' chestplate, 'g' greaves, 'b' boots, 's' shield, 'w' weapon
-// rarity: 'c' common, 'u' uncommon, 'r' rare, 'e' epic, 'l' legendary, 'a' artifact
-// Item(std::string name, char type, char rarity, bool is_equipped, int hp, int attk, int def, int shield, int crit_chance, int crit_dmg)
 

@@ -310,7 +310,11 @@ void end_program(int sig){
         return;
     }
     if(sig==1){
-        std::cout<<"LMAO... RIIIIP"<<std::endl;
+        std::ifstream tombstone_file("res/tombstone.txt");
+        std::string line;
+        while(std::getline(tombstone_file,line)){
+            std::cout<<line<<std::endl;
+        }
         return;
     }
     if(sig==2){
@@ -337,6 +341,7 @@ void init_data(Player &User, level &Current, Csr &csr_pos, std::vector<monster> 
     if(!is_empty(ifile)){
         cereal::PortableBinaryInputArchive retrieve(ifile);
         retrieve(User,Current,csr_pos,monsters,npc);
+        User.inv.misc.materials.uncommon = 10;
         // Insert data corruption checks
         std::filesystem::remove("save/user.save.1");
         std::filesystem::copy("save/user.save","save/user.save.1");
