@@ -1,5 +1,6 @@
 # Welcome to Wayventure's development branch!
 
+For upcoming releases/features please refer [here](https://app.simplenote.com/p/kkFf1V)
 ![wayventure.gif](wayventure.gif)  
 *I have no idea why Kazam makes the program jitter*
 
