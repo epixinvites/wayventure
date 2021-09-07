@@ -179,15 +179,19 @@ Item generate_loot_from_monster_type(char type){
 Item generate_loot_from_rarity_type(char loot_rarity){
     return generate_loot(loot_rarity);
 }
-void reforge_item(unsigned int ancient_core, Item &item){
+void reforge_item(unsigned int ancient_cores, unsigned int crystallium, Item &item){
     char loot_rarity = item.rarity;
-    unsigned int bonus = 1;
-    if(ancient_core>0){
-        bonus=10*ancient_core*3;
+    unsigned int ancient_cores_bonus = 1;
+    unsigned int crystallium_bonus = 1;
+    if(ancient_cores>0){
+        ancient_cores_bonus = log(ancient_cores+1)/log(1.013);
+    }
+    if(crystallium>0){
+        crystallium_bonus = log(crystallium+1)/log(1.02);
     }
     item.uses=0;
     item.enhancement=0;
-    item.durability=100.0;
+    item.durability=100;
     char loot_type=item.type;
     std::random_device device;
     std::mt19937 generator(device());
@@ -195,46 +199,55 @@ void reforge_item(unsigned int ancient_core, Item &item){
     std::uniform_int_distribution<int> bonus_stats(1, 100);
     if(loot_type==TYPE_CHESTPLATE){ // chestplate
         item.original.hp=(100+deviation(generator))*rarity_value(loot_rarity);
-        if(bonus_stats(generator)<=5*rarity_bonus(loot_rarity)*bonus){
+        if(bonus_stats(generator)<=1*rarity_bonus(loot_rarity)*ancient_cores_bonus){
             item.original.def=15*rarity_value(loot_rarity);
         }
-        if(bonus_stats(generator)<=2*rarity_bonus(loot_rarity)*bonus){
-            item.original.crit_dmg=2*rarity_value(loot_rarity);
+        if(bonus_stats(generator)<=1*rarity_bonus(loot_rarity)*crystallium_bonus){
+            item.original.crit_dmg=10*rarity_value(loot_rarity);
         }
     }
     if(loot_type==TYPE_HELMET){ // helmet
         item.original.hp=(40+deviation(generator))*rarity_value(loot_rarity);
-        if(bonus_stats(generator)<=6*rarity_bonus(loot_rarity)*bonus){
+        if(bonus_stats(generator)<=1*rarity_bonus(loot_rarity)*ancient_cores_bonus){
             item.original.def=5*rarity_value(loot_rarity);
         }
-        if(bonus_stats(generator)<=3*rarity_bonus(loot_rarity)*bonus){
+        if(bonus_stats(generator)<=1*rarity_bonus(loot_rarity)*crystallium_bonus){
+            item.original.crit_chance=3*rarity_value(loot_rarity);
+        }
+        if(bonus_stats(generator)<=10*rarity_bonus(loot_rarity)){
             item.original.shield=20*rarity_value(loot_rarity);
         }
     }
     if(loot_type==TYPE_GREAVES){ // greaves
         item.original.def=(50+deviation(generator))*rarity_value(loot_rarity);
-        if(bonus_stats(generator)<=5*rarity_bonus(loot_rarity)*bonus){
+        if(bonus_stats(generator)<=1*rarity_bonus(loot_rarity)*ancient_cores_bonus){
+            item.original.def+=20*rarity_value(loot_rarity);
+        }
+        if(bonus_stats(generator)<=5*rarity_bonus(loot_rarity)){
             item.original.shield=15*rarity_value(loot_rarity);
         }
     }
     if(loot_type==TYPE_BOOTS){ // boots
         item.original.def=(30+deviation(generator))*rarity_value(loot_rarity);
-        if(bonus_stats(generator)<=10*rarity_bonus(loot_rarity)*bonus){
+        if(bonus_stats(generator)<=1*rarity_bonus(loot_rarity)*ancient_cores_bonus){
+            item.original.def+=10*rarity_value(loot_rarity);
+        }
+        if(bonus_stats(generator)<=1*rarity_bonus(loot_rarity)*crystallium_bonus){
             item.original.crit_chance=5*rarity_value(loot_rarity);
         }
     }
     if(loot_type==TYPE_WEAPON){ // weapon
         item.original.attk=(200+deviation(generator))*rarity_value(loot_rarity);
-        if(bonus_stats(generator)<=5*rarity_bonus(loot_rarity)*bonus){
-            item.original.crit_dmg=10*rarity_value(loot_rarity);
+        if(bonus_stats(generator)<=1*rarity_bonus(loot_rarity)*crystallium_bonus){
+            item.original.crit_dmg=30*rarity_value(loot_rarity);
         }
-        if(bonus_stats(generator)<=5*rarity_bonus(loot_rarity)*bonus){
-            item.original.crit_chance=5*rarity_value(loot_rarity);
+        if(bonus_stats(generator)<=1*rarity_bonus(loot_rarity)*crystallium_bonus){
+            item.original.crit_chance=2*rarity_value(loot_rarity);
         }
     }
     if(loot_type==TYPE_SHIELD){ // shield
         item.original.shield=(100+deviation(generator))*rarity_value(loot_rarity);
-        if(bonus_stats(generator)<=10*rarity_bonus(loot_rarity)*bonus){
+        if(bonus_stats(generator)<=10*rarity_bonus(loot_rarity)*ancient_cores_bonus){
             item.original.def=20*rarity_value(loot_rarity);
         }
     }
@@ -299,8 +312,8 @@ monster_stats create_monster(level Current, char type){
     monster_stats monster;
     double x=Current.x+Current.y;
     double lvl=Current.lvl;
-    monster.hp=monster.hp*(lvl+(x/5.0))+diff_generator(generator);
-    monster.attk=monster.attk*(lvl+(x/5.0))+diff_generator(generator);
+    monster.hp=150*(lvl+(x/5.0))+diff_generator(generator);
+    monster.attk=60*(lvl+(x/5.0))+diff_generator(generator);
     if(diff_generator(generator)>10){
         monster.def=5*(lvl+(x/5.0));
     }

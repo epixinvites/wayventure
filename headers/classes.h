@@ -68,9 +68,10 @@ struct Miscellaneous{
     };
     unsigned int ancient_core = 0;
     unsigned int crystallium = 0;
+    unsigned int crystal_cores = 0;
     Material_rarity materials;
     Type blueprint;
-    template<class Archive> void serialize(Archive &archive){archive(ancient_core,crystallium,materials,blueprint);}
+    template<class Archive> void serialize(Archive &archive){archive(ancient_core,crystallium,materials,blueprint,crystal_cores);}
 };
 struct Inventory{
     std::vector<Item> item;

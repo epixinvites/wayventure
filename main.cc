@@ -66,6 +66,20 @@ void char_move(WINDOW *main_win, int ch, Csr &csr_pos, std::vector<monster> mons
         wrefresh(main_win);
     }
 }
+void process_gear(Player &User, Item *&processed_item, int damage){
+    if(processed_item!=nullptr){
+        processed_item->uses++;
+        processed_item->durability-=((damage/500.0)*(1+((101-processed_item->durability)/100)))/rarity_value(processed_item->rarity);
+        if(processed_item->durability<=0.0){
+            processed_item->is_equipped = false;
+            User.uninitialize_gear(processed_item);
+            processed_item=nullptr;
+        }
+        else{
+            processed_item->reinitialize_item();
+        }
+    }
+}
 std::pair<std::string,std::string> calculate_damage(Player &User, monster_stats &monster){
     std::stringstream first, second;
     if(User.crit_chance>0&&return_chance(User.crit_chance)){ // Calculate damage that enemy takes
@@ -94,21 +108,15 @@ std::pair<std::string,std::string> calculate_damage(Player &User, monster_stats 
     else{
         second<<"You received no damage";
     }
+    User.uninitialize_stats();
+    process_gear(User, User.equip.helmet, monster.attk);
+    process_gear(User, User.equip.chestplate, monster.attk);
+    process_gear(User, User.equip.greaves, monster.attk);
+    process_gear(User, User.equip.boots, monster.attk);
+    process_gear(User, User.equip.shield, monster.attk);
+    process_gear(User, User.equip.weapon, monster.attk);
+    User.initialize_stats();
     return {first.str(),second.str()};
-}
-void process_gear(Player &User, Item *&processed_item){
-    if(processed_item!=nullptr){
-        processed_item->uses++;
-        processed_item->durability-=((101.0-processed_item->durability)/50.0);
-        if(processed_item->durability<=0.0){
-            processed_item->is_equipped = false;
-            User.uninitialize_gear(processed_item);
-            processed_item=nullptr;
-        }
-        else{
-            processed_item->reinitialize_item();
-        }
-    }
 }
 bool player_battle(WINDOW *main_win, WINDOW *status_win, Player &User, level Current, char monster_type){
     monster_stats monster=create_monster(Current, monster_type);
@@ -127,14 +135,6 @@ bool player_battle(WINDOW *main_win, WINDOW *status_win, Player &User, level Cur
         mvwaddstr(main_win,25,10,log.second.c_str());
         int ch=wgetch(main_win);
         if(ch=='1'){
-            User.uninitialize_stats();
-            process_gear(User, User.equip.helmet);
-            process_gear(User, User.equip.chestplate);
-            process_gear(User, User.equip.greaves);
-            process_gear(User, User.equip.boots);
-            process_gear(User, User.equip.shield);
-            process_gear(User, User.equip.weapon);
-            User.initialize_stats();
             log=calculate_damage(User, monster);
             if(User.cur_hp<=0){
                 return false;

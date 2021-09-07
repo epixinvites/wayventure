@@ -17,10 +17,15 @@ void clear_screen(WINDOW *main_win, WINDOW *interaction_bar){
     wrefresh(main_win);
     wrefresh(interaction_bar);
 }
-void draw_base(WINDOW *main_win, WINDOW *interaction_bar, int y, unsigned int size, unsigned int page){
+void draw_base(WINDOW *main_win, WINDOW *interaction_bar, int y, unsigned int size, unsigned int page, bool is_blacksmith_mode){
     std::stringstream ss;
     wclear(interaction_bar);
-    ss<<"Inventory "<<"("<<page+1<<"/"<<((size-1)/30)+1<<")";
+    if(!is_blacksmith_mode){
+        ss<<"Inventory "<<"("<<page+1<<"/"<<((size-1)/30)+1<<")";
+    }
+    else{
+        ss<<"[Blacksmith] How can I help you today? "<<"("<<page+1<<"/"<<((size-1)/30)+1<<")";
+    }
     mvwaddstr(interaction_bar, 0, 0, ss.str().c_str());
     for(int i=0; i<80; i++){
         mvwaddch(main_win, y, i, '-');
@@ -338,9 +343,9 @@ void unequip_item(Player &User, unsigned int csr_pos, unsigned int page_num){
         User.inv.item[csr_pos+(page_num*30)].is_equipped=false;
     }
 }
-void draw_inventory(WINDOW *main_win, WINDOW *interaction_bar, WINDOW *status_win, const Player &User, unsigned int page_num, unsigned int csr_pos){
+void draw_inventory(WINDOW *main_win, WINDOW *interaction_bar, WINDOW *status_win, const Player &User, unsigned int page_num, unsigned int csr_pos, bool is_blacksmith_mode = false){
     clear_screen(main_win);
-    draw_base(main_win, interaction_bar, 34, User.inv.item.size(), page_num);
+    draw_base(main_win, interaction_bar, 34, User.inv.item.size(), page_num, is_blacksmith_mode);
     draw_stats(status_win, User);
     for(int i=page_num*30, iterator=0; i<User.inv.item.size()&&iterator<30; i++, iterator++){
         print_item(main_win, &User.inv.item[i], iterator);
@@ -512,20 +517,21 @@ void print_misc_item(WINDOW *main_win, Miscellaneous &User, unsigned int csr_pos
     wclear(main_win);
     print_string_with_color(main_win, "Ancient Cores: "+std::to_string(User.ancient_core), 10, 0);
     print_string_with_color(main_win, "Crystallium: "+std::to_string(User.crystallium), 9, 1);
-    mvwaddstr(main_win,3,0,"Materials:");
-    print_string_with_color(main_win, "Common: "+std::to_string(User.materials.common), 5, 4);
-    print_string_with_color(main_win, "Uncommon: "+std::to_string(User.materials.uncommon), 6, 5);
-    print_string_with_color(main_win, "Rare: "+std::to_string(User.materials.rare), 7, 6);
-    print_string_with_color(main_win, "Epic: "+std::to_string(User.materials.epic), 8, 7);
-    print_string_with_color(main_win, "Legendary: "+std::to_string(User.materials.legendary), 9, 8);
-    print_string_with_color(main_win, "Artifact: "+std::to_string(User.materials.artifact), 10, 9);
-    mvwaddstr(main_win,11,0,"Blueprints:");
-    mvwaddstr(main_win,12,0,("Helmet: "+std::to_string(User.blueprint.helmet)).c_str());
-    mvwaddstr(main_win,13,0,("Chestplate: "+std::to_string(User.blueprint.chestplate)).c_str());
-    mvwaddstr(main_win,14,0,("Greaves: "+std::to_string(User.blueprint.greaves)).c_str());
-    mvwaddstr(main_win,15,0,("Boots: "+std::to_string(User.blueprint.boots)).c_str());
-    mvwaddstr(main_win,16,0,("Shield: "+std::to_string(User.blueprint.shield)).c_str());
-    mvwaddstr(main_win,17,0,("Weapon: "+std::to_string(User.blueprint.weapon)).c_str());
+    print_string_with_color(main_win, "Crystal Cores: "+std::to_string(User.crystal_cores), 8, 2);
+    mvwaddstr(main_win,4,0,"Materials:");
+    print_string_with_color(main_win, "Common: "+std::to_string(User.materials.common), 5, 5);
+    print_string_with_color(main_win, "Uncommon: "+std::to_string(User.materials.uncommon), 6, 6);
+    print_string_with_color(main_win, "Rare: "+std::to_string(User.materials.rare), 7, 7);
+    print_string_with_color(main_win, "Epic: "+std::to_string(User.materials.epic), 8, 8);
+    print_string_with_color(main_win, "Legendary: "+std::to_string(User.materials.legendary), 9, 9);
+    print_string_with_color(main_win, "Artifact: "+std::to_string(User.materials.artifact), 10, 10);
+    mvwaddstr(main_win,12,0,"Blueprints:");
+    mvwaddstr(main_win,13,0,("Helmet: "+std::to_string(User.blueprint.helmet)).c_str());
+    mvwaddstr(main_win,14,0,("Chestplate: "+std::to_string(User.blueprint.chestplate)).c_str());
+    mvwaddstr(main_win,15,0,("Greaves: "+std::to_string(User.blueprint.greaves)).c_str());
+    mvwaddstr(main_win,16,0,("Boots: "+std::to_string(User.blueprint.boots)).c_str());
+    mvwaddstr(main_win,17,0,("Shield: "+std::to_string(User.blueprint.shield)).c_str());
+    mvwaddstr(main_win,18,0,("Weapon: "+std::to_string(User.blueprint.weapon)).c_str());
     print_misc_bold(main_win, User, csr_pos);
     wrefresh(main_win);
 }
@@ -574,7 +580,7 @@ void show_misc_items(WINDOW *main_win, WINDOW *interaction_bar, Miscellaneous &U
 }
 void inventory_mode(WINDOW *main_win, WINDOW *status_win, WINDOW *interaction_bar, Player &User){
     unsigned int page_num=0;
-    unsigned int csr_pos=0;
+    int csr_pos=0;
     draw_inventory(main_win, interaction_bar, status_win, User, page_num, csr_pos);
     while(true){
         int ch=wgetch(main_win);
@@ -684,52 +690,53 @@ bool enhance_item(Item &item, Miscellaneous &misc, unsigned int amount){
 void reforge_repair_mode(WINDOW *main_win, WINDOW *status_win, WINDOW *interaction_bar, Player &User){
     unsigned int page_num=0;
     unsigned int csr_pos=0;
-    draw_inventory(main_win, interaction_bar, status_win, User, page_num, csr_pos);
+    draw_inventory(main_win, interaction_bar, status_win, User, page_num, csr_pos, true);
     while(true){
         int ch=wgetch(main_win);
         if((ch=='s'||ch==KEY_DOWN)&&((csr_pos+page_num*30)<User.inv.item.size()-1&&csr_pos<29)){
             csr_pos++;
-            draw_inventory(main_win, interaction_bar, status_win, User, page_num, csr_pos);
+            draw_inventory(main_win, interaction_bar, status_win, User, page_num, csr_pos, true);
         }
         if((ch=='w'||ch==KEY_UP)&&csr_pos>0){
             csr_pos--;
-            draw_inventory(main_win, interaction_bar, status_win, User, page_num, csr_pos);
+            draw_inventory(main_win, interaction_bar, status_win, User, page_num, csr_pos, true);
         }
         if(ch=='a'||ch==KEY_LEFT){
             if(page_num>0){
                 page_num--;
                 csr_pos=0;
-                draw_inventory(main_win, interaction_bar, status_win, User, page_num, csr_pos);
+                draw_inventory(main_win, interaction_bar, status_win, User, page_num, csr_pos, true);
             }
         }
         if(ch=='d'||ch==KEY_RIGHT){
             if((page_num+1)*30<User.inv.item.size()){
                 page_num++;
                 csr_pos=0;
-                draw_inventory(main_win, interaction_bar, status_win, User, page_num, csr_pos);
+                draw_inventory(main_win, interaction_bar, status_win, User, page_num, csr_pos, true);
                 wrefresh(main_win);
             }
         }
         if(ch=='m'){
             show_misc_items(main_win, interaction_bar, User.inv.misc);
-            draw_inventory(main_win, interaction_bar, status_win, User, page_num, csr_pos);
+            draw_inventory(main_win, interaction_bar, status_win, User, page_num, csr_pos, true);
         }
         if(ch=='r'){
             wclear(interaction_bar);
             if(User.inv.item[csr_pos+(page_num*30)].durability<100.0){
                 const unsigned int cost = (100.0-User.inv.item[csr_pos+(page_num*30)].durability)*rarity_value(User.inv.item[csr_pos+(page_num*30)].rarity)*15;
+                const unsigned int material_cost = 2*(1+((100-User.inv.item[csr_pos+(page_num*30)].durability)/100));
                 std::stringstream ss;
-                ss<<"[System] Attempt repair? Cost: "<<cost<< " [y/n]";
+                ss<<"[System] Attempt repair? Gold:"<<cost<< " Material:"<<material_cost<<" [y/n]";
                 mvwaddstr(interaction_bar,0,0,ss.str().c_str());
                 wrefresh(interaction_bar);
                 ch=wgetch(main_win);
                 if(ch=='y'){
-                    if(User.gold>=cost){
+                    if(User.gold>=cost&&decrease_materials(User.inv.item[csr_pos+(page_num*30)].rarity, User.inv.misc, material_cost)){
                         User.gold-=cost;
                         draw_stats(status_win, User);
-                        if(return_chance(User.inv.item[csr_pos+(page_num*30)].durability)){
+                        if(return_chance(User.inv.item[csr_pos+(page_num*30)].durability*2)){
                             User.inv.item[csr_pos+(page_num*30)].durability=100.0;
-                            draw_inventory(main_win, interaction_bar, status_win, User, page_num, csr_pos);
+                            draw_inventory(main_win, interaction_bar, status_win, User, page_num, csr_pos, true);
                             wclear(interaction_bar);
                             mvwaddstr(interaction_bar,0,0,"[System] Success: Item Repaired.");
                             wrefresh(interaction_bar);
@@ -742,12 +749,12 @@ void reforge_repair_mode(WINDOW *main_win, WINDOW *status_win, WINDOW *interacti
                     }
                     else{
                         wclear(interaction_bar);
-                        mvwaddstr(interaction_bar,0,0,"[System] Error: Insufficient gold");
+                        mvwaddstr(interaction_bar,0,0,"[System] Error: Insufficient gold/materials");
                         wrefresh(interaction_bar);
                     }
                 }
                 else{
-                    draw_inventory(main_win, interaction_bar, status_win, User, page_num, csr_pos);
+                    draw_inventory(main_win, interaction_bar, status_win, User, page_num, csr_pos, true);
                 }
             }
         }
@@ -756,7 +763,7 @@ void reforge_repair_mode(WINDOW *main_win, WINDOW *status_win, WINDOW *interacti
             if(amount>0){
                 User.uninitialize_stats();
                 if(enhance_item(User.inv.item[csr_pos+(page_num*30)], User.inv.misc, amount)){
-                    draw_inventory(main_win, interaction_bar, status_win, User, page_num, csr_pos);
+                    draw_inventory(main_win, interaction_bar, status_win, User, page_num, csr_pos, true);
                 }
                 User.initialize_stats();
                 draw_stats(status_win, User);
@@ -773,34 +780,55 @@ void reforge_repair_mode(WINDOW *main_win, WINDOW *status_win, WINDOW *interacti
             wrefresh(interaction_bar);
             int ch = wgetch(main_win);
             if(ch=='y'){
-                if(decrease_materials(User.inv.item[csr_pos+(page_num)*30].rarity, User.inv.misc, 3)){
-                    unsigned int amount = get_int(main_win, interaction_bar, "Use Ancient Cores? [0 to not use any]: ");
-                    if(User.inv.misc.ancient_core>=amount){
-                        User.inv.misc.ancient_core-=amount;
+                unsigned int gold_cost = rarity_value(User.inv.item[csr_pos+(page_num)*30].rarity)*200;
+                unsigned int material_cost = 2*(1+((100-User.inv.item[csr_pos+(page_num*30)].durability)/100.0));
+                wclear(interaction_bar);
+                mvwaddstr(interaction_bar,0,0,("Proceed? Cost of reforge: "+std::to_string(gold_cost)+" Gold, "+std::to_string(material_cost)+" Materials [y/n]").c_str());
+                wrefresh(interaction_bar);
+                ch = wgetch(main_win);
+                if(decrease_materials(User.inv.item[csr_pos+(page_num)*30].rarity, User.inv.misc, material_cost)&&User.gold>=gold_cost&&ch=='y'){
+                    User.gold-=gold_cost;
+                    bool use_crystallium = false, use_ancient_core = false;
+                    unsigned int crystallium_amount = get_int(main_win, interaction_bar, "Use Crystallium? [0 to not use any]: ");
+                    unsigned int ancient_core_amount = 0;
+                    if(crystallium_amount==0){
+                        ancient_core_amount = get_int(main_win, interaction_bar, "Use Ancient Cores? [0 to not use any]: ");
+                        if(ancient_core_amount>0){
+                            use_ancient_core = true;
+                        }
+                    }
+                    else if(crystallium_amount>0){
+                        use_crystallium = true;
+                    }
+                    if(User.inv.misc.ancient_core>=ancient_core_amount&&User.inv.misc.crystallium>=crystallium_amount){
+                        User.inv.misc.ancient_core-=ancient_core_amount;
+                        User.inv.misc.crystallium-=crystallium_amount;
                         User.uninitialize_stats();
-                        reforge_item(amount, User.inv.item[csr_pos+(page_num*30)]);
+                        reforge_item(ancient_core_amount, crystallium_amount, User.inv.item[csr_pos+(page_num*30)]);
                         User.inv.item[csr_pos+(page_num*30)].reinitialize_item();
                         User.initialize_stats();
-                        draw_inventory(main_win, interaction_bar, status_win, User, page_num, csr_pos);
+                        draw_inventory(main_win, interaction_bar, status_win, User, page_num, csr_pos, true);
                         draw_stats(status_win, User);
                     }
                     else{
                         wclear(interaction_bar);
-                        mvwaddstr(interaction_bar,0,0,"[System] Insufficient Ancient Cores");
+                        mvwaddstr(interaction_bar,0,0,"[System] Insufficient materials");
                         wrefresh(interaction_bar);
                     }
                 }
                 else{
                     wclear(interaction_bar);
-                    mvwaddstr(interaction_bar,0,0,"[System] Insufficient materials");
+                    mvwaddstr(interaction_bar,0,0,"[System] Aborted");
                     wrefresh(interaction_bar);
                 }
             }
             else{
-                draw_inventory(main_win, interaction_bar, status_win, User, page_num, csr_pos);
+                draw_inventory(main_win, interaction_bar, status_win, User, page_num, csr_pos, true);
             }
         }
-        // Crafting ('c')
+        if(ch=='c'){
+
+        }
         // Salvage ('S')
         if(ch=='q'){
             return;
