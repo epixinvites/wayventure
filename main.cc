@@ -71,8 +71,8 @@ void process_gear(Player &User, Item *&processed_item, int damage){
         processed_item->uses++;
         processed_item->durability-=((damage/500.0)*(1+((101-processed_item->durability)/100)))/rarity_value(processed_item->rarity);
         if(processed_item->durability<=0.0){
+            processed_item->durability = 0;
             processed_item->is_equipped = false;
-            User.uninitialize_gear(processed_item);
             processed_item=nullptr;
         }
         else{

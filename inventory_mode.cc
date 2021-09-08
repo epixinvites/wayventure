@@ -687,6 +687,58 @@ bool enhance_item(Item &item, Miscellaneous &misc, unsigned int amount){
     }
     return false;
 }
+void draw_crafting_selection(WINDOW *main_win, WINDOW *interaction_bar, const Miscellaneous &misc, unsigned int csr_pos){
+    wclear(main_win);
+    wclear(interaction_bar);
+    mvwaddstr(interaction_bar,0,0,"[Blacksmith] What do you want to craft today?");
+    mvwaddstr(main_win,0,0,"Select a blueprint:");
+    if(csr_pos==1){
+        print_string_with_color(main_win, ("Helmet ["+std::to_string(misc.blueprint.helmet)+"]"), 15, 1);
+    }
+    else{
+        print_string_with_color(main_win, ("Helmet ["+std::to_string(misc.blueprint.helmet)+"]"), 5, 1);
+    }
+    if(csr_pos==2){
+        print_string_with_color(main_win, ("Chestplate ["+std::to_string(misc.blueprint.helmet)+"]"), 15, 2);
+    }
+    else{
+        print_string_with_color(main_win, ("Chestplate ["+std::to_string(misc.blueprint.helmet)+"]"), 5, 2);
+    }
+    if(csr_pos==3){
+        print_string_with_color(main_win, ("Greaves ["+std::to_string(misc.blueprint.helmet)+"]"), 15, 3);
+    }
+    else{
+        print_string_with_color(main_win, ("Greaves ["+std::to_string(misc.blueprint.helmet)+"]"), 5, 3);
+    }
+    if(csr_pos==4){
+        print_string_with_color(main_win, ("Boots ["+std::to_string(misc.blueprint.helmet)+"]"), 15, 4);
+    }
+    else{
+        print_string_with_color(main_win, ("Boots ["+std::to_string(misc.blueprint.helmet)+"]"), 5, 4);
+    }
+    if(csr_pos==5){
+        print_string_with_color(main_win, ("Shield ["+std::to_string(misc.blueprint.helmet)+"]"), 15, 5);
+    }
+    else{
+        print_string_with_color(main_win, ("Shield ["+std::to_string(misc.blueprint.helmet)+"]"), 5, 5);
+    }
+    if(csr_pos==6){
+        print_string_with_color(main_win, ("Weapon ["+std::to_string(misc.blueprint.helmet)+"]"), 15, 6);
+    }
+    else{
+        print_string_with_color(main_win, ("Weapon ["+std::to_string(misc.blueprint.helmet)+"]"), 5, 6);
+    }
+    wrefresh(main_win);
+    wrefresh(interaction_bar);
+}
+Item crafting_mode(WINDOW *main_win, WINDOW *interaction_bar, Miscellaneous &misc){
+    unsigned int csr_pos = 1;
+    draw_crafting_selection(main_win, interaction_bar, misc, csr_pos);
+    int ch;
+    while(true){
+        ch = wgetch(main_win);
+    }
+}
 void reforge_repair_mode(WINDOW *main_win, WINDOW *status_win, WINDOW *interaction_bar, Player &User){
     unsigned int page_num=0;
     unsigned int csr_pos=0;
@@ -827,7 +879,7 @@ void reforge_repair_mode(WINDOW *main_win, WINDOW *status_win, WINDOW *interacti
             }
         }
         if(ch=='c'){
-
+            crafting_mode(main_win, interaction_bar, User.inv.misc);
         }
         // Salvage ('S')
         if(ch=='q'){
