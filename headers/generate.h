@@ -29,3 +29,4 @@ void generate_doors(std::vector<std::pair<int,int>> &doors, level Current);
 int generate_gold(char type);
 double rarity_value(char rarity);
 void reforge_item(unsigned int ancient_cores, unsigned int crystallium, Item &item);
+Item craft_item(char loot_rarity, char loot_type);
