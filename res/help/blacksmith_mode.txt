@@ -1,0 +1,13 @@
+'r' to repair items
+'e' to enhance items
+'R' to reforge items
+'c' to craft items
+'S' to salvage items
+
+Blueprint requirements:
+Helmet - 3 materials
+Chestplate - 5 materials
+Greaves - 3 materials
+Boots - 2 materials
+Shield - 4 materials
+Weapon - 6 materials

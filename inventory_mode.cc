@@ -1162,6 +1162,10 @@ void reforge_repair_mode(WINDOW *main_win, WINDOW *status_win, WINDOW *interacti
             }
             draw_inventory(main_win, interaction_bar, status_win, User, page_num, csr_pos, true);
         }
+        if(ch=='H'){
+            help_mode(main_win, interaction_bar, "blacksmith_mode");
+            draw_inventory(main_win, interaction_bar, status_win, User, page_num, csr_pos, true);
+        }
         if(ch=='q'){
             return;
         }
