@@ -578,81 +578,6 @@ void show_misc_items(WINDOW *main_win, WINDOW *interaction_bar, Miscellaneous &U
         }
     }
 }
-void inventory_mode(WINDOW *main_win, WINDOW *status_win, WINDOW *interaction_bar, Player &User){
-    unsigned int page_num=0;
-    int csr_pos=0;
-    draw_inventory(main_win, interaction_bar, status_win, User, page_num, csr_pos);
-    while(true){
-        int ch=wgetch(main_win);
-        if((ch=='s'||ch==KEY_DOWN)&&((csr_pos+page_num*30)<User.inv.item.size()-1&&csr_pos<29)){
-            csr_pos++;
-            draw_inventory(main_win, interaction_bar, status_win, User, page_num, csr_pos);
-        }
-        if((ch=='w'||ch==KEY_UP)&&csr_pos>0){
-            csr_pos--;
-            draw_inventory(main_win, interaction_bar, status_win, User, page_num, csr_pos);
-        }
-        if(ch=='a'||ch==KEY_LEFT){
-            if(page_num>0){
-                page_num--;
-                csr_pos=0;
-                draw_inventory(main_win, interaction_bar, status_win, User, page_num, csr_pos);
-            }
-        }
-        if(ch=='d'||ch==KEY_RIGHT){
-            if((page_num+1)*30<User.inv.item.size()){
-                page_num++;
-                csr_pos=0;
-                draw_inventory(main_win, interaction_bar, status_win, User, page_num, csr_pos);
-            }
-        }
-        if(ch=='e'){
-            if(!User.inv.item[csr_pos+(page_num*30)].is_equipped&&User.inv.item[csr_pos+(page_num*30)].durability>0){ // if there current item is unequipped
-                equip_item(User, csr_pos, page_num);
-            }
-            else if(User.inv.item[csr_pos+(page_num*30)].is_equipped){
-                unequip_item(User, csr_pos, page_num);
-            }
-            draw_inventory(main_win, interaction_bar, status_win, User, page_num, csr_pos);
-        }
-        if(ch=='r'){
-            std::string input=get_string(main_win, interaction_bar, User.inv.item[csr_pos+(page_num*30)].name);
-            User.inv.item[csr_pos+(page_num*30)].name=input;
-            draw_inventory(main_win, interaction_bar, status_win, User, page_num, csr_pos);
-        }
-        if(ch=='m'){
-            show_misc_items(main_win, interaction_bar, User.inv.misc);
-            draw_inventory(main_win, interaction_bar, status_win, User, page_num, csr_pos);
-        }
-        if(ch=='H'){
-            help_mode(main_win, interaction_bar, "inventory_mode");
-            draw_inventory(main_win, interaction_bar, status_win, User, page_num, csr_pos);
-        }
-        if(ch=='R'){
-            wclear(interaction_bar);
-            mvwaddstr(interaction_bar, 0, 0, "[System] Are you sure you want to delete this item? Press y to continue, any other key to cancel.");
-            wrefresh(interaction_bar);
-            ch=wgetch(main_win);
-            if(ch=='y'){
-                unequip_item(User, csr_pos, page_num);
-                User.remove_item(csr_pos+(page_num*30));
-                if((page_num*30+csr_pos)>=User.inv.item.size()){
-                    csr_pos--;
-                }
-                if(csr_pos<0){
-                    csr_pos=0;
-                }
-                if(User.inv.item.empty()){
-                    return;
-                }
-            }
-            draw_inventory(main_win, interaction_bar, status_win, User, page_num, csr_pos);
-        }
-        if(ch=='q'){
-            return;
-        }
-    }
-}
 bool decrease_materials(char rarity, Miscellaneous &misc, unsigned int amount){
     if(rarity=='c'&&misc.materials.common>=amount){
         misc.materials.common-=amount;
@@ -1004,6 +929,81 @@ void salvage_item(Player &User, long long int pos){
     User.uninitialize_stats();
     User.remove_item(pos);
     User.initialize_stats();
+}
+void inventory_mode(WINDOW *main_win, WINDOW *status_win, WINDOW *interaction_bar, Player &User){
+    unsigned int page_num=0;
+    int csr_pos=0;
+    draw_inventory(main_win, interaction_bar, status_win, User, page_num, csr_pos);
+    while(true){
+        int ch=wgetch(main_win);
+        if((ch=='s'||ch==KEY_DOWN)&&((csr_pos+page_num*30)<User.inv.item.size()-1&&csr_pos<29)){
+            csr_pos++;
+            draw_inventory(main_win, interaction_bar, status_win, User, page_num, csr_pos);
+        }
+        if((ch=='w'||ch==KEY_UP)&&csr_pos>0){
+            csr_pos--;
+            draw_inventory(main_win, interaction_bar, status_win, User, page_num, csr_pos);
+        }
+        if(ch=='a'||ch==KEY_LEFT){
+            if(page_num>0){
+                page_num--;
+                csr_pos=0;
+                draw_inventory(main_win, interaction_bar, status_win, User, page_num, csr_pos);
+            }
+        }
+        if(ch=='d'||ch==KEY_RIGHT){
+            if((page_num+1)*30<User.inv.item.size()){
+                page_num++;
+                csr_pos=0;
+                draw_inventory(main_win, interaction_bar, status_win, User, page_num, csr_pos);
+            }
+        }
+        if(ch=='e'){
+            if(!User.inv.item[csr_pos+(page_num*30)].is_equipped&&User.inv.item[csr_pos+(page_num*30)].durability>0){ // if there current item is unequipped
+                equip_item(User, csr_pos, page_num);
+            }
+            else if(User.inv.item[csr_pos+(page_num*30)].is_equipped){
+                unequip_item(User, csr_pos, page_num);
+            }
+            draw_inventory(main_win, interaction_bar, status_win, User, page_num, csr_pos);
+        }
+        if(ch=='r'){
+            std::string input=get_string(main_win, interaction_bar, User.inv.item[csr_pos+(page_num*30)].name);
+            User.inv.item[csr_pos+(page_num*30)].name=input;
+            draw_inventory(main_win, interaction_bar, status_win, User, page_num, csr_pos);
+        }
+        if(ch=='m'){
+            show_misc_items(main_win, interaction_bar, User.inv.misc);
+            draw_inventory(main_win, interaction_bar, status_win, User, page_num, csr_pos);
+        }
+        if(ch=='H'){
+            help_mode(main_win, interaction_bar, "inventory_mode");
+            draw_inventory(main_win, interaction_bar, status_win, User, page_num, csr_pos);
+        }
+        if(ch=='R'){
+            wclear(interaction_bar);
+            mvwaddstr(interaction_bar, 0, 0, "[System] Are you sure you want to delete this item? Press y to continue, any other key to cancel.");
+            wrefresh(interaction_bar);
+            ch=wgetch(main_win);
+            if(ch=='y'){
+                unequip_item(User, csr_pos, page_num);
+                User.remove_item(csr_pos+(page_num*30));
+                if((page_num*30+csr_pos)>=User.inv.item.size()){
+                    csr_pos--;
+                }
+                if(csr_pos<0){
+                    csr_pos=0;
+                }
+                if(User.inv.item.empty()){
+                    return;
+                }
+            }
+            draw_inventory(main_win, interaction_bar, status_win, User, page_num, csr_pos);
+        }
+        if(ch=='q'){
+            return;
+        }
+    }
 }
 void reforge_repair_mode(WINDOW *main_win, WINDOW *status_win, WINDOW *interaction_bar, Player &User){
     unsigned int page_num=0;
