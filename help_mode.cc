@@ -1,7 +1,6 @@
-#include <curses.h>
 #include <string>
 #include <fstream>
-void help_mode(WINDOW *main_win, WINDOW *interaction_bar, std::string mode){
+void help_mode(std::unique_ptr<TCOD_Console, tcod::ConsoleDeleter> &main_win, std::unique_ptr<TCOD_Context, tcod::ContextDeleter> &context, WINDOW *interaction_bar, std::string mode){
     wclear(main_win);
     wclear(interaction_bar);
     mvwaddstr(interaction_bar,0,0,"Help");
