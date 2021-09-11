@@ -3,9 +3,9 @@
 #include <SDL2/SDL.h>
 const auto modkeys = KMOD_CTRL | KMOD_SHIFT | KMOD_ALT;
 
-static constexpr TCOD_ColorRGB BLACK{10,10,10};
-static constexpr TCOD_ColorRGB CYAN{0,255,255};
-static constexpr TCOD_ColorRGB WHITE{255,255,255};
+static constexpr TCOD_ColorRGB BLACK{10,10,10}; // background
+static constexpr TCOD_ColorRGB WHITE{255,255,255}; // default_font
+static constexpr TCOD_ColorRGB CYAN{0,255,255}; // player_char
 
 constexpr char RARITY_COMMON = 'c';
 constexpr char RARITY_UNCOMMON = 'u';
