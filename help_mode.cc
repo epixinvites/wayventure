@@ -1,17 +1,17 @@
 #include <string>
 #include <fstream>
-void help_mode(std::unique_ptr<TCOD_Console, tcod::ConsoleDeleter> &main_win, std::unique_ptr<TCOD_Context, tcod::ContextDeleter> &context, WINDOW *interaction_bar, std::string mode){
-    wclear(main_win);
-    wclear(interaction_bar);
-    mvwaddstr(interaction_bar,0,0,"Help");
+#include "headers/main.h"
+void help_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, std::string mode){
+    SDL_wclear_main_win(main_win, context);
+    SDL_wclear_dialog_bar(main_win, context);
+    tcod::print(*main_win, {0,0}, "Help", nullptr, nullptr, TCOD_BKGND_SET, TCOD_LEFT);
     std::ifstream dungeon_help("res/help/"+mode+".txt");
     std::string line;
     int count = 0;
     while(std::getline(dungeon_help, line)){
-        mvwaddstr(main_win,count,0,line.c_str());
+        tcod::print(*main_win, {0,count+1}, line, nullptr, nullptr, TCOD_BKGND_SET, TCOD_LEFT);
         count++;
     }
-    wrefresh(main_win);
-    wrefresh(interaction_bar);
-    int ch = wgetch(main_win);
+    context->present(*main_win);
+    int ch = SDL_getch(main_win, context);
 }

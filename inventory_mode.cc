@@ -10,13 +10,13 @@ void clear_screen(std::unique_ptr<TCOD_Console, tcod::ConsoleDeleter> &main_win,
     wclear(main_win);
     wrefresh(main_win);
 }
-void clear_screen(std::unique_ptr<TCOD_Console, tcod::ConsoleDeleter> &main_win, std::unique_ptr<TCOD_Context, tcod::ContextDeleter> &context, WINDOW *interaction_bar){
+void clear_screen(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, WINDOW *interaction_bar){
     wclear(main_win);
     wclear(interaction_bar);
     wrefresh(main_win);
     wrefresh(interaction_bar);
 }
-void draw_base(std::unique_ptr<TCOD_Console, tcod::ConsoleDeleter> &main_win, std::unique_ptr<TCOD_Context, tcod::ContextDeleter> &context, WINDOW *interaction_bar, int y, unsigned int size, unsigned int page, bool is_blacksmith_mode){
+void draw_base(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, WINDOW *interaction_bar, int y, unsigned int size, unsigned int page, bool is_blacksmith_mode){
     std::stringstream ss;
     wclear(interaction_bar);
     if(!is_blacksmith_mode){
@@ -32,17 +32,17 @@ void draw_base(std::unique_ptr<TCOD_Console, tcod::ConsoleDeleter> &main_win, st
     wrefresh(interaction_bar);
     wrefresh(main_win);
 }
-void print_string_with_color(std::unique_ptr<TCOD_Console, tcod::ConsoleDeleter> &main_win, std::unique_ptr<TCOD_Context, tcod::ContextDeleter> &context, std::string ss, int color_pair, int line){
+void print_string_with_color(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, std::string ss, int color_pair, int line){
     wattron(main_win, COLOR_PAIR(color_pair));
     mvwaddstr(main_win, line, 0, ss.c_str());
     wattroff(main_win, COLOR_PAIR(color_pair));
 }
-void print_string_with_color(std::unique_ptr<TCOD_Console, tcod::ConsoleDeleter> &main_win, std::unique_ptr<TCOD_Context, tcod::ContextDeleter> &context, std::string ss, int color_pair, int y, int x){
+void print_string_with_color(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, std::string ss, int color_pair, int y, int x){
     wattron(main_win, COLOR_PAIR(color_pair));
     mvwaddstr(main_win, y, x, ss.c_str());
     wattroff(main_win, COLOR_PAIR(color_pair));
 }
-void print_item(std::unique_ptr<TCOD_Console, tcod::ConsoleDeleter> &main_win, std::unique_ptr<TCOD_Context, tcod::ContextDeleter> &context, const Item *cur_item, int line){
+void print_item(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, const Item *cur_item, int line){
     std::stringstream ss;
     if(cur_item->is_equipped){
         ss<<"*";
@@ -98,7 +98,7 @@ void print_item(std::unique_ptr<TCOD_Console, tcod::ConsoleDeleter> &main_win, s
             break;
     }
 }
-void print_bold_item(std::unique_ptr<TCOD_Console, tcod::ConsoleDeleter> &main_win, std::unique_ptr<TCOD_Context, tcod::ContextDeleter> &context, const Item *cur_item, int line){
+void print_bold_item(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, const Item *cur_item, int line){
     std::stringstream ss;
     if(cur_item->is_equipped){
         ss<<"*";
@@ -154,7 +154,7 @@ void print_bold_item(std::unique_ptr<TCOD_Console, tcod::ConsoleDeleter> &main_w
             break;
     }
 }
-void print_description(std::unique_ptr<TCOD_Console, tcod::ConsoleDeleter> &main_win, std::unique_ptr<TCOD_Context, tcod::ContextDeleter> &context, const Item *cur_item, int line){
+void print_description(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, const Item *cur_item, int line){
     mvwaddstr(main_win, line, 0, "Name: ");
     mvwaddstr(main_win, line+1, 0, "Rarity: ");
     mvwaddstr(main_win, line, 6, cur_item->name.c_str());
@@ -342,7 +342,7 @@ void unequip_item(Player &User, unsigned int csr_pos, unsigned int page_num){
         User.inv.item[csr_pos+(page_num*30)].is_equipped=false;
     }
 }
-void draw_inventory(std::unique_ptr<TCOD_Console, tcod::ConsoleDeleter> &main_win, std::unique_ptr<TCOD_Context, tcod::ContextDeleter> &context,  const Player &User, unsigned int page_num, unsigned int csr_pos, bool is_blacksmith_mode=false){
+void draw_inventory(tcod::ConsolePtr &main_win, tcod::ContextPtr &context,  const Player &User, unsigned int page_num, unsigned int csr_pos, bool is_blacksmith_mode=false){
     clear_screen(main_win);
     draw_base(main_win, interaction_bar, 34, User.inv.item.size(), page_num, is_blacksmith_mode);
     draw_stats(status_win, User);
@@ -354,7 +354,7 @@ void draw_inventory(std::unique_ptr<TCOD_Console, tcod::ConsoleDeleter> &main_wi
     wrefresh(main_win);
     wrefresh(interaction_bar);
 }
-std::string get_string(std::unique_ptr<TCOD_Console, tcod::ConsoleDeleter> &main_win, std::unique_ptr<TCOD_Context, tcod::ContextDeleter> &context, WINDOW *interaction_bar, std::string original){
+std::string get_string(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, WINDOW *interaction_bar, std::string original){
     std::string input;
     wclear(interaction_bar);
     mvwaddstr(interaction_bar, 0, 0, "([ESC] to cancel) Rename item to: ");
@@ -386,7 +386,7 @@ std::string get_string(std::unique_ptr<TCOD_Console, tcod::ConsoleDeleter> &main
         wrefresh(interaction_bar);
     }
 }
-unsigned int get_int(std::unique_ptr<TCOD_Console, tcod::ConsoleDeleter> &main_win, std::unique_ptr<TCOD_Context, tcod::ContextDeleter> &context, WINDOW *interaction_bar, std::string dialogue){
+unsigned int get_int(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, WINDOW *interaction_bar, std::string dialogue){
     std::string input;
     wclear(interaction_bar);
     mvwaddstr(interaction_bar, 0, 0, dialogue.c_str());
@@ -418,7 +418,7 @@ unsigned int get_int(std::unique_ptr<TCOD_Console, tcod::ConsoleDeleter> &main_w
         wrefresh(interaction_bar);
     }
 }
-void print_misc_bold(std::unique_ptr<TCOD_Console, tcod::ConsoleDeleter> &main_win, std::unique_ptr<TCOD_Context, tcod::ContextDeleter> &context, Miscellaneous &User, unsigned int csr_pos){
+void print_misc_bold(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Miscellaneous &User, unsigned int csr_pos){
     switch(csr_pos){
         case 0:
             print_string_with_color(main_win, "Ancient Cores: "+std::to_string(User.ancient_core), 20, 0);
@@ -512,7 +512,7 @@ bool remove_misc_item(Miscellaneous &User, unsigned int csr_pos, unsigned int am
             return false;
     }
 }
-void print_misc_item(std::unique_ptr<TCOD_Console, tcod::ConsoleDeleter> &main_win, std::unique_ptr<TCOD_Context, tcod::ContextDeleter> &context, Miscellaneous &User, unsigned int csr_pos){
+void print_misc_item(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Miscellaneous &User, unsigned int csr_pos){
     wclear(main_win);
     print_string_with_color(main_win, "Ancient Cores: "+std::to_string(User.ancient_core), 10, 0);
     print_string_with_color(main_win, "Crystallium: "+std::to_string(User.crystallium), 9, 1);
@@ -534,7 +534,7 @@ void print_misc_item(std::unique_ptr<TCOD_Console, tcod::ConsoleDeleter> &main_w
     print_misc_bold(main_win, User, csr_pos);
     wrefresh(main_win);
 }
-void show_misc_items(std::unique_ptr<TCOD_Console, tcod::ConsoleDeleter> &main_win, std::unique_ptr<TCOD_Context, tcod::ContextDeleter> &context, WINDOW *interaction_bar, Miscellaneous &User){
+void show_misc_items(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, WINDOW *interaction_bar, Miscellaneous &User){
     unsigned int csr_pos=0;
     wclear(interaction_bar);
     mvwaddstr(interaction_bar, 0, 0, "Miscallaneous items:");
@@ -613,7 +613,7 @@ bool enhance_item(Item &item, Miscellaneous &misc, unsigned int amount){
     }
     return false;
 }
-void draw_crafting_selection(std::unique_ptr<TCOD_Console, tcod::ConsoleDeleter> &main_win, std::unique_ptr<TCOD_Context, tcod::ContextDeleter> &context, WINDOW *interaction_bar, const Miscellaneous &misc, unsigned int csr_pos, int blueprint_selection, int material_selection){
+void draw_crafting_selection(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, WINDOW *interaction_bar, const Miscellaneous &misc, unsigned int csr_pos, int blueprint_selection, int material_selection){
     wclear(main_win);
     wclear(interaction_bar);
     mvwaddstr(interaction_bar, 0, 0, "[Blacksmith] What do you want to craft today?");
@@ -845,7 +845,7 @@ bool check_if_craft_valid(int blueprint_selection, int material_selection, Misce
     }
     return false;
 }
-void crafting_mode(std::unique_ptr<TCOD_Console, tcod::ConsoleDeleter> &main_win, std::unique_ptr<TCOD_Context, tcod::ContextDeleter> &context, WINDOW *interaction_bar, Player &User){
+void crafting_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, WINDOW *interaction_bar, Player &User){
     unsigned int csr_pos=1;
     int blueprint_selection=0, material_selection=0;
     int ch;
@@ -929,7 +929,7 @@ void salvage_item(Player &User, long long int pos){
     User.remove_item(pos);
     User.initialize_stats();
 }
-void inventory_mode(std::unique_ptr<TCOD_Console, tcod::ConsoleDeleter> &main_win, std::unique_ptr<TCOD_Context, tcod::ContextDeleter> &context,  Player &User){
+void inventory_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context,  Player &User){
     unsigned int page_num=0;
     int csr_pos=0;
     draw_inventory(main_win, interaction_bar, status_win, User, page_num, csr_pos);
@@ -1004,7 +1004,7 @@ void inventory_mode(std::unique_ptr<TCOD_Console, tcod::ConsoleDeleter> &main_wi
         }
     }
 }
-void reforge_repair_mode(std::unique_ptr<TCOD_Console, tcod::ConsoleDeleter> &main_win, std::unique_ptr<TCOD_Context, tcod::ContextDeleter> &context,  Player &User){
+void reforge_repair_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context,  Player &User){
     unsigned int page_num=0;
     unsigned int csr_pos=0;
     draw_inventory(main_win, interaction_bar, status_win, User, page_num, csr_pos, true);

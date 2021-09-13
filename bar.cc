@@ -30,7 +30,7 @@ void refresh_gear_merchant_store(Merchant &gear_merchant){
         }
     }
 }
-void redraw_bar(std::unique_ptr<TCOD_Console, tcod::ConsoleDeleter> &main_win, std::unique_ptr<TCOD_Context, tcod::ContextDeleter> &context, WINDOW *interaction_bar, std::vector<std::string> pub_layout, Csr csr_pos){
+void redraw_bar(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, WINDOW *interaction_bar, std::vector<std::string> pub_layout, Csr csr_pos){
     wclear(main_win);
     wclear(interaction_bar);
     mvwaddstr(interaction_bar,0,0,"Pub");
@@ -87,7 +87,7 @@ char search_surroundings(std::vector<std::string> pub_layout, int x, int y){
     }
     return '0';
 }
-void draw_bartender_mode(std::unique_ptr<TCOD_Console, tcod::ConsoleDeleter> &main_win, std::unique_ptr<TCOD_Context, tcod::ContextDeleter> &context, Bartender bartender, Player &User){
+void draw_bartender_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Bartender bartender, Player &User){
     wclear(main_win);
     mvwaddstr(main_win,2,0,"[Bartender] How can I serve you today?");
     std::stringstream output;
@@ -104,7 +104,7 @@ void draw_bartender_mode(std::unique_ptr<TCOD_Console, tcod::ConsoleDeleter> &ma
     mvwaddstr(main_win,13,0,output.str().c_str());
     wrefresh(main_win);
 }
-void draw_bartender_mode(std::unique_ptr<TCOD_Console, tcod::ConsoleDeleter> &main_win, std::unique_ptr<TCOD_Context, tcod::ContextDeleter> &context,  Bartender bartender, Player &User){
+void draw_bartender_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context,  Bartender bartender, Player &User){
     wclear(main_win);
     wclear(interaction_bar);
     draw_stats(status_win, User);
@@ -125,7 +125,7 @@ void draw_bartender_mode(std::unique_ptr<TCOD_Console, tcod::ConsoleDeleter> &ma
     wrefresh(main_win);
     wrefresh(interaction_bar);
 }
-void bartender_mode(std::unique_ptr<TCOD_Console, tcod::ConsoleDeleter> &main_win, std::unique_ptr<TCOD_Context, tcod::ContextDeleter> &context,  Bartender &bartender, Player &User){
+void bartender_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context,  Bartender &bartender, Player &User){
     draw_bartender_mode(main_win, interaction_bar, status_win, bartender, User);
     int ch;
     while(true){
@@ -205,7 +205,7 @@ void bartender_mode(std::unique_ptr<TCOD_Console, tcod::ConsoleDeleter> &main_wi
         }
     }
 }
-void draw_farmer_mode(std::unique_ptr<TCOD_Console, tcod::ConsoleDeleter> &main_win, std::unique_ptr<TCOD_Context, tcod::ContextDeleter> &context, Farmer farmer, Player &User){
+void draw_farmer_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Farmer farmer, Player &User){
     wclear(main_win);
     mvwaddstr(main_win,2,0,"[Farmer] What brings you here today?");
     std::stringstream output;
@@ -226,7 +226,7 @@ void draw_farmer_mode(std::unique_ptr<TCOD_Console, tcod::ConsoleDeleter> &main_
     mvwaddstr(main_win,16,0,output.str().c_str());
     wrefresh(main_win);
 }
-void draw_farmer_mode(std::unique_ptr<TCOD_Console, tcod::ConsoleDeleter> &main_win, std::unique_ptr<TCOD_Context, tcod::ContextDeleter> &context,  Farmer farmer, Player &User){
+void draw_farmer_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context,  Farmer farmer, Player &User){
     wclear(main_win);
     wclear(interaction_bar);
     draw_stats(status_win, User);
@@ -251,7 +251,7 @@ void draw_farmer_mode(std::unique_ptr<TCOD_Console, tcod::ConsoleDeleter> &main_
     wrefresh(main_win);
     wrefresh(interaction_bar);
 }
-void farmer_mode(std::unique_ptr<TCOD_Console, tcod::ConsoleDeleter> &main_win, std::unique_ptr<TCOD_Context, tcod::ContextDeleter> &context,  Farmer &farmer, Player &User){
+void farmer_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context,  Farmer &farmer, Player &User){
     draw_farmer_mode(main_win, interaction_bar, status_win, farmer, User);
     int ch;
     while(true){
@@ -366,13 +366,13 @@ void farmer_mode(std::unique_ptr<TCOD_Console, tcod::ConsoleDeleter> &main_win, 
         }
     }
 }
-void draw_blacksmith_mode(std::unique_ptr<TCOD_Console, tcod::ConsoleDeleter> &main_win, std::unique_ptr<TCOD_Context, tcod::ContextDeleter> &context, WINDOW *interaction_bar, WINDOW *status_bar, Player &User){
+void draw_blacksmith_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, WINDOW *interaction_bar, WINDOW *status_bar, Player &User){
 
 }
-void blacksmith_mode(std::unique_ptr<TCOD_Console, tcod::ConsoleDeleter> &main_win, std::unique_ptr<TCOD_Context, tcod::ContextDeleter> &context, WINDOW *interaction_bar, WINDOW *status_bar, Player &User){
+void blacksmith_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, WINDOW *interaction_bar, WINDOW *status_bar, Player &User){
     draw_blacksmith_mode(main_win, interaction_bar, status_bar, User);
 }
-void char_move(int ch, std::unique_ptr<TCOD_Console, tcod::ConsoleDeleter> &main_win, std::unique_ptr<TCOD_Context, tcod::ContextDeleter> &context, Csr &csr_pos, const std::vector<std::string> &pub_layout){
+void char_move(int ch, tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Csr &csr_pos, const std::vector<std::string> &pub_layout){
     if((ch=='a'||ch==KEY_LEFT)&&csr_pos.first>1&&pub_layout[csr_pos.second][csr_pos.first-1]==' '){
         mvwaddch(main_win, csr_pos.second, csr_pos.first,' ');
         csr_pos.first--;
@@ -390,7 +390,7 @@ void char_move(int ch, std::unique_ptr<TCOD_Console, tcod::ConsoleDeleter> &main
         csr_pos.second++;
     }
 }
-void bar_mode(std::unique_ptr<TCOD_Console, tcod::ConsoleDeleter> &main_win, std::unique_ptr<TCOD_Context, tcod::ContextDeleter> &context,  Player &User, NPC &npc){
+void bar_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context,  Player &User, NPC &npc){
     Csr csr_pos{78,1};
     std::ifstream pub_layout_file("res/bar_layout.txt");
     std::vector<std::string> pub_layout; // {50,80}

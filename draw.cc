@@ -1,17 +1,22 @@
 #include "headers/draw.h"
 #include <sstream>
-void draw_level(std::unique_ptr<TCOD_Console, tcod::ConsoleDeleter> &main_win, std::unique_ptr<TCOD_Context, tcod::ContextDeleter> &context, level Current){
-    TCOD_console_clear(main_win.get());
-    std::stringstream ss;
-    ss<<'L'<<Current.lvl<<' '<<Current.x<<':'<<Current.y;
-    tcod::print(*main_win, {0,0}, ss.str(), &WHITE, nullptr, TCOD_BKGND_SET, TCOD_LEFT);
+void clear_and_draw_dialog(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, std::string dialog){
+    SDL_wclear_dialog_bar(main_win, context);
+    tcod::print(*main_win, {0,0}, dialog, nullptr, nullptr, TCOD_BKGND_SET, TCOD_LEFT);
     context->present(*main_win);
 }
-void draw_stats(std::unique_ptr<TCOD_Console, tcod::ConsoleDeleter> &main_win, std::unique_ptr<TCOD_Context, tcod::ContextDeleter> &context, Player stats){
-    TCOD_console_clear(main_win.get());
+void draw_level(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, level Current){
+    SDL_wclear_dialog_bar(main_win, context);
+    std::stringstream ss;
+    ss<<'L'<<Current.lvl<<' '<<Current.x<<':'<<Current.y;
+    tcod::print(*main_win, {0,0}, ss.str(), nullptr, nullptr, TCOD_BKGND_SET, TCOD_LEFT);
+    context->present(*main_win);
+}
+void draw_stats(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player stats){
+    SDL_wclear_stats_bar(main_win, context);
     std::stringstream ss;
     ss<<"HP:"<<stats.cur_hp<<" Attk:"<<stats.attk<<" Def:"<<stats.def<<" Shield:"<<stats.cur_shield<<" CritChn:"<<stats.crit_chance<<" CritDmg:"<<stats.crit_dmg<<" Gold:"<<stats.gold<<" T:"<<stats.steps/10;
-    tcod::print(*main_win, {0,0}, ss.str(), &WHITE, nullptr, TCOD_BKGND_SET, TCOD_LEFT);
+    tcod::print(*main_win, {0,51}, ss.str(), nullptr, nullptr, TCOD_BKGND_SET, TCOD_LEFT);
     ss.str(std::string());
     ss<<"Saturation ("<<stats.saturation<<"/100)"<<" [";
     for(int i = 1; i<=50; i++){
@@ -23,7 +28,7 @@ void draw_stats(std::unique_ptr<TCOD_Console, tcod::ConsoleDeleter> &main_win, s
         }
     }
     ss<<"]";
-    tcod::print(*main_win, {0,1}, ss.str(), &WHITE, nullptr, TCOD_BKGND_SET, TCOD_LEFT);
+    tcod::print(*main_win, {0,52}, ss.str(), nullptr, nullptr, TCOD_BKGND_SET, TCOD_LEFT);
     ss.str(std::string());
     ss<<"Hydration ("<<stats.hydration<<"/100)"<<" [";
     for(int i = 1; i<=50; i++){
@@ -35,96 +40,80 @@ void draw_stats(std::unique_ptr<TCOD_Console, tcod::ConsoleDeleter> &main_win, s
         }
     }
     ss<<"]";
-    tcod::print(*main_win, {0,2}, ss.str(), &WHITE, nullptr, TCOD_BKGND_SET, TCOD_LEFT);
+    tcod::print(*main_win, {0,53}, ss.str(), nullptr, nullptr, TCOD_BKGND_SET, TCOD_LEFT);
     context->present(*main_win);
 }
-void draw_player(std::unique_ptr<TCOD_Console, tcod::ConsoleDeleter> &main_win, std::unique_ptr<TCOD_Context, tcod::ContextDeleter> &context, int x, int y){
-    TCOD_console_put_char_ex(main_win.get(), x, y, '@', CYAN, BLACK);
-    wattron(main_win, COLOR_PAIR(1));
-    mvwaddch(main_win, y, x, '@');
-    wattroff(main_win, COLOR_PAIR(1));
+void draw_player(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, int x, int y){
+    TCOD_console_put_char_ex(main_win.get(), x, y+1, '@', CYAN, BLACK);
 }
-void draw_monster(std::unique_ptr<TCOD_Console, tcod::ConsoleDeleter> &main_win, std::unique_ptr<TCOD_Context, tcod::ContextDeleter> &context, std::vector<monster> monsters){
+void draw_monster(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, std::vector<monster> monsters){
     for(int i=0; i<monsters.size(); i++){
         if(monsters[i].type=='b'){ // boss
-            wattron(main_win, COLOR_PAIR(3));
-            mvwaddch(main_win, monsters[i].y, monsters[i].x, 'X');
-            wattroff(main_win, COLOR_PAIR(3));
+            TCOD_console_put_char_ex(main_win.get(), monsters[i].x, monsters[i].y+1, 'X', WHITE, BLACK);
         }
         else if(monsters[i].type=='x'){ // level boss
-            wattron(main_win, COLOR_PAIR(13));
-            mvwaddch(main_win, monsters[i].y, monsters[i].x, 'X');
-            wattroff(main_win, COLOR_PAIR(13));
+            TCOD_console_put_char_ex(main_win.get(), monsters[i].x, monsters[i].y+1, 'X', BLACK, YELLOW);
         }
         else if(monsters[i].type=='f'){ // final boss
-            wattron(main_win, COLOR_PAIR(14));
-            mvwaddch(main_win, monsters[i].y, monsters[i].x, 'X');
-            wattroff(main_win, COLOR_PAIR(14));
+            TCOD_console_put_char_ex(main_win.get(), monsters[i].x, monsters[i].y+1, 'X', BLACK, PURPLE);
         }
         else{
-            wattron(main_win, COLOR_PAIR(2));
-            mvwaddch(main_win, monsters[i].y, monsters[i].x, 'x');
-            wattroff(main_win, COLOR_PAIR(2));
+            TCOD_console_put_char_ex(main_win.get(), monsters[i].x, monsters[i].y+1, 'x', LIGHT_RED, BLACK);
         }
     }
 }
 void draw_border(std::unique_ptr<TCOD_Console, tcod::ConsoleDeleter> &main_win, std::unique_ptr<TCOD_Context, tcod::ContextDeleter> &context){
     for(int i=0; i<80; i++){ // vertical
-        mvwaddch(main_win, 0, i, '#');
-        mvwaddch(main_win, 49, i, '#');
+        TCOD_console_put_char_ex(main_win.get(), i, 1, '#', WHITE, BLACK);
+        TCOD_console_put_char_ex(main_win.get(), i, 50, '#', WHITE, BLACK);
     }
-    for(int i=1; i<50; i++){ // horizontal
-        mvwaddch(main_win, i, 0, '#');
-        mvwaddch(main_win, i, 79, '#');
+    for(int i=2; i<50; i++){ // horizontal
+        TCOD_console_put_char_ex(main_win.get(), 0, i, '#', WHITE, BLACK);
+        TCOD_console_put_char_ex(main_win.get(), 79, i, '#', WHITE, BLACK);
     }
 }
-void draw_doors(std::unique_ptr<TCOD_Console, tcod::ConsoleDeleter> &main_win, std::unique_ptr<TCOD_Context, tcod::ContextDeleter> &context, level Current){
-    wattron(main_win, COLOR_PAIR(11));
+void draw_doors(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, level Current){
     if(Current.y>1){
-        mvwaddch(main_win, 49, 39, '+');
+        TCOD_console_put_char_ex(main_win.get(), 39, 50, '+', BLACK, WHITE);
     }
     if(Current.y<5){
-        mvwaddch(main_win, 0, 39, '+');
+        TCOD_console_put_char_ex(main_win.get(), 39, 1, '+', BLACK, WHITE);
     }
     if(Current.x>1){
-        mvwaddch(main_win, 24, 0, '+');
+        TCOD_console_put_char_ex(main_win.get(), 0, 25, '+', BLACK, WHITE);
     }
     if(Current.x<5){
-        mvwaddch(main_win, 24, 79, '+');
+        TCOD_console_put_char_ex(main_win.get(), 79, 25, '+', BLACK, WHITE);
     }
-    wattroff(main_win, COLOR_PAIR(11));
     if(Current.x==1&&Current.y==1&&Current.lvl==1){
-        wattron(main_win, COLOR_PAIR(12));
-        mvwaddch(main_win, 48, 1, '<'); // Bar
-        wattroff(main_win, COLOR_PAIR(12));
+        TCOD_console_put_char_ex(main_win.get(), 1, 49, '<', WHITE, BLACK);
     }
     if(Current.x==1&&Current.y==1&&Current.lvl>1){
-        mvwaddch(main_win, 24, 39, '<');
+        TCOD_console_put_char_ex(main_win.get(), 39, 25, '<', WHITE, BLACK);
     }
     if(Current.x==5&&Current.y==5&&Current.lvl<5){
-        mvwaddch(main_win, 24, 39, '>');
+        TCOD_console_put_char_ex(main_win.get(), 39, 25, '>', WHITE, BLACK);
     }
 }
 
-void redraw_dungeon(std::unique_ptr<TCOD_Console, tcod::ConsoleDeleter> &main_win, std::unique_ptr<TCOD_Context, tcod::ContextDeleter> &context, level Current, std::vector<monster> monsters, Csr csr_pos){
-    wclear(main_win);
-    draw_border(main_win);
-    draw_doors(main_win, Current);
-    draw_player(main_win, csr_pos.first, csr_pos.second);
-    draw_monster(main_win, monsters);
+void redraw_dungeon(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, level Current, std::vector<monster> monsters, Csr csr_pos){
+    TCOD_console_clear(main_win.get());
+    draw_border(main_win, context);
+    draw_doors(main_win, context, Current);
+    draw_player(main_win, context, csr_pos.first, csr_pos.second);
+    draw_monster(main_win, context, monsters);
+    context->present(*main_win);
 }
-void redraw_everything(std::unique_ptr<TCOD_Console, tcod::ConsoleDeleter> &main_win, std::unique_ptr<TCOD_Context, tcod::ContextDeleter> &context, Csr csr_pos, Player User, level Current, std::vector<monster> monsters){
-    wclear(main_win);
-    wclear(status_win);
-    wclear(interaction_bar);
-    draw_level(interaction_bar, Current);
-    draw_stats(status_win, User);
-    draw_border(main_win);
-    draw_doors(main_win, Current);
-    draw_player(main_win, csr_pos.first, csr_pos.second);
-    draw_monster(main_win, monsters);
-    wrefresh(main_win);
-    wrefresh(status_win);
-    wrefresh(interaction_bar);
+void redraw_everything(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Csr csr_pos, Player User, level Current, std::vector<monster> monsters, bool is_draw_level = true){
+    TCOD_console_clear(main_win.get());
+    if(is_draw_level){
+        draw_level(main_win, context, Current);
+    }
+    draw_stats(main_win, context, User);
+    draw_border(main_win, context);
+    draw_doors(main_win, context, Current);
+    draw_player(main_win, context, csr_pos.first, csr_pos.second);
+    draw_monster(main_win, context, monsters);
+    context->present(*main_win);
 }
 
