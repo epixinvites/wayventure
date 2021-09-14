@@ -2,21 +2,21 @@
 #include <sstream>
 void clear_and_draw_dialog(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, std::string dialog){
     SDL_wclear_dialog_bar(main_win, context);
-    tcod::print(*main_win, {0,0}, dialog, nullptr, nullptr, TCOD_BKGND_SET, TCOD_LEFT);
+    tcod::print(*main_win, {0,0}, dialog, &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
     context->present(*main_win);
 }
 void draw_level(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, level Current){
     SDL_wclear_dialog_bar(main_win, context);
     std::stringstream ss;
     ss<<'L'<<Current.lvl<<' '<<Current.x<<':'<<Current.y;
-    tcod::print(*main_win, {0,0}, ss.str(), nullptr, nullptr, TCOD_BKGND_SET, TCOD_LEFT);
+    tcod::print(*main_win, {0,0}, ss.str(), &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
     context->present(*main_win);
 }
 void draw_stats(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player stats){
     SDL_wclear_stats_bar(main_win, context);
     std::stringstream ss;
     ss<<"HP:"<<stats.cur_hp<<" Attk:"<<stats.attk<<" Def:"<<stats.def<<" Shield:"<<stats.cur_shield<<" CritChn:"<<stats.crit_chance<<" CritDmg:"<<stats.crit_dmg<<" Gold:"<<stats.gold<<" T:"<<stats.steps/10;
-    tcod::print(*main_win, {0,51}, ss.str(), nullptr, nullptr, TCOD_BKGND_SET, TCOD_LEFT);
+    tcod::print(*main_win, {0,51}, ss.str(), &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
     ss.str(std::string());
     ss<<"Saturation ("<<stats.saturation<<"/100)"<<" [";
     for(int i = 1; i<=50; i++){
@@ -28,7 +28,7 @@ void draw_stats(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player st
         }
     }
     ss<<"]";
-    tcod::print(*main_win, {0,52}, ss.str(), nullptr, nullptr, TCOD_BKGND_SET, TCOD_LEFT);
+    tcod::print(*main_win, {0,52}, ss.str(), &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
     ss.str(std::string());
     ss<<"Hydration ("<<stats.hydration<<"/100)"<<" [";
     for(int i = 1; i<=50; i++){
@@ -40,7 +40,7 @@ void draw_stats(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player st
         }
     }
     ss<<"]";
-    tcod::print(*main_win, {0,53}, ss.str(), nullptr, nullptr, TCOD_BKGND_SET, TCOD_LEFT);
+    tcod::print(*main_win, {0,53}, ss.str(), &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
     context->present(*main_win);
 }
 void draw_player(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, int x, int y){
