@@ -41,15 +41,15 @@ int SDL_getch(tcod::ConsolePtr &main_win, tcod::ContextPtr &context){
     return 0;
 }
 void SDL_wclear_dialog_bar(tcod::ConsolePtr &main_win, tcod::ContextPtr &context){
-    tcod::draw_rect(*main_win, {0, 0, 100, 1}, ' ', nullptr, nullptr);
+    tcod::draw_rect(*main_win, {0, 0, 80, 1}, ' ', nullptr, nullptr);
     context->present(*main_win);
 }
 void SDL_wclear_stats_bar(tcod::ConsolePtr &main_win, tcod::ContextPtr &context){
-    tcod::draw_rect(*main_win, {0, 51, 100, 4}, ' ', nullptr, nullptr);
+    tcod::draw_rect(*main_win, {0, 51, 80, 4}, ' ', nullptr, nullptr);
     context->present(*main_win);
 }
 void SDL_wclear_main_win(tcod::ConsolePtr &main_win, tcod::ContextPtr &context){
-    tcod::draw_rect(*main_win, {0, 1, 100, 50}, ' ', nullptr, nullptr);
+    tcod::draw_rect(*main_win, {0, 1, 80, 50}, ' ', nullptr, nullptr);
     context->present(*main_win);
 }
 bool check_surroundings(std::vector<monster> monsters, int x, int y){
@@ -509,7 +509,7 @@ int main(int argc, char *argv[]){
     Player User;
     level Current{1,1,1};
     NPC npc;
-    tcod::ConsolePtr main_win=tcod::new_console(100, 55);
+    tcod::ConsolePtr main_win=tcod::new_console(80, 55);
     TCOD_ContextParams params{};
     params.tcod_version=TCOD_COMPILEDVERSION;
     params.columns = main_win->w;
