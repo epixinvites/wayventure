@@ -15,3 +15,5 @@ Run ./project-cosmos to start playing
 Please open an issue if you would like to contribute code, advise or simply just requesting new features!  
 
 ### Press 'Shift+h' to learn about the keybindings while the wiki will be developed later on after the v1.2.0 release
+
+Special thanks to [@HexDecimal](https://github.com/HexDecimal) for helping me so much throughout the development of this project and his [libtcod](https://github.com/libtcod/libtcod) lib!
