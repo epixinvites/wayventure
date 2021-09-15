@@ -14,6 +14,8 @@ static constexpr TCOD_ColorRGB BLUE{0,79,152};
 static constexpr TCOD_ColorRGB PURPLE{140,25,140};
 static constexpr TCOD_ColorRGB YELLOW{255,255,0};
 static constexpr TCOD_ColorRGB DARK_RED{229,0,0}; // artifact
+static constexpr TCOD_ColorRGB LIGHT_BLUE{173,216,230};
+static constexpr TCOD_ColorRGB MAGENTA{255,0,255};
 
 constexpr char RARITY_COMMON = 'c';
 constexpr char RARITY_UNCOMMON = 'u';

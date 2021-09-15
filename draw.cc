@@ -104,11 +104,9 @@ void redraw_dungeon(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, level
     draw_monster(main_win, context, monsters);
     context->present(*main_win);
 }
-void redraw_everything(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Csr csr_pos, Player User, level Current, std::vector<monster> monsters, bool is_draw_level = true){
+void redraw_everything(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Csr csr_pos, Player User, level Current, std::vector<monster> monsters){
     TCOD_console_clear(main_win.get());
-    if(is_draw_level){
-        draw_level(main_win, context, Current);
-    }
+    draw_level(main_win, context, Current);
     draw_stats(main_win, context, User);
     draw_border(main_win, context);
     draw_doors(main_win, context, Current);

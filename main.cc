@@ -167,6 +167,7 @@ bool player_battle(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player
         tcod::print(*main_win, {1,2}, enemy_output.str(), &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
         tcod::print(*main_win, {39,25}, log.first, &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_CENTER);
         tcod::print(*main_win, {39,26}, log.second, &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_CENTER);
+        context->present(*main_win);
         int ch=SDL_getch(main_win, context);
         if(ch=='1'){
             log=calculate_damage(User, monster);
@@ -194,7 +195,6 @@ bool player_battle(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player
                 User.cur_hp=User.ori_hp;
             }
         }
-        context->present(*main_win);
     }
     return false;
 }
@@ -284,8 +284,8 @@ bool move_staircase(level &Current, Csr csr_pos){
     }
     return false;
 }
-void print_food(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player &User, level Current){
-    TCOD_console_clear(main_win.get());
+void print_food(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player &User){
+    SDL_wclear_main_win(main_win, context);
     std::stringstream ss;
     ss<<"[1] Bread (30 Saturation Points): "<<User.inv.food.bread;
     tcod::print(*main_win, {0,1}, ss.str(), &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
@@ -302,13 +302,11 @@ void print_food(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player &U
     ss<<"[5] Sparkling Water (100 Hydration Points): "<<User.inv.water.sparkling_juice;
     tcod::print(*main_win, {0,5}, ss.str(), &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
     ss.str(std::string());
-    draw_level(main_win, context, Current);
-    draw_stats(main_win, context, User);
     context->present(*main_win);
 }
-void eat_drink_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player &User, level Current){
+void eat_drink_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player &User){
     while(true){
-        print_food(main_win, context, User, Current);
+        print_food(main_win, context, User);
         int ch=SDL_getch(main_win, context);
         if(ch=='1'&&User.inv.food.bread>0){
             User.eat(&User.inv.food.bread);
@@ -402,11 +400,9 @@ void init_dungeon(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Csr &cs
         if(ch=='w'||ch=='a'||ch=='s'||ch=='d'||ch==SDLK_LEFT||ch==SDLK_RIGHT||ch==SDLK_DOWN||ch==SDLK_UP){
             char_move(main_win, context, ch, csr_pos, monsters, User, Current);
             redraw_dungeon(main_win, context, Current, monsters, csr_pos);
-            redraw_everything(main_win, context, csr_pos, User, Current, monsters);
         }
         if(ch=='z'){
             move_door(doors, monsters, Current, csr_pos);
-            redraw_everything(main_win, context, csr_pos, User, Current, monsters);
         }
         if(ch=='x'){
             std::pair<bool,bool> attack_status=attack_monster(main_win, context, monsters, csr_pos, User, Current);
@@ -424,19 +420,14 @@ void init_dungeon(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Csr &cs
         if(ch=='c'){
             if(move_staircase(Current, csr_pos)){
                 generate_doors(doors, Current);
-                redraw_everything(main_win, context, csr_pos, User, Current, monsters);
             }
             else if(Current.lvl==1&&Current.x==1&&Current.y==1&&csr_pos.first==1&&csr_pos.second==48){
                 bar_mode(main_win, context, User, npc);
             }
         }
-        if(ch=='r'){
-            redraw_everything(main_win, context, csr_pos, User, Current, monsters);
-        }
         if(ch=='i'){
             if(!User.inv.item.empty()){
                 inventory_mode(main_win, context, User);
-                redraw_everything(main_win, context, csr_pos, User, Current, monsters);
             }
         }
         if(ch=='e'){

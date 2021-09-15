@@ -9,4 +9,4 @@ void draw_monster(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, std::ve
 void draw_border(std::unique_ptr<TCOD_Console, tcod::ConsoleDeleter> &main_win, std::unique_ptr<TCOD_Context, tcod::ContextDeleter> &context);
 void draw_doors(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, level Current);
 void redraw_dungeon(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, level Current, std::vector<monster> monsters, Csr csr_pos);
-void redraw_everything(tcod::ConsolePtr &main_win, tcod::ContextPtr &context,  Csr csr_pos, Player User, level Current, std::vector<monster> monsters);
+void redraw_everything(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Csr csr_pos, Player User, level Current, std::vector<monster> monsters);

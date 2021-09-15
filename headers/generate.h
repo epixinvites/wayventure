@@ -1,6 +1,7 @@
 #pragma once
 #include <random>
 #include "classes.h"
+#include "main.h"
 
 // For readability
 

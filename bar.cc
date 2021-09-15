@@ -30,43 +30,31 @@ void refresh_gear_merchant_store(Merchant &gear_merchant){
         }
     }
 }
-void redraw_bar(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, WINDOW *interaction_bar, std::vector<std::string> pub_layout, Csr csr_pos){
-    wclear(main_win);
-    wclear(interaction_bar);
-    mvwaddstr(interaction_bar,0,0,"Pub");
+void redraw_bar(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, std::vector<std::string> pub_layout, Csr csr_pos){
+    SDL_wclear_main_win(main_win, context);
+    clear_and_draw_dialog(main_win, context, "Pub");
     for(int i = 0; i<pub_layout.size(); i++){
         for(int j = 0; j<pub_layout[i].size(); j++){
             if(pub_layout[i][j]=='.'){
-                wattron(main_win,COLOR_PAIR(6));
-                mvwaddch(main_win,i,j,pub_layout[i][j]);
-                wattroff(main_win,COLOR_PAIR(6));
+                TCOD_console_put_char_ex(main_win.get(), j, i+1, pub_layout[i][j], GREEN, BLACK);
             }
             else if(pub_layout[i][j]=='~'){
-                wattron(main_win,COLOR_PAIR(7));
-                mvwaddch(main_win,i,j,pub_layout[i][j]);
-                wattroff(main_win,COLOR_PAIR(7));
+                TCOD_console_put_char_ex(main_win.get(), j, i+1, pub_layout[i][j], LIGHT_BLUE, BLACK);
             }
             else if(pub_layout[i][j]=='{'||pub_layout[i][j]=='}'){
-                wattron(main_win,COLOR_PAIR(10));
-                mvwaddch(main_win,i,j,pub_layout[i][j]);
-                wattroff(main_win,COLOR_PAIR(10));
+                TCOD_console_put_char_ex(main_win.get(), j, i+1, pub_layout[i][j], DARK_RED, BLACK);
             }
             else if(pub_layout[i][j]=='M'||pub_layout[i][j]=='B'||pub_layout[i][j]=='F'||pub_layout[i][j]=='G'||pub_layout[i][j]=='T'||pub_layout[i][j]=='S'){
-                wattron(main_win,COLOR_PAIR(12));
-                mvwaddch(main_win,i,j,'@');
-                wattroff(main_win,COLOR_PAIR(12));
+                TCOD_console_put_char_ex(main_win.get(), j, i+1, '@', MAGENTA, BLACK);
             }
             else{
-                mvwaddch(main_win,i,j,pub_layout[i][j]);
+                TCOD_console_put_char_ex(main_win.get(), j, i+1, pub_layout[i][j], WHITE, BLACK);
             }
         }
     }
-    wattron(main_win,COLOR_PAIR(12));
-    mvwaddch(main_win,1,78,'>');
-    wattroff(main_win,COLOR_PAIR(12));
-    draw_player(main_win, csr_pos.first, csr_pos.second);
-    wrefresh(interaction_bar);
-    wrefresh(main_win);
+    TCOD_console_put_char_ex(main_win.get(), 78, 2, '>', WHITE, BLACK);
+    draw_player(main_win, context, csr_pos.first, csr_pos.second);
+    context->present(*main_win);
 }
 void refresh_mysterious_merchant_store(Merchant &mysterious_trader){
     mysterious_trader.store.push_back(generate_loot_from_rarity_type('a'));
@@ -87,71 +75,48 @@ char search_surroundings(std::vector<std::string> pub_layout, int x, int y){
     }
     return '0';
 }
-void draw_bartender_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Bartender bartender, Player &User){
-    wclear(main_win);
-    mvwaddstr(main_win,2,0,"[Bartender] How can I serve you today?");
+void draw_bartender_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, const Bartender &bartender, Player &User, bool refresh_everything = true){
+    SDL_wclear_main_win(main_win, context);
+    if(refresh_everything){
+        draw_stats(main_win, context, User);
+        clear_and_draw_dialog(main_win, context, "[System] Welcome to the Bar!");
+    }
+    tcod::print(*main_win, {0,3}, "[Bartender] How can I serve you today?", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
     std::stringstream output;
-    mvwaddstr(main_win,4,0,"1. A bottle of water (Bottle included)");
+    tcod::print(*main_win, {0,5}, "1. A bottle of water (Bottle included)", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
     output<<"Price: "<<5+50*((100.0-bartender.relation)/100.0);
-    mvwaddstr(main_win,5,0,output.str().c_str());
-    mvwaddstr(main_win,7,0,"2. A can of sparking juice (Might contain diabetes so don't drink too much)");
+    tcod::print(*main_win, {0,6}, output.str(), &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+    tcod::print(*main_win, {0,8}, "2. A can of sparking juice", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
     output.str(std::string());
     output<<"Price: "<<20+100*((100.0-bartender.relation)/100.0);
-    mvwaddstr(main_win,8,0,output.str().c_str());
+    tcod::print(*main_win, {0,9}, output.str(), &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
     output.str(std::string());
-    mvwaddstr(main_win,12,0,"Backpack:");
+    tcod::print(*main_win, {0,13}, "Backpack:", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
     output<<"Water:"<<User.inv.water.water<<"/8"<<" Sparking Juice:"<<User.inv.water.sparkling_juice<<"/10";
-    mvwaddstr(main_win,13,0,output.str().c_str());
-    wrefresh(main_win);
-}
-void draw_bartender_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context,  Bartender bartender, Player &User){
-    wclear(main_win);
-    wclear(interaction_bar);
-    draw_stats(status_win, User);
-    mvwaddstr(interaction_bar,0,0,"[Bartender] Welcome to the Bar!");
-    mvwaddstr(main_win,2,0,"[Bartender] How can I serve you today?");
-    std::stringstream output;
-    mvwaddstr(main_win,4,0,"1. A bottle of water (Bottle included)");
-    output<<"Price: "<<5+50*((100.0-bartender.relation)/100.0);
-    mvwaddstr(main_win,5,0,output.str().c_str());
-    mvwaddstr(main_win,7,0,"2. A can of sparking juice (Might contain diabetes so don't drink too much)");
-    output.str(std::string());
-    output<<"Price: "<<20+100*((100.0-bartender.relation)/100.0);
-    mvwaddstr(main_win,8,0,output.str().c_str());
-    output.str(std::string());
-    mvwaddstr(main_win,12,0,"Backpack:");
-    output<<"Water:"<<User.inv.water.water<<"/8"<<" Sparking Juice:"<<User.inv.water.sparkling_juice<<"/10";
-    mvwaddstr(main_win,13,0,output.str().c_str());
-    wrefresh(main_win);
-    wrefresh(interaction_bar);
+    tcod::print(*main_win, {0,14}, output.str(), &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+    context->present(*main_win);
 }
 void bartender_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context,  Bartender &bartender, Player &User){
-    draw_bartender_mode(main_win, interaction_bar, status_win, bartender, User);
+    draw_bartender_mode(main_win, context, bartender, User);
     int ch;
     while(true){
-        ch=wgetch(main_win);
+        ch=SDL_getch(main_win, context);
         if(ch=='1'){
             if(User.gold<5+50*((100.0-bartender.relation)/100.0)){
-                wclear(interaction_bar);
-                mvwaddstr(interaction_bar,0,0,"[Bartender] Don't waste my time if you don't have enough gold.");
+                clear_and_draw_dialog(main_win, context, "[Bartender] Don't waste my time if you don't have enough gold.");
                 if(bartender.relation>=5){
                     bartender.relation-=5;
                 }
-                wrefresh(interaction_bar);
-                draw_bartender_mode(main_win, bartender, User);
+                draw_bartender_mode(main_win, context, bartender, User, false);
                 continue;
             }
             else if(User.inv.water.water>=8){
-                wclear(interaction_bar);
-                mvwaddstr(interaction_bar,0,0,"[System] You've reached the limit of water you can carry.");
-                wrefresh(interaction_bar);
+                clear_and_draw_dialog(main_win, context, "[System] You've reached the limit of water you can carry.");
                 continue;
             }
             else{
-                wclear(interaction_bar);
-                mvwaddstr(interaction_bar,0,0,"[Bartender] Confirm you want to purchase a bottle of water? [y/n]");
-                wrefresh(interaction_bar);
-                ch=wgetch(main_win);
+                clear_and_draw_dialog(main_win, context, "[Bartender] Confirm you want to purchase a bottle of water? [y/n]");
+                ch=SDL_getch(main_win, context);
                 if(ch=='y'){
                     User.gold-=5+50*((100.0-bartender.relation)/100.0);
                     User.inv.water.water++;
@@ -162,31 +127,25 @@ void bartender_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context,  Bart
                         }
                     }
                 }
-                draw_bartender_mode(main_win, interaction_bar, status_win, bartender, User);
+                draw_bartender_mode(main_win, context, bartender, User);
             }
         }
         if(ch=='2'){
             if(User.gold<20+100*((100.0-bartender.relation)/100.0)){
-                wclear(interaction_bar);
-                mvwaddstr(interaction_bar,0,0,"[Bartender] Don't waste my time if you don't have enough gold.");
+                clear_and_draw_dialog(main_win, context, "[Bartender] Don't waste my time if you don't have enough gold.");
                 if(bartender.relation>=5){
                     bartender.relation-=5;
                 }
-                wrefresh(interaction_bar);
-                draw_bartender_mode(main_win, bartender, User);
+                draw_bartender_mode(main_win, context, bartender, User, false);
                 continue;
             }
             else if(User.inv.water.sparkling_juice>=10){
-                wclear(interaction_bar);
-                mvwaddstr(interaction_bar,0,0,"[System] You've reached the limit of sparking water you can carry.");
-                wrefresh(interaction_bar);
+                clear_and_draw_dialog(main_win, context, "[System] You've reached the limit of sparking water you can carry.");
                 continue;
             }
             else{
-                wclear(interaction_bar);
-                mvwaddstr(interaction_bar,0,0,"[Bartender] Confirm you want to purchase a can of sparkling water? [y/n]");
-                wrefresh(interaction_bar);
-                ch=wgetch(main_win);
+                clear_and_draw_dialog(main_win, context, "[Bartender] Confirm you want to purchase a can of sparkling water? [y/n]");
+                ch=SDL_getch(main_win, context);
                 if(ch=='y'){
                     User.gold-=20+100*((100.0-bartender.relation)/100.0);
                     User.inv.water.sparkling_juice++;
@@ -197,7 +156,7 @@ void bartender_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context,  Bart
                         }
                     }
                 }
-                draw_bartender_mode(main_win, interaction_bar, status_win, bartender, User);
+                draw_bartender_mode(main_win, context, bartender, User);
             }
         }
         if(ch=='q'){
@@ -205,79 +164,52 @@ void bartender_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context,  Bart
         }
     }
 }
-void draw_farmer_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Farmer farmer, Player &User){
-    wclear(main_win);
-    mvwaddstr(main_win,2,0,"[Farmer] What brings you here today?");
+void draw_farmer_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, const Farmer &farmer, Player &User, bool refresh_everything = true){
+    SDL_wclear_main_win(main_win, context);
+    if(refresh_everything){
+        draw_stats(main_win, context, User);
+        clear_and_draw_dialog(main_win, context, "[Farmer] Welcome to my farm!");
+    }
+    tcod::print(*main_win, {0,3}, "[Farmer] What brings you here today?", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
     std::stringstream output;
-    mvwaddstr(main_win,4,0,"1. A piece of bread");
+    tcod::print(*main_win, {0,5}, "1. A piece of bread", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
     output<<"Price: "<<5+50*((100.0-farmer.relation)/100.0);
-    mvwaddstr(main_win,5,0,output.str().c_str());
-    mvwaddstr(main_win,7,0,"2. A packet of waffles");
+    tcod::print(*main_win, {0,6}, output.str(), &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+    tcod::print(*main_win, {0,8}, "2. A packet of waffles", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
     output.str(std::string());
     output<<"Price: "<<20+100*((100.0-farmer.relation)/100.0);
-    mvwaddstr(main_win,8,0,output.str().c_str());
+    tcod::print(*main_win, {0,9}, output.str(), &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
     output.str(std::string());
-    mvwaddstr(main_win,10,0,"3. An energy bar");
+    tcod::print(*main_win, {0,11}, "3. An energy bar", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
     output<<"Price: "<<50+150*((100.0-farmer.relation)/100.0);
-    mvwaddstr(main_win,11,0,output.str().c_str());
+    tcod::print(*main_win, {0,12}, output.str(), &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
     output.str(std::string());
-    mvwaddstr(main_win,15,0,"Backpack:");
+    tcod::print(*main_win, {0,16}, "Backpack:", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
     output<<"Bread:"<<User.inv.food.bread<<"/8"<<" Waffles:"<<User.inv.food.waffle<<"/10"<<" Energy Bar:"<<User.inv.food.energy_bar<<"/10";
-    mvwaddstr(main_win,16,0,output.str().c_str());
-    wrefresh(main_win);
-}
-void draw_farmer_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context,  Farmer farmer, Player &User){
-    wclear(main_win);
-    wclear(interaction_bar);
-    draw_stats(status_win, User);
-    mvwaddstr(interaction_bar,0,0,"[Farmer] Welcome to my farm!");
-    mvwaddstr(main_win,2,0,"[Farmer] What brings you here today?");
-    std::stringstream output;
-    mvwaddstr(main_win,4,0,"1. A piece of bread");
-    output<<"Price: "<<5+50*((100.0-farmer.relation)/100.0);
-    mvwaddstr(main_win,5,0,output.str().c_str());
-    mvwaddstr(main_win,7,0,"2. A packet of waffles");
-    output.str(std::string());
-    output<<"Price: "<<20+100*((100.0-farmer.relation)/100.0);
-    mvwaddstr(main_win,8,0,output.str().c_str());
-    output.str(std::string());
-    mvwaddstr(main_win,10,0,"3. An energy bar");
-    output<<"Price: "<<50+150*((100.0-farmer.relation)/100.0);
-    mvwaddstr(main_win,11,0,output.str().c_str());
-    output.str(std::string());
-    mvwaddstr(main_win,15,0,"Backpack:");
-    output<<"Bread:"<<User.inv.food.bread<<"/8"<<" Waffles:"<<User.inv.food.waffle<<"/10"<<" Energy Bar:"<<User.inv.food.energy_bar<<"/10";
-    mvwaddstr(main_win,16,0,output.str().c_str());
-    wrefresh(main_win);
-    wrefresh(interaction_bar);
+    tcod::print(*main_win, {0,17}, output.str(), &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+    context->present(*main_win);
 }
 void farmer_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context,  Farmer &farmer, Player &User){
-    draw_farmer_mode(main_win, interaction_bar, status_win, farmer, User);
+    draw_farmer_mode(main_win, context, farmer, User);
     int ch;
     while(true){
-        ch=wgetch(main_win);
+        ch=SDL_getch(main_win, context);
         if(ch=='1'){
             if(User.gold<5+50*((100.0-farmer.relation)/100.0)){
-                wclear(interaction_bar);
-                mvwaddstr(interaction_bar,0,0,"[Farmer] Don't waste my time if you don't have enough gold.");
+                clear_and_draw_dialog(main_win, context, "[Farmer] Don't waste my time if you don't have enough gold.");
                 if(farmer.relation>=5){
                     farmer.relation-=5;
                 }
-                wrefresh(interaction_bar);
-                draw_farmer_mode(main_win, farmer, User);
+                draw_farmer_mode(main_win, context, farmer, User, false);
                 continue;
             }
             else if(User.inv.food.bread>=8){
-                wclear(interaction_bar);
-                mvwaddstr(interaction_bar,0,0,"[Farmer] You've reached the limit of bread you can carry.");
-                wrefresh(interaction_bar);
+                clear_and_draw_dialog(main_win, context, "[System] You've reached the limit of bread you can carry.");
                 continue;
             }
             else{
-                wclear(interaction_bar);
-                mvwaddstr(interaction_bar,0,0,"[Farmer] Confirm you want to purchase a piece of bread? [y/n]");
-                wrefresh(interaction_bar);
-                ch=wgetch(main_win);
+                clear_and_draw_dialog(main_win, context, "[Farmer] Confirm you want to purchase a piece of bread? [y/n]");
+                ch=SDL_getch(main_win, context);
                 if(ch=='y'){
                     User.gold-=5+50*((100.0-farmer.relation)/100.0);
                     User.inv.food.bread++;
@@ -288,31 +220,25 @@ void farmer_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context,  Farmer 
                         }
                     }
                 }
-                draw_farmer_mode(main_win, interaction_bar, status_win, farmer, User);
+                draw_farmer_mode(main_win, context, farmer, User);
             }
         }
         if(ch=='2'){
             if(User.gold<20+100*((100.0-farmer.relation)/100.0)){
-                wclear(interaction_bar);
-                mvwaddstr(interaction_bar,0,0,"[Farmer] Don't waste my time if you don't have enough gold.");
+                clear_and_draw_dialog(main_win, context, "[Farmer] Don't waste my time if you don't have enough gold.");
                 if(farmer.relation>=5){
                     farmer.relation-=5;
                 }
-                wrefresh(interaction_bar);
-                draw_farmer_mode(main_win, farmer, User);
+                draw_farmer_mode(main_win, context, farmer, User, false);
                 continue;
             }
             else if(User.inv.food.waffle>=10){
-                wclear(interaction_bar);
-                mvwaddstr(interaction_bar,0,0,"[Farmer] You've reached the limit of waffles you can carry.");
-                wrefresh(interaction_bar);
+                clear_and_draw_dialog(main_win, context, "[System] You've reached the limit of waffles you can carry.");
                 continue;
             }
             else{
-                wclear(interaction_bar);
-                mvwaddstr(interaction_bar,0,0,"[Farmer] Confirm you want to purchase a packet of waffles? [y/n]");
-                wrefresh(interaction_bar);
-                ch=wgetch(main_win);
+                clear_and_draw_dialog(main_win, context, "[Farmer] Confirm you want to purchase a packet of waffles? [y/n]");
+                ch=SDL_getch(main_win, context);
                 if(ch=='y'){
                     User.gold-=20+100*((100.0-farmer.relation)/100.0);
                     User.inv.food.waffle++;
@@ -323,31 +249,25 @@ void farmer_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context,  Farmer 
                         }
                     }
                 }
-                draw_farmer_mode(main_win, interaction_bar, status_win, farmer, User);
+                draw_farmer_mode(main_win, context, farmer, User);
             }
         }
         if(ch=='3'){
             if(User.gold<50+150*((100.0-farmer.relation)/100.0)){
-                wclear(interaction_bar);
-                mvwaddstr(interaction_bar,0,0,"[Farmer] Don't waste my time if you don't have enough gold.");
+                clear_and_draw_dialog(main_win, context, "[Farmer] Don't waste my time if you don't have enough gold.");
                 if(farmer.relation>=5){
                     farmer.relation-=5;
                 }
-                wrefresh(interaction_bar);
-                draw_farmer_mode(main_win, farmer, User);
+                draw_farmer_mode(main_win, context, farmer, User, false);
                 continue;
             }
             else if(User.inv.food.energy_bar>=10){
-                wclear(interaction_bar);
-                mvwaddstr(interaction_bar,0,0,"[Farmer] You've reached the limit of energy bars you can carry.");
-                wrefresh(interaction_bar);
+                clear_and_draw_dialog(main_win, context, "[System] You've reached the limit of energy bars you can carry.");
                 continue;
             }
             else{
-                wclear(interaction_bar);
-                mvwaddstr(interaction_bar,0,0,"[Farmer] Confirm you want to purchase a energy bar? [y/n]");
-                wrefresh(interaction_bar);
-                ch=wgetch(main_win);
+                clear_and_draw_dialog(main_win, context, "[Farmer] Confirm you want to purchase a energy bar? [y/n]");
+                ch=SDL_getch(main_win, context);
                 if(ch=='y'){
                     User.gold-=50+150*((100.0-farmer.relation)/100.0);
                     User.inv.food.energy_bar++;
@@ -358,7 +278,7 @@ void farmer_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context,  Farmer 
                         }
                     }
                 }
-                draw_farmer_mode(main_win, interaction_bar, status_win, farmer, User);
+                draw_farmer_mode(main_win, context, farmer, User);
             }
         }
         if(ch=='q'){
@@ -366,27 +286,17 @@ void farmer_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context,  Farmer 
         }
     }
 }
-void draw_blacksmith_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, WINDOW *interaction_bar, WINDOW *status_bar, Player &User){
-
-}
-void blacksmith_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, WINDOW *interaction_bar, WINDOW *status_bar, Player &User){
-    draw_blacksmith_mode(main_win, interaction_bar, status_bar, User);
-}
 void char_move(int ch, tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Csr &csr_pos, const std::vector<std::string> &pub_layout){
-    if((ch=='a'||ch==KEY_LEFT)&&csr_pos.first>1&&pub_layout[csr_pos.second][csr_pos.first-1]==' '){
-        mvwaddch(main_win, csr_pos.second, csr_pos.first,' ');
+    if((ch=='a'||ch==SDLK_LEFT)&&csr_pos.first>1&&pub_layout[csr_pos.second][csr_pos.first-1]==' '){
         csr_pos.first--;
     }
-    if((ch=='d'||ch==KEY_RIGHT)&&csr_pos.first<78&&pub_layout[csr_pos.second][csr_pos.first+1]==' '){
-        mvwaddch(main_win, csr_pos.second, csr_pos.first, ' ');
+    if((ch=='d'||ch==SDLK_RIGHT)&&csr_pos.first<78&&pub_layout[csr_pos.second][csr_pos.first+1]==' '){
         csr_pos.first++;
     }
-    if((ch=='w'||ch==KEY_UP)&&csr_pos.second>1&&pub_layout[csr_pos.second-1][csr_pos.first]==' '){
-        mvwaddch(main_win, csr_pos.second, csr_pos.first, ' ');
+    if((ch=='w'||ch==SDLK_UP)&&csr_pos.second>1&&pub_layout[csr_pos.second-1][csr_pos.first]==' '){
         csr_pos.second--;
     }
-    if((ch=='s'||ch==KEY_DOWN)&&csr_pos.second<48&&pub_layout[csr_pos.second+1][csr_pos.first]==' '){
-        mvwaddch(main_win, csr_pos.second, csr_pos.first,' ');
+    if((ch=='s'||ch==SDLK_DOWN)&&csr_pos.second<48&&pub_layout[csr_pos.second+1][csr_pos.first]==' '){
         csr_pos.second++;
     }
 }
@@ -398,13 +308,13 @@ void bar_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context,  Player &Us
         std::string line; std::getline(pub_layout_file,line);
         pub_layout.push_back(line);
     }
-    redraw_bar(main_win, interaction_bar, pub_layout, csr_pos);
+    redraw_bar(main_win, context, pub_layout, csr_pos);
     int ch;
     while(true){
-        ch=wgetch(main_win);
-        if(ch=='w'||ch=='a'||ch=='s'||ch=='d'||ch==KEY_LEFT||ch==KEY_RIGHT||ch==KEY_DOWN||ch==KEY_UP){
-            char_move(ch, main_win, csr_pos, pub_layout);
-            redraw_bar(main_win, interaction_bar, pub_layout, csr_pos);
+        ch=SDL_getch(main_win, context);
+        if(ch=='w'||ch=='a'||ch=='s'||ch=='d'||ch==SDLK_LEFT||ch==SDLK_RIGHT||ch==SDLK_DOWN||ch==SDLK_UP){
+            char_move(ch, main_win, context, csr_pos, pub_layout);
+            redraw_bar(main_win, context, pub_layout, csr_pos);
         }
         if(ch=='x'){
             char target = search_surroundings(pub_layout, csr_pos.first, csr_pos.second);
@@ -415,12 +325,12 @@ void bar_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context,  Player &Us
                 // Mysterious Trader
             }
             else if(target=='B'){
-                bartender_mode(main_win, interaction_bar, status_win, npc.bartender, User);
-                redraw_bar(main_win, interaction_bar, pub_layout, csr_pos);
+                bartender_mode(main_win, context, npc.bartender, User);
+                redraw_bar(main_win, context, pub_layout, csr_pos);
             }
             else if(target=='F'){
-                farmer_mode(main_win, interaction_bar, status_win, npc.farmer, User);
-                redraw_bar(main_win, interaction_bar, pub_layout, csr_pos);
+                farmer_mode(main_win, context, npc.farmer, User);
+                redraw_bar(main_win, context, pub_layout, csr_pos);
             }
             else if(target=='G'){
                 // Gear Merchant & Sells First Aid Kits
@@ -431,13 +341,13 @@ void bar_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context,  Player &Us
             }
             else if(target=='S'){
                 if(!User.inv.item.empty()){
-                    reforge_repair_mode(main_win, status_win, interaction_bar, User);
-                    redraw_bar(main_win, interaction_bar, pub_layout, csr_pos);
+                    reforge_repair_mode(main_win, context, User);
+                    redraw_bar(main_win, context, pub_layout, csr_pos);
                 }
             }
         }
         if(ch=='r'){
-            redraw_bar(main_win, interaction_bar, pub_layout, csr_pos);
+            redraw_bar(main_win, context, pub_layout, csr_pos);
         }
         if(ch=='c'){
             if(csr_pos.first==78&&csr_pos.second==1){
@@ -446,13 +356,13 @@ void bar_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context,  Player &Us
         }
         if(ch=='i'){
             if(!User.inv.item.empty()){
-                inventory_mode(main_win, status_win, interaction_bar, User);
-                redraw_bar(main_win, interaction_bar, pub_layout, csr_pos);
+                inventory_mode(main_win, context, User);
+                redraw_bar(main_win, context, pub_layout, csr_pos);
             }
         }
         if(ch=='e'){
-            eat_drink_mode(main_win, status_win, User);
-            redraw_bar(main_win, interaction_bar, pub_layout, csr_pos);
+            eat_drink_mode(main_win, context, User);
+            redraw_bar(main_win, context, pub_layout, csr_pos);
         }
         if(ch=='q'){
             return;

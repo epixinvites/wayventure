@@ -17,7 +17,7 @@ void draw_base(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, int y, uns
     }
     tcod::print(*main_win, {0,0}, ss.str(), &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
     for(int i=0; i<80; i++){
-        TCOD_console_put_char(main_win.get(), i, y+1, '-', TCOD_BKGND_SET);
+        TCOD_console_put_char_ex(main_win.get(), i, y+1, '-', WHITE, BLACK);
     }
     context->present(*main_win);
 }

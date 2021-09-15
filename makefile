@@ -14,6 +14,6 @@ help_mode.o: help_mode.cc
 bar.o: bar.cc
 	g++ -g -c -std=c++17 -Iinclude/ bar.cc -o bar.o
 project-cosmos: main.o inventory_mode.o classes.o draw.o generate.o bar.o help_mode.o
-	g++ -g -std=c++17 main.o inventory_mode.o classes.o draw.o generate.o bar.o help_mode.o -o project-cosmos -lncurses
+	g++ -g -std=c++17 draw.o main.o inventory_mode.o classes.o generate.o bar.o help_mode.o -o project-cosmos `pkg-config libtcod --cflags --libs` `sdl2-config --cflags --libs`
 clean:
 	rm -f main.o inventory_mode.o classes.o draw.o generate.o bar.o
