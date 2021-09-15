@@ -936,10 +936,16 @@ void inventory_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context,  Play
         }
         if(ch=='R'){
             clear_and_draw_dialog(main_win, context, "[System] Are you sure you want to delete this item? Press y to continue, any other key to cancel.");
-            ch=SDL_getch(main_win, context);
+            while(true){
+                ch=SDL_getch(main_win, context);
+                if(ch>0&&ch<128){
+                    break;
+                }
+            }
             if(ch=='y'){
                 unequip_item(User, csr_pos, page_num);
                 User.remove_item(csr_pos+(page_num*30));
+                if(User.inv.item.empty()) return;
                 if((page_num*30+csr_pos)>=User.inv.item.size()){
                     csr_pos--;
                 }
@@ -996,7 +1002,12 @@ void reforge_repair_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, 
                 std::stringstream ss;
                 ss<<"[System] Attempt repair? Gold:"<<cost<<" Material:"<<material_cost<<" [y/n]";
                 clear_and_draw_dialog(main_win, context, ss.str());
-                ch=SDL_getch(main_win, context);
+                while(true){
+                    ch=SDL_getch(main_win, context);
+                    if(ch>0&&ch<128){
+                        break;
+                    }
+                }
                 if(ch=='y'){
                     if(User.gold>=cost&&decrease_materials(User.inv.item[csr_pos+(page_num*30)].rarity, User.inv.misc, material_cost)){
                         User.gold-=cost;
@@ -1035,7 +1046,12 @@ void reforge_repair_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, 
         }
         if(ch=='R'){ // Reforge
             clear_and_draw_dialog(main_win, context, "[System] Reforge item? (This action is irreversible) [y/n]");
-            int ch=SDL_getch(main_win, context);
+            while(true){
+                ch=SDL_getch(main_win, context);
+                if(ch>0&&ch<128){
+                    break;
+                }
+            }
             if(ch=='y'){
                 unsigned int gold_cost=rarity_value(User.inv.item[csr_pos+(page_num)*30].rarity)*200;
                 unsigned int material_cost=2*(1+((100-User.inv.item[csr_pos+(page_num*30)].durability)/100.0));
@@ -1083,9 +1099,15 @@ void reforge_repair_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, 
         }
         if(ch=='S'){
             clear_and_draw_dialog(main_win, context, "Salvage item? (This action is irreversible) [y/n]");
-            ch = SDL_getch(main_win, context);
+            while(true){
+                ch=SDL_getch(main_win, context);
+                if(ch>0&&ch<128){
+                    break;
+                }
+            }
             if(ch=='y'){
                 salvage_item(User, csr_pos+(page_num*30));
+                if(User.inv.item.empty()) return;
                 csr_pos--;
                 if(csr_pos<0){
                     csr_pos=0;

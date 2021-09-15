@@ -3,7 +3,7 @@
 #include "main.h"
 #include "classes.h"
 void draw_level(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, level Current);
-void draw_stats(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player stats);
+void draw_stats(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player User);
 void draw_player(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, int x, int y);
 void draw_monster(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, std::vector<monster> monsters);
 void draw_border(std::unique_ptr<TCOD_Console, tcod::ConsoleDeleter> &main_win, std::unique_ptr<TCOD_Context, tcod::ContextDeleter> &context);

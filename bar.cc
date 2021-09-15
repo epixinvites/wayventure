@@ -32,7 +32,7 @@ void refresh_gear_merchant_store(Merchant &gear_merchant){
 }
 void redraw_bar(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, std::vector<std::string> pub_layout, Csr csr_pos){
     SDL_wclear_main_win(main_win, context);
-    clear_and_draw_dialog(main_win, context, "Pub");
+    SDL_wclear_dialog_bar(main_win, context);
     for(int i = 0; i<pub_layout.size(); i++){
         for(int j = 0; j<pub_layout[i].size(); j++){
             if(pub_layout[i][j]=='.'){
@@ -54,6 +54,7 @@ void redraw_bar(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, std::vect
     }
     TCOD_console_put_char_ex(main_win.get(), 78, 2, '>', WHITE, BLACK);
     draw_player(main_win, context, csr_pos.first, csr_pos.second);
+    tcod::print(*main_win, {0,0}, "Pub", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
     context->present(*main_win);
 }
 void refresh_mysterious_merchant_store(Merchant &mysterious_trader){
@@ -116,7 +117,12 @@ void bartender_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context,  Bart
             }
             else{
                 clear_and_draw_dialog(main_win, context, "[Bartender] Confirm you want to purchase a bottle of water? [y/n]");
-                ch=SDL_getch(main_win, context);
+                while(true){
+                    ch=SDL_getch(main_win, context);
+                    if(ch>0&&ch<128){
+                        break;
+                    }
+                }
                 if(ch=='y'){
                     User.gold-=5+50*((100.0-bartender.relation)/100.0);
                     User.inv.water.water++;
@@ -145,7 +151,12 @@ void bartender_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context,  Bart
             }
             else{
                 clear_and_draw_dialog(main_win, context, "[Bartender] Confirm you want to purchase a can of sparkling water? [y/n]");
-                ch=SDL_getch(main_win, context);
+                while(true){
+                    ch=SDL_getch(main_win, context);
+                    if(ch>0&&ch<128){
+                        break;
+                    }
+                }
                 if(ch=='y'){
                     User.gold-=20+100*((100.0-bartender.relation)/100.0);
                     User.inv.water.sparkling_juice++;
@@ -209,7 +220,12 @@ void farmer_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context,  Farmer 
             }
             else{
                 clear_and_draw_dialog(main_win, context, "[Farmer] Confirm you want to purchase a piece of bread? [y/n]");
-                ch=SDL_getch(main_win, context);
+                while(true){
+                    ch=SDL_getch(main_win, context);
+                    if(ch>0&&ch<128){
+                        break;
+                    }
+                }
                 if(ch=='y'){
                     User.gold-=5+50*((100.0-farmer.relation)/100.0);
                     User.inv.food.bread++;
@@ -238,7 +254,12 @@ void farmer_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context,  Farmer 
             }
             else{
                 clear_and_draw_dialog(main_win, context, "[Farmer] Confirm you want to purchase a packet of waffles? [y/n]");
-                ch=SDL_getch(main_win, context);
+                while(true){
+                    ch=SDL_getch(main_win, context);
+                    if(ch>0&&ch<128){
+                        break;
+                    }
+                }
                 if(ch=='y'){
                     User.gold-=20+100*((100.0-farmer.relation)/100.0);
                     User.inv.food.waffle++;
@@ -267,7 +288,12 @@ void farmer_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context,  Farmer 
             }
             else{
                 clear_and_draw_dialog(main_win, context, "[Farmer] Confirm you want to purchase a energy bar? [y/n]");
-                ch=SDL_getch(main_win, context);
+                while(true){
+                    ch=SDL_getch(main_win, context);
+                    if(ch>0&&ch<128){
+                        break;
+                    }
+                }
                 if(ch=='y'){
                     User.gold-=50+150*((100.0-farmer.relation)/100.0);
                     User.inv.food.energy_bar++;

@@ -13,7 +13,7 @@
 #include "headers/generate.h"
 #include "headers/mode.h"
 #include "headers/main.h"
-#include <cereal/archives/portable_binary.hpp>
+#include <cereal/archives/json.hpp>
 #include <cereal/types/vector.hpp>
 #include <cereal/types/string.hpp>
 int SDL_getch(tcod::ConsolePtr &main_win, tcod::ContextPtr &context){
@@ -46,16 +46,22 @@ int SDL_getch(tcod::ConsolePtr &main_win, tcod::ContextPtr &context){
     return 0;
 }
 void SDL_wclear_dialog_bar(tcod::ConsolePtr &main_win, tcod::ContextPtr &context){
-    tcod::draw_rect(*main_win, {0,0,80,1}, ' ', &WHITE, &BLACK);
-    context->present(*main_win);
+    tcod::print(*main_win, {0,0}, empty_line, &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+//    context->present(*main_win);
 }
 void SDL_wclear_stats_bar(tcod::ConsolePtr &main_win, tcod::ContextPtr &context){
-    tcod::draw_rect(*main_win, {0,51,80,4}, ' ', &WHITE, &BLACK);
-    context->present(*main_win);
+    for(int i = 51; i<56; i++){
+        tcod::print(*main_win, {0,i}, empty_line, &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+    }
+//    context->present(*main_win);
 }
 void SDL_wclear_main_win(tcod::ConsolePtr &main_win, tcod::ContextPtr &context){
-    tcod::draw_rect(*main_win, {0,1,80,50}, ' ', &WHITE, &BLACK);
-    context->present(*main_win);
+    for(int i = 1; i<51; i++){
+        for(int j = 0; j<80; j++){
+            tcod::print(*main_win, {0,i}, empty_line, &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+        }
+    }
+//    context->present(*main_win);
 }
 bool check_surroundings(std::vector<monster> monsters, int x, int y){
     for(int i=0; i<monsters.size(); i++){
@@ -102,7 +108,6 @@ void char_move(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, int ch, Cs
         if(User.steps%8==0){
             User.saturation--;
         }
-        redraw_everything(main_win, context, csr_pos, User, Current, monsters);
     }
 }
 void process_gear(Player &User, Item *&processed_item, int damage){
@@ -362,7 +367,7 @@ void end_program(int sig){
 }
 void end_program(int sig, std::string error){
     if(sig==-1){
-        std::cout<<"Bzzt- Something fatal has occurred- Error rep.r..d....!@#$%^&*~__+|:<? *Developer cries in the background*"<<std::endl;
+        std::cout<<"Bzzt- Something fatal has occurred- Error detected. *dev cries in the background*"<<std::endl;
         std::cerr<<error<<std::endl;
         return;
     }
@@ -373,7 +378,7 @@ bool is_empty(std::ifstream &pFile){
 void init_data(Player &User, level &Current, Csr &csr_pos, std::vector<monster> &monsters, NPC &npc){
     std::ifstream ifile("save/user.save", std::ios::binary);
     if(!is_empty(ifile)){
-        cereal::PortableBinaryInputArchive retrieve(ifile);
+        cereal::JSONInputArchive retrieve(ifile);
         retrieve(User, Current, csr_pos, monsters, npc);
         // Insert data corruption checks
         std::filesystem::remove("save/user.save.1");
@@ -382,7 +387,7 @@ void init_data(Player &User, level &Current, Csr &csr_pos, std::vector<monster> 
 }
 void save_data(Player User, level Current, Csr csr_pos, std::vector<monster> monsters, NPC npc){
     std::ofstream ofile("save/user.save", std::ios::trunc|std::ios::binary);
-    cereal::PortableBinaryOutputArchive archive(ofile);
+    cereal::JSONOutputArchive archive(ofile);
     User.uninitialize_stats();
     archive(User, Current, csr_pos, monsters, npc);
 }
@@ -418,9 +423,8 @@ void init_dungeon(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Csr &cs
             }
             if(attack_status.first&&attack_status.second){ // If win redraw dungeon and move on
                 User.cur_shield=User.ori_shield;
-                redraw_dungeon(main_win, context, Current, monsters, csr_pos);
+                redraw_everything(main_win, context, csr_pos, User, Current, monsters);
             }
-            redraw_everything(main_win, context, csr_pos, User, Current, monsters);
         }
         if(ch=='c'){
             if(move_staircase(Current, csr_pos)){
@@ -463,7 +467,12 @@ void init_dungeon(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Csr &cs
         }
         if(ch=='q'){
             clear_and_draw_dialog(main_win, context, "Do you really wish to quit? [y] to quit, any other key to abort.");
-            ch=SDL_getch(main_win, context);
+            while(true){
+                ch=SDL_getch(main_win, context);
+                if(ch>0&&ch<128){
+                    break;
+                }
+            }
             if(ch=='y'){
                 end_program(0);
                 save_data(User, Current, csr_pos, monsters, npc);
@@ -504,7 +513,13 @@ void init(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Csr &csr_pos, P
     tcod::print(*main_win, {25,20}, "Press any key to continue...", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_CENTER);
     context->present(*main_win);
     ascii_wayfarer.close();
-    SDL_getch(main_win, context);
+    int ch;
+    while(true){
+        ch=SDL_getch(main_win, context);
+        if(ch>0&&ch<128){
+            break;
+        }
+    }
     init_dungeon(main_win, context, csr_pos, User, Current, monsters, npc);
 }
 int main(int argc, char *argv[]){

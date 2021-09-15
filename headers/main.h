@@ -17,6 +17,8 @@ static constexpr TCOD_ColorRGB DARK_RED{229,0,0}; // artifact
 static constexpr TCOD_ColorRGB LIGHT_BLUE{173,216,230};
 static constexpr TCOD_ColorRGB MAGENTA{255,0,255};
 
+const std::string empty_line = "                                                                                ";
+
 constexpr char RARITY_COMMON = 'c';
 constexpr char RARITY_UNCOMMON = 'u';
 constexpr char RARITY_RARE = 'r';
