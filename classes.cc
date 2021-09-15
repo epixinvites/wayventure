@@ -140,6 +140,7 @@ void Player::add_item(Item input){
 }
 void Player::remove_item(int pos){
     inv.item.erase(inv.item.begin()+pos);
+//    equip=Equipped();
     for(int i=0; i<inv.item.size(); i++){ // loops through every single item and finds all items that is_equipped
         if(inv.item[i].is_equipped){
             if(inv.item[i].type=='h'){

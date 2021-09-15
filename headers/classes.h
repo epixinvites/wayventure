@@ -21,7 +21,7 @@ struct Item{
     };
     Item() = default;
     Original original;
-    std::string name;
+    std::string name; // Depreciated, change your username via `main.h` instead
     char type, rarity;
     // type: 'h' helmet, 'c' chestplate, 'g' greaves, 'b' boots, 's' shield, 'w' weapon
     // rarity: 'c' common, 'u' uncommon, 'r' rare, 'e' epic, 'l' legendary, 'a' artifact

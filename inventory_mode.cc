@@ -19,7 +19,7 @@ void draw_base(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, int y, uns
     for(int i=0; i<80; i++){
         TCOD_console_put_char_ex(main_win.get(), i, y+1, '-', WHITE, BLACK);
     }
-    context->present(*main_win);
+//    context->present(*main_win);
 }
 void print_item(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, const Item *cur_item, int line){
     std::stringstream ss;
@@ -286,7 +286,10 @@ void equip_item(Player &User, unsigned int csr_pos, unsigned int page_num){
         User.initialize_gear(User.equip.weapon);
     }
 }
-void unequip_item(Player &User, unsigned int csr_pos, unsigned int page_num){
+bool unequip_item(Player &User, unsigned int csr_pos, unsigned int page_num){
+    if(User.cur_hp<=User.inv.item[csr_pos+(page_num*30)].hp){
+        return false;
+    }
     if(User.inv.item[csr_pos+(page_num*30)].type=='h'&&User.cur_hp>User.inv.item[csr_pos+(page_num*30)].hp){
         User.uninitialize_gear(User.equip.helmet);
         User.equip.helmet=nullptr;
@@ -317,6 +320,7 @@ void unequip_item(Player &User, unsigned int csr_pos, unsigned int page_num){
         User.equip.weapon=nullptr;
         User.inv.item[csr_pos+(page_num*30)].is_equipped=false;
     }
+    return true;
 }
 void draw_inventory(tcod::ConsolePtr &main_win, tcod::ContextPtr &context,  const Player &User, unsigned int page_num, unsigned int csr_pos, bool is_blacksmith_mode=false){
     SDL_wclear_main_win(main_win, context);
@@ -325,9 +329,8 @@ void draw_inventory(tcod::ConsolePtr &main_win, tcod::ContextPtr &context,  cons
     for(int i=page_num*30, iterator=0; i<User.inv.item.size()&&iterator<30; i++, iterator++){
         print_item(main_win, context, &User.inv.item[i], iterator);
     }
-    print_description(main_win, context, &User.inv.item[page_num*30+csr_pos], 35);
     print_bold_item(main_win, context, &User.inv.item[page_num*30+csr_pos], csr_pos);
-    context->present(*main_win);
+    print_description(main_win, context, &User.inv.item[page_num*30+csr_pos], 35);
 }
 std::string get_string(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, std::string original){
     std::string input;
@@ -572,7 +575,6 @@ bool enhance_item(Item &item, Miscellaneous &misc, unsigned int amount){
 }
 void draw_crafting_selection(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, const Miscellaneous &misc, unsigned int csr_pos, int blueprint_selection, int material_selection){
     SDL_wclear_main_win(main_win, context);
-    clear_and_draw_dialog(main_win, context, "[Blacksmith] What do you want to craft today?");
     tcod::print(*main_win, {0,1}, "Select a blueprint:", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
     if(csr_pos==1||blueprint_selection==1){
         tcod::print(*main_win, {0,2}, "Helmet ["+std::to_string(misc.blueprint.helmet)+"]", &BLACK, &WHITE, TCOD_BKGND_SET, TCOD_LEFT);
@@ -653,7 +655,7 @@ void draw_crafting_selection(tcod::ConsolePtr &main_win, tcod::ContextPtr &conte
     else{
         tcod::print(*main_win, {0,17}, "[Done]", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
     }
-    context->present(*main_win);
+    clear_and_draw_dialog(main_win, context, "[Blacksmith] What do you want to craft today?");
 }
 bool check_if_sufficient_materials(Miscellaneous &misc, int material_selection, int required_material, char &rarity){
     switch(material_selection){
@@ -915,11 +917,12 @@ void inventory_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context,  Play
         if(ch=='e'){
             if(!User.inv.item[csr_pos+(page_num*30)].is_equipped&&User.inv.item[csr_pos+(page_num*30)].durability>0){ // if there current item is unequipped
                 equip_item(User, csr_pos, page_num);
+                draw_inventory(main_win, context, User, page_num, csr_pos);
             }
             else if(User.inv.item[csr_pos+(page_num*30)].is_equipped){
                 unequip_item(User, csr_pos, page_num);
+                draw_inventory(main_win, context, User, page_num, csr_pos);
             }
-            draw_inventory(main_win, context, User, page_num, csr_pos);
         }
         if(ch=='r'){
             std::string input=get_string(main_win, context, User.inv.item[csr_pos+(page_num*30)].name);
@@ -935,7 +938,7 @@ void inventory_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context,  Play
             draw_inventory(main_win, context, User, page_num, csr_pos);
         }
         if(ch=='R'){
-            clear_and_draw_dialog(main_win, context, "[System] Are you sure you want to delete this item? Press y to continue, any other key to cancel.");
+            clear_and_draw_dialog(main_win, context, "[System] Delete item? (You can salvage instead at the blacksmith) [y/n]");
             while(true){
                 ch=SDL_getch(main_win, context);
                 if(ch>0&&ch<128){
@@ -943,14 +946,15 @@ void inventory_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context,  Play
                 }
             }
             if(ch=='y'){
-                unequip_item(User, csr_pos, page_num);
-                User.remove_item(csr_pos+(page_num*30));
-                if(User.inv.item.empty()) return;
-                if(csr_pos>0){
-                    csr_pos--;
+                if(unequip_item(User, csr_pos, page_num)){
+                    User.remove_item(csr_pos+(page_num*30));
+                    if(User.inv.item.empty()) return;
+                    if(csr_pos>0){
+                        csr_pos--;
+                    }
                 }
-                draw_inventory(main_win, context, User, page_num, csr_pos);
             }
+            draw_inventory(main_win, context, User, page_num, csr_pos);
         }
         if(ch=='q'){
             return;
@@ -1100,13 +1104,15 @@ void reforge_repair_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, 
                 }
             }
             if(ch=='y'){
-                salvage_item(User, csr_pos+(page_num*30));
-                if(User.inv.item.empty()) return;
-                if(csr_pos>0){
-                    csr_pos--;
+                if(unequip_item(User, csr_pos, page_num)){
+                    salvage_item(User, csr_pos+(page_num*30));
+                    if(User.inv.item.empty()) return;
+                    if(csr_pos>0){
+                        csr_pos--;
+                    }
                 }
-                draw_inventory(main_win, context, User, page_num, csr_pos, true);
             }
+            draw_inventory(main_win, context, User, page_num, csr_pos, true);
         }
         if(ch=='H'){
             help_mode(main_win, context, "blacksmith_mode");

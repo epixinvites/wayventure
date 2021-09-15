@@ -17,6 +17,7 @@
 #include <cereal/types/vector.hpp>
 #include <cereal/types/string.hpp>
 int SDL_getch(tcod::ConsolePtr &main_win, tcod::ContextPtr &context){
+    void SDL_FlushEvent(SDL_KeyboardEvent);
     SDL_Event event;
     SDL_WaitEvent(nullptr);
     while(SDL_PollEvent(&event)){
@@ -171,7 +172,7 @@ bool player_battle(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player
         std::stringstream user_output;
         std::stringstream enemy_output;
         draw_stats(main_win, context, User);
-        user_output<<User.name<<"~ HP:"<<User.cur_hp<<" Defence:"<<User.def<<" Shield:"<<User.cur_shield<<" Heal:"<<User.inv.heal_amount;
+        user_output<<username<<"~ HP:"<<User.cur_hp<<" Defence:"<<User.def<<" Shield:"<<User.cur_shield<<" Heal:"<<User.inv.heal_amount;
         enemy_output<<"Enemy~ HP:"<<monster.hp<<" Attk:"<<monster.attk<<" Def:"<<monster.def;
         tcod::print(*main_win, {1,49}, user_output.str(), &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
         tcod::print(*main_win, {1,2}, enemy_output.str(), &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
@@ -191,7 +192,10 @@ bool player_battle(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player
                 tcod::print(*main_win, {0,1}, "Press any key to keep and [r] to trash", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
                 print_description(main_win, context, &loot, 1);
                 draw_stats(main_win, context, User);
-                int ch=SDL_getch(main_win, context);
+                ch=SDL_getch(main_win, context);
+                while(!(ch>0&&ch<128)){
+                    ch=SDL_getch(main_win, context);
+                }
                 if(ch=='r'){
                     return true;
                 }
@@ -376,6 +380,9 @@ bool is_empty(std::ifstream &pFile){
     return pFile.peek()==std::ifstream::traits_type::eof();
 }
 void init_data(Player &User, level &Current, Csr &csr_pos, std::vector<monster> &monsters, NPC &npc){
+    if(username.length()>30){
+        throw std::runtime_error("Nope. Nopenopenopenope. You didn't follow my instructions.");
+    }
     std::ifstream ifile("save/user.save", std::ios::binary);
     if(!is_empty(ifile)){
         cereal::JSONInputArchive retrieve(ifile);
@@ -534,7 +541,7 @@ int main(int argc, char *argv[]){
     params.rows=main_win->h;
     params.window_title="Wayventure";
     params.sdl_window_flags=SDL_WINDOW_RESIZABLE;
-    // params.vsync=true;
+    params.vsync=true;
     params.renderer_type=TCOD_RENDERER_SDL2;
     params.tileset=tileset.get();
     tcod::ContextPtr context=tcod::new_context(params);
