@@ -6,14 +6,14 @@ const std::string TILESET_FILE = "res/alphabet.png";
 const tcod::TilesetPtr tileset=tcod::load_tilesheet(TILESET_FILE, {16,16}, tcod::CHARMAP_CP437);
 
 static constexpr TCOD_ColorRGB BLACK{10,10,10}; // def_background
-static constexpr TCOD_ColorRGB WHITE{255,255,255}; // def_foreground
+static constexpr TCOD_ColorRGB WHITE{208,208,208}; // def_foreground
 static constexpr TCOD_ColorRGB CYAN{0,255,255}; // player_char
 static constexpr TCOD_ColorRGB LIGHT_RED{255,50,50}; // enemy
 static constexpr TCOD_ColorRGB GREEN{50,153,50};
 static constexpr TCOD_ColorRGB BLUE{0,79,152};
-static constexpr TCOD_ColorRGB PURPLE{140,25,140};
+static constexpr TCOD_ColorRGB PURPLE{165,0,165};
 static constexpr TCOD_ColorRGB YELLOW{255,255,0};
-static constexpr TCOD_ColorRGB DARK_RED{229,0,0}; // artifact
+static constexpr TCOD_ColorRGB DARK_RED{225,2,2}; // artifact
 static constexpr TCOD_ColorRGB LIGHT_BLUE{173,216,230};
 static constexpr TCOD_ColorRGB MAGENTA{255,0,255};
 

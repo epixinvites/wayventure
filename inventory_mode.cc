@@ -946,17 +946,11 @@ void inventory_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context,  Play
                 unequip_item(User, csr_pos, page_num);
                 User.remove_item(csr_pos+(page_num*30));
                 if(User.inv.item.empty()) return;
-                if((page_num*30+csr_pos)>=User.inv.item.size()){
+                if(csr_pos>0){
                     csr_pos--;
                 }
-                if(csr_pos<0){
-                    csr_pos=0;
-                }
-                if(User.inv.item.empty()){
-                    return;
-                }
+                draw_inventory(main_win, context, User, page_num, csr_pos);
             }
-            draw_inventory(main_win, context, User, page_num, csr_pos);
         }
         if(ch=='q'){
             return;
@@ -1108,12 +1102,11 @@ void reforge_repair_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, 
             if(ch=='y'){
                 salvage_item(User, csr_pos+(page_num*30));
                 if(User.inv.item.empty()) return;
-                csr_pos--;
-                if(csr_pos<0){
-                    csr_pos=0;
+                if(csr_pos>0){
+                    csr_pos--;
                 }
+                draw_inventory(main_win, context, User, page_num, csr_pos, true);
             }
-            draw_inventory(main_win, context, User, page_num, csr_pos, true);
         }
         if(ch=='H'){
             help_mode(main_win, context, "blacksmith_mode");
