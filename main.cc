@@ -7,6 +7,7 @@
 #include <unistd.h>
 #include <libtcod.h>
 #include <SDL2/SDL.h>
+#include <libtcod/timer.h>
 #include "headers/classes.h"
 #include "headers/draw.h"
 #include "headers/generate.h"
@@ -16,25 +17,29 @@
 #include <cereal/types/vector.hpp>
 #include <cereal/types/string.hpp>
 int SDL_getch(tcod::ConsolePtr &main_win, tcod::ContextPtr &context){
-    while(true){
-        SDL_Event event;
-        SDL_WaitEvent(nullptr);
-        while(SDL_PollEvent(&event)){
-            if(event.type==SDL_WINDOWEVENT){
-                if(event.window.event==SDL_WINDOWEVENT_EXPOSED){
-                    context->present(*main_win);
+    SDL_Event event;
+    SDL_WaitEvent(nullptr);
+    while(SDL_PollEvent(&event)){
+        if(event.type==SDL_WINDOWEVENT){
+            if(event.window.event==SDL_WINDOWEVENT_EXPOSED){
+                context->present(*main_win);
+            }
+        }
+        if(event.type==SDL_QUIT){
+            std::exit(1);
+        }
+        if(event.type==SDL_KEYDOWN){
+            if(event.key.keysym.mod&KMOD_SHIFT){
+                return toupper(event.key.keysym.sym);
+            }
+            if(event.key.keysym.mod&KMOD_CTRL){
+                if(event.key.keysym.sym=='r'){
+                    SDL_SetWindowSize(context->get_sdl_window(), main_win->w*tileset->tile_width, main_win->h*tileset->tile_height);
+                    continue;
                 }
             }
-            if(event.type==SDL_QUIT){
-                std::exit(1);
-            }
-            if(event.type==SDL_KEYDOWN){
-                if(event.key.keysym.mod&KMOD_SHIFT){
-                    return toupper(event.key.keysym.sym);
-                }
-                else if(!(event.key.keysym.mod&modkeys)){
-                    return event.key.keysym.sym;
-                }
+            else if(!(event.key.keysym.mod&modkeys)){
+                return event.key.keysym.sym;
             }
         }
     }
@@ -307,6 +312,7 @@ void print_food(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player &U
 void eat_drink_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player &User){
     while(true){
         print_food(main_win, context, User);
+        draw_stats(main_win, context, User);
         int ch=SDL_getch(main_win, context);
         if(ch=='1'&&User.inv.food.bread>0){
             User.eat(&User.inv.food.bread);
@@ -327,7 +333,6 @@ void eat_drink_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Playe
             return;
         }
     }
-    draw_stats(main_win, context, User);
 }
 void end_program(int sig){
     if(sig==0){
@@ -392,17 +397,16 @@ void init_dungeon(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Csr &cs
         generate_monsters(monsters, Current, csr_pos);
     }
     generate_doors(doors, Current);
-    draw_level(main_win, context, Current);
-    draw_stats(main_win, context, User);
+    redraw_everything(main_win, context, csr_pos, User, Current, monsters);
     while(true){
-        redraw_everything(main_win, context, csr_pos, User, Current, monsters);
         int ch=SDL_getch(main_win, context);
         if(ch=='w'||ch=='a'||ch=='s'||ch=='d'||ch==SDLK_LEFT||ch==SDLK_RIGHT||ch==SDLK_DOWN||ch==SDLK_UP){
             char_move(main_win, context, ch, csr_pos, monsters, User, Current);
-            redraw_dungeon(main_win, context, Current, monsters, csr_pos);
+            redraw_everything(main_win, context, csr_pos, User, Current, monsters);
         }
         if(ch=='z'){
             move_door(doors, monsters, Current, csr_pos);
+            redraw_everything(main_win, context, csr_pos, User, Current, monsters);
         }
         if(ch=='x'){
             std::pair<bool,bool> attack_status=attack_monster(main_win, context, monsters, csr_pos, User, Current);
@@ -416,6 +420,7 @@ void init_dungeon(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Csr &cs
                 User.cur_shield=User.ori_shield;
                 redraw_dungeon(main_win, context, Current, monsters, csr_pos);
             }
+            redraw_everything(main_win, context, csr_pos, User, Current, monsters);
         }
         if(ch=='c'){
             if(move_staircase(Current, csr_pos)){
@@ -424,14 +429,17 @@ void init_dungeon(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Csr &cs
             else if(Current.lvl==1&&Current.x==1&&Current.y==1&&csr_pos.first==1&&csr_pos.second==48){
                 bar_mode(main_win, context, User, npc);
             }
+            redraw_everything(main_win, context, csr_pos, User, Current, monsters);
         }
         if(ch=='i'){
             if(!User.inv.item.empty()){
                 inventory_mode(main_win, context, User);
             }
+            redraw_everything(main_win, context, csr_pos, User, Current, monsters);
         }
         if(ch=='e'){
             eat_drink_mode(main_win, context, User);
+            redraw_everything(main_win, context, csr_pos, User, Current, monsters);
         }
         if(ch=='.'){
             if(User.cur_hp<User.ori_hp){
@@ -441,14 +449,17 @@ void init_dungeon(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Csr &cs
             if(User.cur_hp>User.ori_hp){
                 User.cur_hp=User.ori_hp;
             }
+            redraw_everything(main_win, context, csr_pos, User, Current, monsters);
         }
         if(ch=='S'){
             save_data(User, Current, csr_pos, monsters, npc);
             clear_and_draw_dialog(main_win, context, "Data saved successfully!");
             sleep(1);
+            redraw_everything(main_win, context, csr_pos, User, Current, monsters);
         }
         if(ch=='H'){
             help_mode(main_win, context, "dungeon_mode");
+            redraw_everything(main_win, context, csr_pos, User, Current, monsters);
         }
         if(ch=='q'){
             clear_and_draw_dialog(main_win, context, "Do you really wish to quit? [y] to quit, any other key to abort.");
@@ -458,17 +469,18 @@ void init_dungeon(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Csr &cs
                 save_data(User, Current, csr_pos, monsters, npc);
                 return;
             }
+            redraw_everything(main_win, context, csr_pos, User, Current, monsters);
         }
         if(User.saturation<=0){
-            end_program(2);
             drop_items_on_death(User, csr_pos, Current);
             save_data(User, Current, csr_pos, monsters, npc);
+            end_program(2);
             return;
         }
         if(User.hydration<=0){
-            end_program(3);
             drop_items_on_death(User, csr_pos, Current);
             save_data(User, Current, csr_pos, monsters, npc);
+            end_program(3);
             return;
         }
     }
@@ -507,8 +519,8 @@ int main(int argc, char *argv[]){
     params.rows=main_win->h;
     params.window_title="Wayventure";
     params.sdl_window_flags=SDL_WINDOW_RESIZABLE;
-    params.vsync=true;
-    params.renderer_type=TCOD_RENDERER_OPENGL2;
+    // params.vsync=true;
+    params.renderer_type=TCOD_RENDERER_SDL2;
     params.tileset=tileset.get();
     tcod::ContextPtr context=tcod::new_context(params);
     TCOD_console_set_default_foreground(main_win.get(), WHITE);
