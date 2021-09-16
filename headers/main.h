@@ -8,15 +8,15 @@ const tcod::TilesetPtr tileset=tcod::load_tilesheet(TILESET_FILE, {16,16}, tcod:
 const std::string username="Wayfarer"; // Please don't put weird characters and keep the length under 30 characters. The program will grumble if you don't follow my instructions.
 
 // Tweak these colors if your eyes go ouch. You can play around with the colors and rebuild the program when you're ready.
-static constexpr TCOD_ColorRGB BLACK{10,10,10}; // def_background
+static constexpr TCOD_ColorRGB BLACK{32,32,32}; // def_background
 static constexpr TCOD_ColorRGB WHITE{208,208,208}; // def_foreground
 static constexpr TCOD_ColorRGB CYAN{0,255,255}; // player_char (exclusive)
 static constexpr TCOD_ColorRGB LIGHT_RED{255,50,50}; // enemy (exclusive)
 static constexpr TCOD_ColorRGB GREEN{50,153,50};
-static constexpr TCOD_ColorRGB BLUE{0,79,152};
-static constexpr TCOD_ColorRGB PURPLE{165,0,165};
+static constexpr TCOD_ColorRGB BLUE{0,127,255};
+static constexpr TCOD_ColorRGB PURPLE{120,81,169};
 static constexpr TCOD_ColorRGB YELLOW{255,255,0};
-static constexpr TCOD_ColorRGB DARK_RED{225,2,2}; // artifact (exclusive)
+static constexpr TCOD_ColorRGB DARK_RED{196,2,51}; // artifact (exclusive)
 static constexpr TCOD_ColorRGB LIGHT_BLUE{173,216,230}; // water (exclusive)
 static constexpr TCOD_ColorRGB MAGENTA{255,0,255}; // NPC (exclusive)
 
@@ -38,6 +38,10 @@ constexpr char DUNGEON_ENEMY='e';
 constexpr char DUNGEON_ROOM_BOSS='b';
 constexpr char DUNGEON_LEVEL_BOSS='x';
 constexpr char DUNGEON_FINAL_BOSS='f';
+constexpr char SORT_TYPE_EQUIPPED='e';
+constexpr char SORT_TYPE_RARITY_ASCENDING='a';
+constexpr char SORT_TYPE_RARITY_DESCENDING='d';
+constexpr char SORT_TYPE_DEFAULT='D';
 
 void clear_and_draw_dialog(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, std::string dialog);
 int SDL_getch(tcod::ConsolePtr &main_win, tcod::ContextPtr &context);

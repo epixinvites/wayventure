@@ -27,22 +27,22 @@ void print_item(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, const Ite
         ss<<"*";
     }
     switch(cur_item->type){
-        case 'h':
+        case TYPE_HELMET:
             ss<<"[Helmet] ";
             break;
-        case 'c':
+        case TYPE_CHESTPLATE:
             ss<<"[Chestplate] ";
             break;
-        case 'g':
+        case TYPE_GREAVES:
             ss<<"[Greaves] ";
             break;
-        case 'b':
+        case TYPE_BOOTS:
             ss<<"[Boots] ";
             break;
-        case 's':
+        case TYPE_SHIELD:
             ss<<"[Shield] ";
             break;
-        case 'w':
+        case TYPE_WEAPON:
             ss<<"[Weapon] ";
             break;
         default:
@@ -54,22 +54,22 @@ void print_item(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, const Ite
         ss<<" ["<<cur_item->calibration<<"]";
     }
     switch(cur_item->rarity){
-        case 'c':
+        case RARITY_COMMON:
             tcod::print(*main_win, {0,line+1}, ss.str(), &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
             break;
-        case 'u':
+        case RARITY_UNCOMMON:
             tcod::print(*main_win, {0,line+1}, ss.str(), &GREEN, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
             break;
-        case 'r':
+        case RARITY_RARE:
             tcod::print(*main_win, {0,line+1}, ss.str(), &BLUE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
             break;
-        case 'e':
+        case RARITY_EPIC:
             tcod::print(*main_win, {0,line+1}, ss.str(), &PURPLE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
             break;
-        case 'l':
+        case RARITY_LEGENDARY:
             tcod::print(*main_win, {0,line+1}, ss.str(), &YELLOW, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
             break;
-        case 'a':
+        case RARITY_ARTIFACT:
             tcod::print(*main_win, {0,line+1}, ss.str(), &DARK_RED, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
             break;
         default:
@@ -83,22 +83,22 @@ void print_bold_item(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, cons
         ss<<"*";
     }
     switch(cur_item->type){
-        case 'h':
+        case TYPE_HELMET:
             ss<<"[Helmet] ";
             break;
-        case 'c':
+        case TYPE_CHESTPLATE:
             ss<<"[Chestplate] ";
             break;
-        case 'g':
+        case TYPE_GREAVES:
             ss<<"[Greaves] ";
             break;
-        case 'b':
+        case TYPE_BOOTS:
             ss<<"[Boots] ";
             break;
-        case 's':
+        case TYPE_SHIELD:
             ss<<"[Shield] ";
             break;
-        case 'w':
+        case TYPE_WEAPON:
             ss<<"[Weapon] ";
             break;
         default:
@@ -110,22 +110,22 @@ void print_bold_item(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, cons
         ss<<" ["<<cur_item->calibration<<"]";
     }
     switch(cur_item->rarity){
-        case 'c':
+        case RARITY_COMMON:
             tcod::print(*main_win, {0,line+1}, ss.str(), &BLACK, &WHITE, TCOD_BKGND_SET, TCOD_LEFT);
             break;
-        case 'u':
+        case RARITY_UNCOMMON:
             tcod::print(*main_win, {0,line+1}, ss.str(), &BLACK, &GREEN, TCOD_BKGND_SET, TCOD_LEFT);
             break;
-        case 'r':
+        case RARITY_RARE:
             tcod::print(*main_win, {0,line+1}, ss.str(), &BLACK, &BLUE, TCOD_BKGND_SET, TCOD_LEFT);
             break;
-        case 'e':
+        case RARITY_EPIC:
             tcod::print(*main_win, {0,line+1}, ss.str(), &BLACK, &PURPLE, TCOD_BKGND_SET, TCOD_LEFT);
             break;
-        case 'l':
+        case RARITY_LEGENDARY:
             tcod::print(*main_win, {0,line+1}, ss.str(), &BLACK, &YELLOW, TCOD_BKGND_SET, TCOD_LEFT);
             break;
-        case 'a':
+        case RARITY_ARTIFACT:
             tcod::print(*main_win, {0,line+1}, ss.str(), &BLACK, &DARK_RED, TCOD_BKGND_SET, TCOD_LEFT);
             break;
         default:
@@ -138,22 +138,22 @@ void print_description(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, co
     tcod::print(*main_win, {6,line+1}, cur_item->name, &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
     tcod::print(*main_win, {0,line+2}, "Rarity: ", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
     switch(cur_item->rarity){
-        case 'c':
+        case RARITY_COMMON:
             tcod::print(*main_win, {8,line+2}, "Common", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
             break;
-        case 'u':
+        case RARITY_UNCOMMON:
             tcod::print(*main_win, {8,line+2}, "Uncommon", &GREEN, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
             break;
-        case 'r':
+        case RARITY_RARE:
             tcod::print(*main_win, {8,line+2}, "Rare", &BLUE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
             break;
-        case 'e':
+        case RARITY_EPIC:
             tcod::print(*main_win, {8,line+2}, "Epic", &PURPLE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
             break;
-        case 'l':
+        case RARITY_LEGENDARY:
             tcod::print(*main_win, {8,line+2}, "Legendary", &YELLOW, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
             break;
-        case 'a':
+        case RARITY_ARTIFACT:
             tcod::print(*main_win, {8,line+2}, "Artifact", &DARK_RED, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
             break;
         default:
@@ -163,22 +163,22 @@ void print_description(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, co
     line+=2;
     tcod::print(*main_win, {0,line+1}, "Type: ", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
     switch(cur_item->type){
-        case 'h':
+        case TYPE_HELMET:
             tcod::print(*main_win, {6,line+1}, "Helmet", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
             break;
-        case 'c':
+        case TYPE_CHESTPLATE:
             tcod::print(*main_win, {6,line+1}, "Chestplate", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
             break;
-        case 'g':
+        case TYPE_GREAVES:
             tcod::print(*main_win, {6,line+1}, "Greaves", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
             break;
-        case 'b':
+        case TYPE_BOOTS:
             tcod::print(*main_win, {6,line+1}, "Boots", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
             break;
-        case 's':
+        case TYPE_SHIELD:
             tcod::print(*main_win, {6,line+1}, "Shield", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
             break;
-        case 'w':
+        case TYPE_WEAPON:
             tcod::print(*main_win, {6,line+1}, "Weapon", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
             break;
         default:
@@ -322,8 +322,12 @@ bool unequip_item(Player &User, unsigned int csr_pos, unsigned int page_num){
     }
     return true;
 }
-void draw_inventory(tcod::ConsolePtr &main_win, tcod::ContextPtr &context,  const Player &User, unsigned int page_num, unsigned int csr_pos, bool is_blacksmith_mode=false){
+void draw_inventory(tcod::ConsolePtr &main_win, tcod::ContextPtr &context,  const Player &User, unsigned int page_num, unsigned int csr_pos, bool is_blacksmith_mode=false, char sort_type = SORT_TYPE_DEFAULT){
     SDL_wclear_main_win(main_win, context);
+    std::vector<Item*> items_copy;
+    if(sort_type==SORT_TYPE_DEFAULT){
+
+    }
     draw_base(main_win, context, 34, User.inv.item.size(), page_num, is_blacksmith_mode);
     draw_stats(main_win, context, User);
     for(int i=page_num*30, iterator=0; i<User.inv.item.size()&&iterator<30; i++, iterator++){
@@ -1032,11 +1036,9 @@ void reforge_repair_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, 
             unsigned int amount=get_int(main_win, context, "[System] Amount of materials you want to use in this enhancement: ");
             if(amount>0){
                 User.uninitialize_stats();
-                if(enhance_item(User.inv.item[csr_pos+(page_num*30)], User.inv.misc, amount)){
-                    draw_inventory(main_win, context, User, page_num, csr_pos, true);
-                }
+                enhance_item(User.inv.item[csr_pos+(page_num*30)], User.inv.misc, amount);
                 User.initialize_stats();
-                draw_stats(main_win, context, User);
+                draw_inventory(main_win, context, User, page_num, csr_pos, true);
             }
             else{
                 clear_and_draw_dialog(main_win, context, "[System] Failure");

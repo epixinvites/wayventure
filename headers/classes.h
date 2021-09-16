@@ -146,7 +146,7 @@ struct Chest{
     template<class Archive>void serialize(Archive &archive){archive(storage);}
 };
 struct Merchant{
-    int relation = 50;
+    int relation = 0;
     unsigned long long last_refresh = 0;
     std::vector<Item> store;
     template<class Archive>void serialize(Archive &archive){archive(relation,last_refresh,store);}
@@ -159,5 +159,8 @@ struct NPC{
     Merchant gear_merchant;
     Merchant mysterious_trader;
     template<class Archive>void serialize(Archive &archive){archive(bartender,farmer,bank,chest,gear_merchant,mysterious_trader);}
+};
+struct NoDelete{ // Configurations and stuff
+
 };
 

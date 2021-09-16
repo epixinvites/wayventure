@@ -103,10 +103,10 @@ void char_move(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, int ch, Cs
         if(User.steps>100000000000000000){
             User.steps/=10;
         }
-        if(User.steps%5==0){
+        if(User.steps%15==0){
             User.hydration--;
         }
-        if(User.steps%8==0){
+        if(User.steps%25==0){
             User.saturation--;
         }
     }

@@ -315,15 +315,19 @@ void farmer_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context,  Farmer 
 void char_move(int ch, tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Csr &csr_pos, const std::vector<std::string> &pub_layout){
     if((ch=='a'||ch==SDLK_LEFT)&&csr_pos.first>1&&pub_layout[csr_pos.second][csr_pos.first-1]==' '){
         csr_pos.first--;
+        redraw_bar(main_win, context, pub_layout, csr_pos);
     }
     if((ch=='d'||ch==SDLK_RIGHT)&&csr_pos.first<78&&pub_layout[csr_pos.second][csr_pos.first+1]==' '){
         csr_pos.first++;
+        redraw_bar(main_win, context, pub_layout, csr_pos);
     }
     if((ch=='w'||ch==SDLK_UP)&&csr_pos.second>1&&pub_layout[csr_pos.second-1][csr_pos.first]==' '){
         csr_pos.second--;
+        redraw_bar(main_win, context, pub_layout, csr_pos);
     }
     if((ch=='s'||ch==SDLK_DOWN)&&csr_pos.second<48&&pub_layout[csr_pos.second+1][csr_pos.first]==' '){
         csr_pos.second++;
+        redraw_bar(main_win, context, pub_layout, csr_pos);
     }
 }
 void bar_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context,  Player &User, NPC &npc){
@@ -340,7 +344,6 @@ void bar_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context,  Player &Us
         ch=SDL_getch(main_win, context);
         if(ch=='w'||ch=='a'||ch=='s'||ch=='d'||ch==SDLK_LEFT||ch==SDLK_RIGHT||ch==SDLK_DOWN||ch==SDLK_UP){
             char_move(ch, main_win, context, csr_pos, pub_layout);
-            redraw_bar(main_win, context, pub_layout, csr_pos);
         }
         if(ch=='x'){
             char target = search_surroundings(pub_layout, csr_pos.first, csr_pos.second);
