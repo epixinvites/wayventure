@@ -13,5 +13,8 @@ void help_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, std::strin
         count++;
     }
     context->present(*main_win);
-    int ch = SDL_getch(main_win, context);
+    int ch = 0;
+    while(!(ch>0&&ch<128)){
+        ch=SDL_getch(main_win, context);
+    }
 }
