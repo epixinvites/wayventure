@@ -2,6 +2,7 @@
 #include <sstream>
 #include <vector>
 #include <string>
+#include <unordered_map>
 #include "headers/classes.h"
 #include "headers/mode.h"
 #include "headers/draw.h"
@@ -886,6 +887,16 @@ void salvage_item(Player &User, long long int pos){
     User.remove_item(pos);
     User.initialize_stats();
 }
+struct SortAscending{
+    std::vector<std::unordered_map<char,int>> priority{{
+        {RARITY_ARTIFACT,0},
+        {RARITY_LEGENDARY,1},
+        {RARITY_EPIC,2},
+        {RARITY_RARE,3},
+        {RARITY_UNCOMMON,4},
+        {RARITY_COMMON,5}
+    }};
+}sort_ascending;
 void sort_items_copy(std::vector<const Item*> &items_copy, const NoDelete &perm_config){
     if(perm_config.default_sort_method==SORT_TYPE_RARITY_ASCENDING){
 

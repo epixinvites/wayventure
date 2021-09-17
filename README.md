@@ -5,13 +5,13 @@
 *Sorry for the low framerate, I had to compress the GIF*
 
 ### Installation instructions:
-Dependencies: g++, make, [libtcod](https://github.com/libtcod/libtcod), [SDL2](https://www.libsdl.org/download-2.0.php)
+Dependencies: A C++ compiler, [libtcod](https://github.com/libtcod/libtcod), [SDL2](https://www.libsdl.org/download-2.0.php)
 
 ```
-Build instructions: make
-Run ./project-cosmos to start playing
+Build instructions: Follow the makefile
+Run ./wayventure to start playing
+How to play? Congratulations if you got the game working, now you just have to press Shift+h to learn more
 ```
 
-Please open an issue if you would like to contribute code, advise or simply just requesting new features!  
-Press 'Shift+h' to learn about the keybindings while the wiki will be developed later on after the v1.2.0 release  
+Please open an issue if you found any bugs, for feature requests go to the Discussions page and open a new discussion!  
 Special thanks to [@HexDecimal](https://github.com/HexDecimal) for helping me so much throughout the development of this project and his [libtcod](https://github.com/libtcod/libtcod) lib!
