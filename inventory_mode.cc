@@ -322,19 +322,15 @@ bool unequip_item(Player &User, unsigned int csr_pos, unsigned int page_num){
     }
     return true;
 }
-void draw_inventory(tcod::ConsolePtr &main_win, tcod::ContextPtr &context,  const Player &User, unsigned int page_num, unsigned int csr_pos, bool is_blacksmith_mode=false, char sort_type = SORT_TYPE_DEFAULT){
+void draw_inventory(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, const Player &User, const std::vector<const Item*> items_copy, unsigned int page_num, unsigned int csr_pos, bool is_blacksmith_mode=false){
     SDL_wclear_main_win(main_win, context);
-    std::vector<Item*> items_copy;
-    if(sort_type==SORT_TYPE_DEFAULT){
-
-    }
-    draw_base(main_win, context, 34, User.inv.item.size(), page_num, is_blacksmith_mode);
+    draw_base(main_win, context, 34, items_copy.size(), page_num, is_blacksmith_mode);
     draw_stats(main_win, context, User);
-    for(int i=page_num*30, iterator=0; i<User.inv.item.size()&&iterator<30; i++, iterator++){
-        print_item(main_win, context, &User.inv.item[i], iterator);
+    for(int i=page_num*30, iterator=0; i<items_copy.size()&&iterator<30; i++, iterator++){
+        print_item(main_win, context, items_copy[i], iterator);
     }
-    print_bold_item(main_win, context, &User.inv.item[page_num*30+csr_pos], csr_pos);
-    print_description(main_win, context, &User.inv.item[page_num*30+csr_pos], 35);
+    print_bold_item(main_win, context, items_copy[page_num*30+csr_pos], csr_pos);
+    print_description(main_win, context, items_copy[page_num*30+csr_pos], 35);
 }
 std::string get_string(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, std::string original){
     std::string input;
@@ -890,56 +886,65 @@ void salvage_item(Player &User, long long int pos){
     User.remove_item(pos);
     User.initialize_stats();
 }
-void inventory_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context,  Player &User){
+void sort_items_copy(std::vector<const Item*> &items_copy, const NoDelete &perm_config){
+    if(perm_config.default_sort_method==SORT_TYPE_RARITY_ASCENDING){
+
+    }
+}
+void inventory_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context,  Player &User, const NoDelete &perm_config){
+    std::vector<const Item*> items_copy;
+    for(int i = 0; i<User.inv.item.size(); i++){
+        items_copy.push_back(&User.inv.item[i]);
+    }
     unsigned int page_num=0;
     int csr_pos=0;
-    draw_inventory(main_win, context, User, page_num, csr_pos);
+    draw_inventory(main_win, context, User, items_copy, page_num, csr_pos);
     while(true){
         int ch=SDL_getch(main_win, context);
         if((ch=='s'||ch==SDLK_DOWN)&&((csr_pos+page_num*30)<User.inv.item.size()-1&&csr_pos<29)){
             csr_pos++;
-            draw_inventory(main_win, context, User, page_num, csr_pos);
+            draw_inventory(main_win, context, User, items_copy, page_num, csr_pos);
         }
         if((ch=='w'||ch==SDLK_UP)&&csr_pos>0){
             csr_pos--;
-            draw_inventory(main_win, context, User, page_num, csr_pos);
+            draw_inventory(main_win, context, User, items_copy, page_num, csr_pos);
         }
         if(ch=='a'||ch==SDLK_LEFT){
             if(page_num>0){
                 page_num--;
                 csr_pos=0;
-                draw_inventory(main_win, context, User, page_num, csr_pos);
+                draw_inventory(main_win, context, User, items_copy, page_num, csr_pos);
             }
         }
         if(ch=='d'||ch==SDLK_RIGHT){
             if((page_num+1)*30<User.inv.item.size()){
                 page_num++;
                 csr_pos=0;
-                draw_inventory(main_win, context, User, page_num, csr_pos);
+                draw_inventory(main_win, context, User, items_copy, page_num, csr_pos);
             }
         }
         if(ch=='e'){
             if(!User.inv.item[csr_pos+(page_num*30)].is_equipped&&User.inv.item[csr_pos+(page_num*30)].durability>0){ // if there current item is unequipped
                 equip_item(User, csr_pos, page_num);
-                draw_inventory(main_win, context, User, page_num, csr_pos);
+                draw_inventory(main_win, context, User, items_copy, page_num, csr_pos);
             }
             else if(User.inv.item[csr_pos+(page_num*30)].is_equipped){
                 unequip_item(User, csr_pos, page_num);
-                draw_inventory(main_win, context, User, page_num, csr_pos);
+                draw_inventory(main_win, context, User, items_copy, page_num, csr_pos);
             }
         }
         if(ch=='r'){
             std::string input=get_string(main_win, context, User.inv.item[csr_pos+(page_num*30)].name);
             User.inv.item[csr_pos+(page_num*30)].name=input;
-            draw_inventory(main_win, context, User, page_num, csr_pos);
+            draw_inventory(main_win, context, User, items_copy, page_num, csr_pos);
         }
         if(ch=='m'){
             show_misc_items(main_win, context, User.inv.misc);
-            draw_inventory(main_win, context, User, page_num, csr_pos);
+            draw_inventory(main_win, context, User, items_copy, page_num, csr_pos);
         }
         if(ch=='H'){
             help_mode(main_win, context, "inventory_mode");
-            draw_inventory(main_win, context, User, page_num, csr_pos);
+            draw_inventory(main_win, context, User, items_copy, page_num, csr_pos);
         }
         if(ch=='R'){
             clear_and_draw_dialog(main_win, context, "[System] Delete item? (You can salvage instead at the blacksmith) [y/n]");
@@ -958,44 +963,48 @@ void inventory_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context,  Play
                     }
                 }
             }
-            draw_inventory(main_win, context, User, page_num, csr_pos);
+            draw_inventory(main_win, context, User, items_copy, page_num, csr_pos);
         }
         if(ch=='q'){
             return;
         }
     }
 }
-void reforge_repair_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context,  Player &User){
+void reforge_repair_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context,  Player &User, const NoDelete &perm_config){
+    std::vector<const Item*> items_copy;
+    for(int i = 0; i<User.inv.item.size(); i++){
+        items_copy.push_back(&User.inv.item[i]);
+    }
     unsigned int page_num=0;
     unsigned int csr_pos=0;
-    draw_inventory(main_win, context, User, page_num, csr_pos, true);
+    draw_inventory(main_win, context, User, items_copy, page_num, csr_pos, true);
     while(true){
         int ch=SDL_getch(main_win, context);
         if((ch=='s'||ch==SDLK_DOWN)&&((csr_pos+page_num*30)<User.inv.item.size()-1&&csr_pos<29)){
             csr_pos++;
-            draw_inventory(main_win, context, User, page_num, csr_pos, true);
+            draw_inventory(main_win, context, User, items_copy, page_num, csr_pos, true);
         }
         if((ch=='w'||ch==SDLK_UP)&&csr_pos>0){
             csr_pos--;
-            draw_inventory(main_win, context, User, page_num, csr_pos, true);
+            draw_inventory(main_win, context, User, items_copy, page_num, csr_pos, true);
         }
         if(ch=='a'||ch==SDLK_LEFT){
             if(page_num>0){
                 page_num--;
                 csr_pos=0;
-                draw_inventory(main_win, context, User, page_num, csr_pos, true);
+                draw_inventory(main_win, context, User, items_copy, page_num, csr_pos, true);
             }
         }
         if(ch=='d'||ch==SDLK_RIGHT){
             if((page_num+1)*30<User.inv.item.size()){
                 page_num++;
                 csr_pos=0;
-                draw_inventory(main_win, context, User, page_num, csr_pos, true);
+                draw_inventory(main_win, context, User, items_copy, page_num, csr_pos, true);
             }
         }
         if(ch=='m'){
             show_misc_items(main_win, context, User.inv.misc);
-            draw_inventory(main_win, context, User, page_num, csr_pos, true);
+            draw_inventory(main_win, context, User, items_copy, page_num, csr_pos, true);
         }
         if(ch=='r'){
             if(User.inv.item[csr_pos+(page_num*30)].durability<100.0){
@@ -1016,7 +1025,7 @@ void reforge_repair_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, 
                         draw_stats(main_win, context, User);
                         if(return_chance(User.inv.item[csr_pos+(page_num*30)].durability*2)){
                             User.inv.item[csr_pos+(page_num*30)].durability=100.0;
-                            draw_inventory(main_win, context, User, page_num, csr_pos, true);
+                            draw_inventory(main_win, context, User, items_copy, page_num, csr_pos, true);
                             clear_and_draw_dialog(main_win, context, "[System] Success: Item Repaired.");
                         }
                         else{
@@ -1028,7 +1037,7 @@ void reforge_repair_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, 
                     }
                 }
                 else{
-                    draw_inventory(main_win, context, User, page_num, csr_pos, true);
+                    draw_inventory(main_win, context, User, items_copy, page_num, csr_pos, true);
                 }
             }
         }
@@ -1038,7 +1047,7 @@ void reforge_repair_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, 
                 User.uninitialize_stats();
                 enhance_item(User.inv.item[csr_pos+(page_num*30)], User.inv.misc, amount);
                 User.initialize_stats();
-                draw_inventory(main_win, context, User, page_num, csr_pos, true);
+                draw_inventory(main_win, context, User, items_copy, page_num, csr_pos, true);
             }
             else{
                 clear_and_draw_dialog(main_win, context, "[System] Failure");
@@ -1078,7 +1087,7 @@ void reforge_repair_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, 
                         reforge_item(ancient_core_amount, crystallium_amount, User.inv.item[csr_pos+(page_num*30)]);
                         User.inv.item[csr_pos+(page_num*30)].reinitialize_item();
                         User.initialize_stats();
-                        draw_inventory(main_win, context, User, page_num, csr_pos, true);
+                        draw_inventory(main_win, context, User, items_copy, page_num, csr_pos, true);
                         draw_stats(main_win, context, User);
                     }
                     else{
@@ -1090,12 +1099,12 @@ void reforge_repair_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, 
                 }
             }
             else{
-                draw_inventory(main_win, context, User, page_num, csr_pos, true);
+                draw_inventory(main_win, context, User, items_copy, page_num, csr_pos, true);
             }
         }
         if(ch=='c'){
             crafting_mode(main_win, context, User);
-            draw_inventory(main_win, context, User, page_num, csr_pos, true);
+            draw_inventory(main_win, context, User, items_copy, page_num, csr_pos, true);
         }
         if(ch=='S'){
             clear_and_draw_dialog(main_win, context, "Salvage item? (This action is irreversible) [y/n]");
@@ -1114,11 +1123,11 @@ void reforge_repair_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, 
                     }
                 }
             }
-            draw_inventory(main_win, context, User, page_num, csr_pos, true);
+            draw_inventory(main_win, context, User, items_copy, page_num, csr_pos, true);
         }
         if(ch=='H'){
             help_mode(main_win, context, "blacksmith_mode");
-            draw_inventory(main_win, context, User, page_num, csr_pos, true);
+            draw_inventory(main_win, context, User, items_copy, page_num, csr_pos, true);
         }
         if(ch=='q'){
             return;

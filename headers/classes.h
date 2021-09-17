@@ -2,6 +2,7 @@
 #include <string>
 #include <vector>
 #include <unordered_map>
+#include "main.h"
 struct monster{
     int x, y; // x cords and y cords
     char type; // 'e' for enemy, 'b' for boss
@@ -160,7 +161,12 @@ struct NPC{
     Merchant mysterious_trader;
     template<class Archive>void serialize(Archive &archive){archive(bartender,farmer,bank,chest,gear_merchant,mysterious_trader);}
 };
-struct NoDelete{ // Configurations and stuff
-
+struct NoDelete{
+    // Configurations
+    // Stats? Maybe how many enemies killed, bosses killed and so on
+    // Titles unlocked
+    // Player EXP/Levels/System Control Authority
+    char default_sort_method = SORT_TYPE_DEFAULT;
 };
+
 

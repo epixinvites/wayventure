@@ -4,15 +4,13 @@
 #include <fstream>
 #include <unordered_map>
 #include <filesystem>
-#include <unistd.h>
-#include <libtcod.h>
-#include <SDL2/SDL.h>
-#include <libtcod/timer.h>
+#include <chrono>
+#include <thread>
+#include "headers/main.h"
 #include "headers/classes.h"
 #include "headers/draw.h"
 #include "headers/generate.h"
 #include "headers/mode.h"
-#include "headers/main.h"
 #include <cereal/archives/json.hpp>
 #include <cereal/types/vector.hpp>
 #include <cereal/types/string.hpp>
@@ -403,7 +401,7 @@ void drop_items_on_death(Player &User, Csr &csr_pos, level &current){
     csr_pos={1,1};
     current={1,1,1};
 }
-void init_dungeon(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Csr &csr_pos, Player &User, level &Current, std::vector<monster> &monsters, NPC &npc){
+void init_dungeon(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Csr &csr_pos, Player &User, level &Current, std::vector<monster> &monsters, NPC &npc, NoDelete &perm_config){
     std::vector<std::pair<int,int>> doors;
     if(monsters.empty()){
         generate_monsters(monsters, Current, csr_pos);
@@ -438,13 +436,13 @@ void init_dungeon(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Csr &cs
                 generate_doors(doors, Current);
             }
             else if(Current.lvl==1&&Current.x==1&&Current.y==1&&csr_pos.first==1&&csr_pos.second==48){
-                bar_mode(main_win, context, User, npc);
+                bar_mode(main_win, context, User, npc, perm_config);
             }
             redraw_everything(main_win, context, csr_pos, User, Current, monsters);
         }
         if(ch=='i'){
             if(!User.inv.item.empty()){
-                inventory_mode(main_win, context, User);
+                inventory_mode(main_win, context, User, perm_config);
             }
             redraw_everything(main_win, context, csr_pos, User, Current, monsters);
         }
@@ -465,7 +463,7 @@ void init_dungeon(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Csr &cs
         if(ch=='S'){
             save_data(User, Current, csr_pos, monsters, npc);
             clear_and_draw_dialog(main_win, context, "Data saved successfully!");
-            sleep(1);
+            std::this_thread::sleep_for(std::chrono::seconds(1));
             redraw_everything(main_win, context, csr_pos, User, Current, monsters);
         }
         if(ch=='H'){
@@ -501,7 +499,7 @@ void init_dungeon(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Csr &cs
         }
     }
 }
-void init(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Csr &csr_pos, Player &User, level &Current, NPC &npc){
+void init(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Csr &csr_pos, Player &User, level &Current, NPC &npc, NoDelete &perm_config){
     std::vector<monster> monsters;
     init_data(User, Current, csr_pos, monsters, npc);
     User.init();
@@ -527,13 +525,14 @@ void init(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Csr &csr_pos, P
             break;
         }
     }
-    init_dungeon(main_win, context, csr_pos, User, Current, monsters, npc);
+    init_dungeon(main_win, context, csr_pos, User, Current, monsters, npc, perm_config);
 }
 int main(int argc, char *argv[]){
     Csr csr_pos{1,1};
     Player User;
     level Current{1,1,1};
     NPC npc;
+    NoDelete perm_config;
     tcod::ConsolePtr main_win=tcod::new_console(80, 55);
     TCOD_ContextParams params{};
     params.tcod_version=TCOD_COMPILEDVERSION;
@@ -547,7 +546,7 @@ int main(int argc, char *argv[]){
     tcod::ContextPtr context=tcod::new_context(params);
     TCOD_console_set_default_foreground(main_win.get(), WHITE);
     TCOD_console_set_default_background(main_win.get(), BLACK);
-    init(main_win, context, csr_pos, User, Current, npc);
+    init(main_win, context, csr_pos, User, Current, npc, perm_config);
     TCOD_quit();
     return 0;
 }
