@@ -7,14 +7,47 @@
 #include "headers/mode.h"
 #include "headers/draw.h"
 #include "headers/generate.h"
-void draw_base(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, int y, unsigned int size, unsigned int page, bool is_blacksmith_mode){
+struct SortAscending{
+    std::unordered_map<char,int> priority{
+        {RARITY_ARTIFACT,0},
+        {RARITY_LEGENDARY,1},
+        {RARITY_EPIC,2},
+        {RARITY_RARE,3},
+        {RARITY_UNCOMMON,4},
+        {RARITY_COMMON,5}
+    };
+    bool operator()(const Item *i, const Item *j){
+        int priority_i=priority[i->rarity];
+        int priority_j=priority[j->rarity];
+        return priority_i<priority_j;
+    }
+}sort_ascending;
+struct SortDescending{
+    std::unordered_map<char,int> priority{
+        {RARITY_ARTIFACT,0},
+        {RARITY_LEGENDARY,1},
+        {RARITY_EPIC,2},
+        {RARITY_RARE,3},
+        {RARITY_UNCOMMON,4},
+        {RARITY_COMMON,5}
+    };
+    bool operator()(const Item *i, const Item *j){
+        int priority_i=priority[i->rarity];
+        int priority_j=priority[j->rarity];
+        return priority_i>priority_j;
+    }
+}sort_descending;
+void draw_base(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, int y, unsigned int size, unsigned int page, bool is_blacksmith_mode, bool is_inventory_modifier_mode){
     std::stringstream ss;
     SDL_wclear_dialog_bar(main_win, context);
-    if(!is_blacksmith_mode){
-        ss<<"Inventory "<<"("<<page+1<<"/"<<((size-1)/30)+1<<")";
+    if(is_blacksmith_mode){
+        ss<<"[Blacksmith] How can I help you today? "<<"("<<page+1<<"/"<<((size-1)/30)+1<<")";
+    }
+    else if(is_inventory_modifier_mode){
+        ss<<"Inventory "<<"("<<page+1<<"/"<<((size-1)/30)+1<<")"<<" [Inventory Modifier Mode]";
     }
     else{
-        ss<<"[Blacksmith] How can I help you today? "<<"("<<page+1<<"/"<<((size-1)/30)+1<<")";
+        ss<<"Inventory "<<"("<<page+1<<"/"<<((size-1)/30)+1<<")";
     }
     tcod::print(*main_win, {0,0}, ss.str(), &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
     for(int i=0; i<80; i++){
@@ -323,9 +356,9 @@ bool unequip_item(Player &User, unsigned int csr_pos, unsigned int page_num){
     }
     return true;
 }
-void draw_inventory(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, const Player &User, const std::vector<const Item*> items_copy, unsigned int page_num, unsigned int csr_pos, bool is_blacksmith_mode=false){
+void draw_inventory(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, const Player &User, const std::vector<const Item*> items_copy, unsigned int page_num, unsigned int csr_pos, bool is_blacksmith_mode=false, bool is_inventory_modeifier_mode = false){
     SDL_wclear_main_win(main_win, context);
-    draw_base(main_win, context, 34, items_copy.size(), page_num, is_blacksmith_mode);
+    draw_base(main_win, context, 34, items_copy.size(), page_num, is_blacksmith_mode, is_inventory_modeifier_mode);
     draw_stats(main_win, context, User);
     for(int i=page_num*30, iterator=0; i<items_copy.size()&&iterator<30; i++, iterator++){
         print_item(main_win, context, items_copy[i], iterator);
@@ -435,7 +468,7 @@ void print_misc_bold(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Misc
             break;
     }
 }
-bool decrease_amount(unsigned int &original, unsigned int amount){
+bool decrease_amount(unsigned long long int &original, unsigned int amount){
     if(original>=amount){
         original-=amount;
         return true;
@@ -887,28 +920,30 @@ void salvage_item(Player &User, long long int pos){
     User.remove_item(pos);
     User.initialize_stats();
 }
-struct SortAscending{
-    std::vector<std::unordered_map<char,int>> priority{{
-        {RARITY_ARTIFACT,0},
-        {RARITY_LEGENDARY,1},
-        {RARITY_EPIC,2},
-        {RARITY_RARE,3},
-        {RARITY_UNCOMMON,4},
-        {RARITY_COMMON,5}
-    }};
-}sort_ascending;
-void sort_items_copy(std::vector<const Item*> &items_copy, const NoDelete &perm_config){
-    if(perm_config.default_sort_method==SORT_TYPE_RARITY_ASCENDING){
 
-    }
-}
-void inventory_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context,  Player &User, const NoDelete &perm_config){
-    std::vector<const Item*> items_copy;
+void sort_items_copy(const Player &User, std::vector<const Item*> &items_copy, const NoDelete &perm_config){
+    items_copy.clear();
     for(int i = 0; i<User.inv.item.size(); i++){
         items_copy.push_back(&User.inv.item[i]);
     }
+    if(perm_config.default_sort_method==SORT_TYPE_RARITY_ASCENDING){
+        std::sort(items_copy.begin(), items_copy.end(), sort_ascending);
+    }
+    if(perm_config.default_sort_method==SORT_TYPE_RARITY_DESCENDING){
+        std::sort(items_copy.begin(), items_copy.end(), sort_descending);
+    }
+}
+void remove_unequipped_items_copy(std::vector<const Item*> &items_copy){
+    items_copy.erase(std::remove_if(items_copy.begin(), items_copy.end(), [](const Item *v){return v->is_equipped==false;}), items_copy.end());
+}
+void inventory_modifier_selection(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, NoDelete &perm_config){
+
+}
+void inventory_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player &User, NoDelete &perm_config){
+    std::vector<const Item*> items_copy;
     unsigned int page_num=0;
     int csr_pos=0;
+    sort_items_copy(User, items_copy, perm_config);
     draw_inventory(main_win, context, User, items_copy, page_num, csr_pos);
     while(true){
         int ch=SDL_getch(main_win, context);
@@ -979,9 +1014,58 @@ void inventory_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context,  Play
         if(ch=='q'){
             return;
         }
+        if(ch=='-'){ // Inventory Modifier
+            // Inventory Modifier Keys
+            while(true){
+                ch = SDL_getch(main_win, context);
+                draw_inventory(main_win, context, User, items_copy, page_num, csr_pos, false, true);
+                if(ch=='-'){ // Go back to default
+                    perm_config.default_sort_method=SORT_TYPE_DEFAULT;
+                    sort_items_copy(User, items_copy, perm_config);
+                }
+                if(ch=='0'){ // Sort by Rarity Ascending/Descending/Default
+                    if(perm_config.default_sort_method==SORT_TYPE_RARITY_ASCENDING){
+                        perm_config.default_sort_method=SORT_TYPE_RARITY_DESCENDING;
+                    }
+                    else if(perm_config.default_sort_method==SORT_TYPE_RARITY_DESCENDING){
+                        perm_config.default_sort_method=SORT_TYPE_DEFAULT;
+                    }
+                    else if(perm_config.default_sort_method==SORT_TYPE_DEFAULT){
+                        perm_config.default_sort_method=SORT_TYPE_RARITY_ASCENDING;
+                    }
+                    sort_items_copy(User, items_copy, perm_config);
+                }
+                if(ch=='1'){ // Toggle to show only equipped
+                    remove_unequipped_items_copy(items_copy);
+                }
+                if(ch=='2'){ // Show only fixed type (cycle)
+                    // Save config into NoDelete
+                }
+                if(ch=='3'){ // Show only fixed rarity (cycle)
+                    // Save config into NoDelete
+                }
+                if(ch=='4'){ // Sort by fixed stat (cycle)
+                    // Save config into NoDelete
+                }
+                if(ch=='5'){ // Toggle multiselect for salvation (potentially more things)
+                    // Use C++ <stack>
+                }
+                if(ch=='['){ // Toggle to show difference between current item compared to equipped item
+                    // Save config into NoDelete
+                }
+                if(ch==']'){ // Toggle to compare two items
+                    // [Enter] to select item
+                    // Select the selected item to cancel selection
+                }
+                if(ch=='q'){
+                    break;
+                }
+            }
+            draw_inventory(main_win, context, User, items_copy, page_num, csr_pos);
+        }
     }
 }
-void reforge_repair_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context,  Player &User, const NoDelete &perm_config){
+void reforge_repair_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context,  Player &User, NoDelete &perm_config){
     std::vector<const Item*> items_copy;
     for(int i = 0; i<User.inv.item.size(); i++){
         items_copy.push_back(&User.inv.item[i]);

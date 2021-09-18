@@ -330,7 +330,7 @@ void char_move(int ch, tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Cs
         redraw_bar(main_win, context, pub_layout, csr_pos);
     }
 }
-void bar_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context,  Player &User, NPC &npc, const NoDelete &perm_config){
+void bar_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context,  Player &User, NPC &npc, NoDelete &perm_config){
     Csr csr_pos{78,1};
     std::ifstream pub_layout_file("res/bar_layout.txt");
     std::vector<std::string> pub_layout; // {50,80}

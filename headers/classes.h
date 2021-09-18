@@ -50,26 +50,26 @@ struct Water{
 };
 struct Miscellaneous{
     struct Material_rarity{
-        unsigned int common = 0;
-        unsigned int uncommon = 0;
-        unsigned int rare = 0;
-        unsigned int epic = 0;
-        unsigned int legendary = 0;
-        unsigned int artifact = 0;
+        unsigned long long int common = 0;
+        unsigned long long int uncommon = 0;
+        unsigned long long int rare = 0;
+        unsigned long long int epic = 0;
+        unsigned long long int legendary = 0;
+        unsigned long long int artifact = 0;
         template<class Archive> void serialize(Archive &archive){archive(common,uncommon,rare,epic,legendary,artifact);}
     };
     struct Type{
-        unsigned int helmet = 0;
-        unsigned int chestplate = 0;
-        unsigned int greaves = 0;
-        unsigned int boots = 0;
-        unsigned int shield = 0;
-        unsigned int weapon = 0;
+        unsigned long long int helmet = 0;
+        unsigned long long int chestplate = 0;
+        unsigned long long int greaves = 0;
+        unsigned long long int boots = 0;
+        unsigned long long int shield = 0;
+        unsigned long long int weapon = 0;
         template<class Archive> void serialize(Archive &archive){archive(helmet,chestplate,greaves,boots,shield,weapon);}
     };
-    unsigned int ancient_core = 0;
-    unsigned int crystallium = 0;
-    unsigned int crystal_cores = 0;
+    unsigned long long int ancient_core = 0;
+    unsigned long long int crystallium = 0;
+    unsigned long long int crystal_cores = 0;
     Material_rarity materials;
     Type blueprint;
     template<class Archive> void serialize(Archive &archive){archive(ancient_core,crystallium,materials,blueprint,crystal_cores);}
@@ -167,6 +167,18 @@ struct NoDelete{
     // Titles unlocked
     // Player EXP/Levels/System Control Authority
     char default_sort_method = SORT_TYPE_DEFAULT;
+    char default_show_type_type = TYPE_HELMET;
+    char default_show_rarity_type = RARITY_COMMON;
+    char default_sort_stat_type_method = SORT_TYPE_STATS_HP;
+    bool show_current_item_compared_to_equipped = false;
+    template<class Archive>void serialize(Archive &archive){
+        archive(
+            default_sort_method,
+            default_show_type_type,
+            default_show_rarity_type,
+            show_current_item_compared_to_equipped
+            );
+    }
 };
 
 

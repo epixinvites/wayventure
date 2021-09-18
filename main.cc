@@ -100,10 +100,10 @@ void char_move(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, int ch, Cs
         if(User.steps>100000000000000000){
             User.steps/=10;
         }
-        if(User.steps%15==0){
+        if(User.steps%25==0){
             User.hydration--;
         }
-        if(User.steps%25==0){
+        if(User.steps%35==0){
             User.saturation--;
         }
     }
@@ -376,24 +376,24 @@ void end_program(int sig, std::string error){
 bool is_empty(std::ifstream &pFile){
     return pFile.peek()==std::ifstream::traits_type::eof();
 }
-void init_data(Player &User, level &Current, Csr &csr_pos, std::vector<monster> &monsters, NPC &npc){
+void init_data(Player &User, level &Current, Csr &csr_pos, std::vector<monster> &monsters, NPC &npc, NoDelete &perm_config){
     if(username.length()>30){
         throw std::runtime_error("Nope. Nopenopenopenope. You didn't follow my instructions.");
     }
     std::ifstream ifile("save/user.save", std::ios::binary);
     if(!is_empty(ifile)){
         cereal::JSONInputArchive retrieve(ifile);
-        retrieve(User, Current, csr_pos, monsters, npc);
+        retrieve(User, Current, csr_pos, monsters, npc, perm_config);
         // Insert data corruption checks
         std::filesystem::remove("save/user.save.1");
         std::filesystem::copy("save/user.save", "save/user.save.1");
     }
 }
-void save_data(Player User, level Current, Csr csr_pos, std::vector<monster> monsters, NPC npc){
+void save_data(Player User, level Current, Csr csr_pos, std::vector<monster> monsters, NPC npc, NoDelete perm_config){
     std::ofstream ofile("save/user.save", std::ios::trunc|std::ios::binary);
     cereal::JSONOutputArchive archive(ofile);
     User.uninitialize_stats();
-    archive(User, Current, csr_pos, monsters, npc);
+    archive(User, Current, csr_pos, monsters, npc, perm_config);
 }
 void drop_items_on_death(Player &User, Csr &csr_pos, level &current){
     User=Player();
@@ -422,7 +422,7 @@ void init_dungeon(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Csr &cs
             if(attack_status.first&&!attack_status.second){ // If dead return to main menu
                 end_program(1);
                 drop_items_on_death(User, csr_pos, Current);
-                save_data(User, Current, csr_pos, monsters, npc);
+                save_data(User, Current, csr_pos, monsters, npc, perm_config);
                 return;
             }
             if(attack_status.first&&attack_status.second){ // If win redraw dungeon and move on
@@ -460,7 +460,7 @@ void init_dungeon(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Csr &cs
             redraw_everything(main_win, context, csr_pos, User, Current, monsters);
         }
         if(ch=='S'){
-            save_data(User, Current, csr_pos, monsters, npc);
+            save_data(User, Current, csr_pos, monsters, npc, perm_config);
             clear_and_draw_dialog(main_win, context, "Data saved successfully!");
             std::this_thread::sleep_for(std::chrono::seconds(1));
             redraw_everything(main_win, context, csr_pos, User, Current, monsters);
@@ -479,20 +479,20 @@ void init_dungeon(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Csr &cs
             }
             if(ch=='y'){
                 end_program(0);
-                save_data(User, Current, csr_pos, monsters, npc);
+                save_data(User, Current, csr_pos, monsters, npc, perm_config);
                 return;
             }
             redraw_everything(main_win, context, csr_pos, User, Current, monsters);
         }
         if(User.saturation<=0){
             drop_items_on_death(User, csr_pos, Current);
-            save_data(User, Current, csr_pos, monsters, npc);
+            save_data(User, Current, csr_pos, monsters, npc, perm_config);
             end_program(2);
             return;
         }
         if(User.hydration<=0){
             drop_items_on_death(User, csr_pos, Current);
-            save_data(User, Current, csr_pos, monsters, npc);
+            save_data(User, Current, csr_pos, monsters, npc, perm_config);
             end_program(3);
             return;
         }
@@ -500,7 +500,7 @@ void init_dungeon(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Csr &cs
 }
 void init(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Csr &csr_pos, Player &User, level &Current, NPC &npc, NoDelete &perm_config){
     std::vector<monster> monsters;
-    init_data(User, Current, csr_pos, monsters, npc);
+    init_data(User, Current, csr_pos, monsters, npc, perm_config);
     User.init();
     std::ifstream ascii_wayfarer("res/wayfarer.txt");
     if(!ascii_wayfarer){
