@@ -936,6 +936,13 @@ void sort_items_copy(const Player &User, std::vector<const Item*> &items_copy, c
 void remove_unequipped_items_copy(std::vector<const Item*> &items_copy){
     items_copy.erase(std::remove_if(items_copy.begin(), items_copy.end(), [](const Item *v){return v->is_equipped==false;}), items_copy.end());
 }
+void draw_inventory_modifier_selection(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, NoDelete &perm_config){
+    SDL_wclear_main_win(main_win, context);
+    SDL_wclear_dialog_bar(main_win, context);
+    tcod::print(*main_win, {0,0}, "Inventory Modifier Selection", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+    tcod::print(*main_win, {0,1}, "Show only [Rarity]:", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+    context->present(*main_win);
+}
 void inventory_modifier_selection(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, NoDelete &perm_config){
 
 }
@@ -1018,7 +1025,6 @@ void inventory_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Playe
             // Inventory Modifier Keys
             while(true){
                 ch = SDL_getch(main_win, context);
-                draw_inventory(main_win, context, User, items_copy, page_num, csr_pos, false, true);
                 if(ch=='-'){ // Go back to default
                     perm_config.default_sort_method=SORT_TYPE_DEFAULT;
                     sort_items_copy(User, items_copy, perm_config);
