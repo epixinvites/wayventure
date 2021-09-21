@@ -43,19 +43,8 @@ constexpr char DUNGEON_LEVEL_BOSS='x';
 constexpr char DUNGEON_FINAL_BOSS='f';
 
 constexpr char DEFAULT_SHOW_SELECTION='!';
-
 constexpr char SORT_TYPE_RARITY_ASCENDING='a';
 constexpr char SORT_TYPE_RARITY_DESCENDING='d';
-
-constexpr char SORT_TYPE_STATS_HP = 'h';
-constexpr char SORT_TYPE_STATS_DMG = 'd';
-constexpr char SORT_TYPE_STATS_DEFENCE = 'f';
-constexpr char SORT_TYPE_STATS_SHIELD = 's';
-constexpr char SORT_TYPE_STATS_CRIT_CHN = 'c';
-constexpr char SORT_TYPE_STATS_CRIG_DMG = 'C';
-constexpr char SORT_TYPE_STATS_CALIBRATION = 'a';
-constexpr char SORT_TYPE_STATS_ENHANCEMENT = 'e';
-constexpr char SORT_TYPE_STATS_DURABILITY = 'D';
 
 void clear_and_draw_dialog(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, std::string dialog);
 int SDL_getch(tcod::ConsolePtr &main_win, tcod::ContextPtr &context);

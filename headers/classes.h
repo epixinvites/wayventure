@@ -169,14 +169,13 @@ struct NoDelete{
     char default_show_type_type = DEFAULT_SHOW_SELECTION;
     char default_show_rarity_type = DEFAULT_SHOW_SELECTION;
     char default_sort_rarity_method = DEFAULT_SHOW_SELECTION;
-    char default_sort_stat_type_method = DEFAULT_SHOW_SELECTION;
     bool show_current_item_compared_to_equipped = false;
     bool only_show_equipped = false;
     template<class Archive>void serialize(Archive &archive){
         archive(
-            default_sort_rarity_method,
             default_show_type_type,
             default_show_rarity_type,
+            default_sort_rarity_method,
             show_current_item_compared_to_equipped,
             only_show_equipped
             );
