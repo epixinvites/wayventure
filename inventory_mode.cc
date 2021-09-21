@@ -926,26 +926,17 @@ void sort_items_copy(const Player &User, std::vector<const Item*> &items_copy, c
     for(int i = 0; i<User.inv.item.size(); i++){
         items_copy.push_back(&User.inv.item[i]);
     }
-    if(perm_config.default_sort_method==SORT_TYPE_RARITY_ASCENDING){
+    if(perm_config.default_sort_rarity_method==SORT_TYPE_RARITY_ASCENDING){
         std::sort(items_copy.begin(), items_copy.end(), sort_ascending);
     }
-    if(perm_config.default_sort_method==SORT_TYPE_RARITY_DESCENDING){
+    if(perm_config.default_sort_rarity_method==SORT_TYPE_RARITY_DESCENDING){
         std::sort(items_copy.begin(), items_copy.end(), sort_descending);
     }
 }
 void remove_unequipped_items_copy(std::vector<const Item*> &items_copy){
     items_copy.erase(std::remove_if(items_copy.begin(), items_copy.end(), [](const Item *v){return v->is_equipped==false;}), items_copy.end());
 }
-void draw_inventory_modifier_selection(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, NoDelete &perm_config){
-    SDL_wclear_main_win(main_win, context);
-    SDL_wclear_dialog_bar(main_win, context);
-    tcod::print(*main_win, {0,0}, "Inventory Modifier Selection", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
-    tcod::print(*main_win, {0,1}, "Show only [Rarity]:", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
-    context->present(*main_win);
-}
-void inventory_modifier_selection(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, NoDelete &perm_config){
 
-}
 void inventory_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player &User, NoDelete &perm_config){
     std::vector<const Item*> items_copy;
     unsigned int page_num=0;
@@ -1026,18 +1017,19 @@ void inventory_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Playe
             while(true){
                 ch = SDL_getch(main_win, context);
                 if(ch=='-'){ // Go back to default
-                    perm_config.default_sort_method=SORT_TYPE_DEFAULT;
-                    sort_items_copy(User, items_copy, perm_config);
+                    inventory_modifier_selection(main_win, context, perm_config);
+//                    perm_config.default_sort_method=SORT_TYPE_DEFAULT;
+//                    sort_items_copy(User, items_copy, perm_config);
                 }
                 if(ch=='0'){ // Sort by Rarity Ascending/Descending/Default
-                    if(perm_config.default_sort_method==SORT_TYPE_RARITY_ASCENDING){
-                        perm_config.default_sort_method=SORT_TYPE_RARITY_DESCENDING;
+                    if(perm_config.default_sort_rarity_method==SORT_TYPE_RARITY_ASCENDING){
+                        perm_config.default_sort_rarity_method=SORT_TYPE_RARITY_DESCENDING;
                     }
-                    else if(perm_config.default_sort_method==SORT_TYPE_RARITY_DESCENDING){
-                        perm_config.default_sort_method=SORT_TYPE_DEFAULT;
+                    else if(perm_config.default_sort_rarity_method==SORT_TYPE_RARITY_DESCENDING){
+                        perm_config.default_sort_rarity_method=DEFAULT_SHOW_SELECTION;
                     }
-                    else if(perm_config.default_sort_method==SORT_TYPE_DEFAULT){
-                        perm_config.default_sort_method=SORT_TYPE_RARITY_ASCENDING;
+                    else if(perm_config.default_sort_rarity_method==DEFAULT_SHOW_SELECTION){
+                        perm_config.default_sort_rarity_method=SORT_TYPE_RARITY_ASCENDING;
                     }
                     sort_items_copy(User, items_copy, perm_config);
                 }

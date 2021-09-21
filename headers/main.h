@@ -42,11 +42,11 @@ constexpr char DUNGEON_ROOM_BOSS='b';
 constexpr char DUNGEON_LEVEL_BOSS='x';
 constexpr char DUNGEON_FINAL_BOSS='f';
 
+constexpr char DEFAULT_SHOW_SELECTION='!';
+
 constexpr char SORT_TYPE_RARITY_ASCENDING='a';
 constexpr char SORT_TYPE_RARITY_DESCENDING='d';
-constexpr char SORT_TYPE_DEFAULT='D';
 
-constexpr char SORT_TYPE_STATS_DEFAULT='E';
 constexpr char SORT_TYPE_STATS_HP = 'h';
 constexpr char SORT_TYPE_STATS_DMG = 'd';
 constexpr char SORT_TYPE_STATS_DEFENCE = 'f';
