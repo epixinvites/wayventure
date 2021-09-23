@@ -328,9 +328,9 @@ bool unequip_item(Player &User, Item *cur_item){
 }
 void draw_inventory(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, const Player &User, const std::vector<Item*> items_copy, unsigned int page_num, unsigned int csr_pos, bool is_blacksmith_mode=false, bool is_inventory_modeifier_mode = false){
     SDL_wclear_main_win(main_win, context);
-    draw_base(main_win, context, 34, items_copy.size(), page_num, is_blacksmith_mode, is_inventory_modeifier_mode);
     draw_stats(main_win, context, User);
     if(!items_copy.empty()){
+        draw_base(main_win, context, 34, items_copy.size(), page_num, is_blacksmith_mode, is_inventory_modeifier_mode);
         for(int i=page_num*30, iterator=0; i<items_copy.size()&&iterator<30; i++, iterator++){
             print_item(main_win, context, items_copy[i], iterator);
         }
