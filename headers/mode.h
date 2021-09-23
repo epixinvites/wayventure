@@ -8,4 +8,6 @@ void reforge_repair_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, 
 void eat_drink_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player &User);
 void show_misc_items(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Miscellaneous &User);
 void help_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, std::string mode);
-void inventory_modifier_selection(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, NoDelete &perm_config);
+void init_copy(const Player &User, std::vector<const Item*> &items_copy);
+void process_copy(const Player &User, std::vector<const Item*> &items_copy, const NoDelete &perm_config);
+void inventory_modifier_selection(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, NoDelete &perm_config, const std::vector<const Item*> &items_copy);

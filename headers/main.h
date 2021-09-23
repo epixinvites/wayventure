@@ -14,6 +14,7 @@ static constexpr TCOD_ColorRGB CYAN{0,255,255}; // player_char (exclusive)
 static constexpr TCOD_ColorRGB LIGHT_RED{255,50,50}; // enemy (exclusive)
 static constexpr TCOD_ColorRGB GREEN{50,153,50};
 static constexpr TCOD_ColorRGB BLUE{0,127,255};
+static constexpr TCOD_ColorRGB GRAY{115,115,115};
 static constexpr TCOD_ColorRGB PURPLE{120,81,169};
 static constexpr TCOD_ColorRGB YELLOW{255,255,0};
 static constexpr TCOD_ColorRGB DARK_RED{196,2,51}; // artifact (exclusive)
