@@ -31,17 +31,14 @@ struct SortDescending{
         return priority_i>priority_j;
     }
 }sort_descending;
-void init_copy(const Player &User, std::vector<const Item*> &items_copy){
+void init_copy(Player &User, std::vector<Item*> &items_copy){
     items_copy.clear();
     for(int i = 0; i<User.inv.item.size(); i++){
         items_copy.push_back(&User.inv.item[i]);
     }
 }
-void process_copy(const Player &User, std::vector<const Item*> &items_copy, const NoDelete &perm_config){
-    items_copy.clear();
-    for(int i = 0; i<User.inv.item.size(); i++){
-        items_copy.push_back(&User.inv.item[i]);
-    }
+void process_copy(Player &User, std::vector<Item*> &items_copy, const NoDelete &perm_config){
+    init_copy(User, items_copy);
     if(perm_config.only_show_equipped){ // Only show Equipped
         items_copy.erase(std::remove_if(items_copy.begin(), items_copy.end(), [](const Item *v){return v->is_equipped==false;}), items_copy.end());
     }
@@ -80,7 +77,7 @@ void print_item(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, bool curr
         }
     }
 }
-bool check_if_rarity_valid(const std::vector<const Item*> &items_copy, char check){
+bool check_if_rarity_valid(const std::vector<Item*> items_copy, char check){
     for(int i = 0; i<items_copy.size(); i++){
         if(items_copy[i]->rarity==check){
             return true;
@@ -88,7 +85,7 @@ bool check_if_rarity_valid(const std::vector<const Item*> &items_copy, char chec
     }
     return false;
 }
-bool check_if_type_valid(const std::vector<const Item*> &items_copy, char check){
+bool check_if_type_valid(const std::vector<Item*> items_copy, char check){
     for(int i = 0; i<items_copy.size(); i++){
         if(items_copy[i]->type==check){
             return true;
@@ -96,7 +93,7 @@ bool check_if_type_valid(const std::vector<const Item*> &items_copy, char check)
     }
     return false;
 }
-bool check_if_equip_valid(const std::vector<const Item*> &items_copy){
+bool check_if_equip_valid(const std::vector<Item*> items_copy){
     for(int i = 0; i<items_copy.size(); i++){
         if(items_copy[i]->is_equipped){
             return true;
@@ -104,7 +101,7 @@ bool check_if_equip_valid(const std::vector<const Item*> &items_copy){
     }
     return false;
 }
-void draw_inventory_modifier_selection(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, const std::vector<const Item*> &items_copy, const NoDelete &perm_config, unsigned int csr_pos){
+void draw_inventory_modifier_selection(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, const std::vector<Item*> items_copy, const NoDelete &perm_config, unsigned int csr_pos){
     SDL_wclear_main_win(main_win, context);
     SDL_wclear_dialog_bar(main_win, context);
     tcod::print(*main_win, {0,0}, "Inventory Modifier Selection", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
@@ -137,7 +134,7 @@ void draw_inventory_modifier_selection(tcod::ConsolePtr &main_win, tcod::Context
     print_item(main_win, context, csr_pos==22, false, 34, "Done");
     context->present(*main_win);
 }
-void change_config(NoDelete &perm_config, unsigned int csr_pos, const std::vector<const Item*> &items_copy){
+void change_config(NoDelete &perm_config, unsigned int csr_pos, const std::vector<Item*> items_copy){
     switch(csr_pos){
         case 0:
             perm_config.default_show_rarity_type=DEFAULT_SHOW_SELECTION;
@@ -216,7 +213,7 @@ void change_config(NoDelete &perm_config, unsigned int csr_pos, const std::vecto
             break;
     }
 }
-bool check_if_csr_move_valid(const unsigned int &csr_pos, const std::vector<const Item*> &items_copy){
+bool check_if_csr_move_valid(const unsigned int &csr_pos, const std::vector<Item*> items_copy){
     switch(csr_pos){
         case 1:
             if(check_if_rarity_valid(items_copy, RARITY_COMMON)){
@@ -288,19 +285,19 @@ bool check_if_csr_move_valid(const unsigned int &csr_pos, const std::vector<cons
     }
     return false;
 }
-void repeat_down_until_valid_move(unsigned int &csr_pos, const std::vector<const Item*> &items_copy){
+void repeat_down_until_valid_move(unsigned int &csr_pos, const std::vector<Item*> items_copy){
     csr_pos++;
     if(!check_if_csr_move_valid(csr_pos, items_copy)){
         repeat_down_until_valid_move(csr_pos, items_copy);
     }
 }
-void repeat_up_until_valid_move(unsigned int &csr_pos, const std::vector<const Item*> &items_copy){
+void repeat_up_until_valid_move(unsigned int &csr_pos, const std::vector<Item*> items_copy){
     csr_pos--;
     if(!check_if_csr_move_valid(csr_pos, items_copy)){
         repeat_down_until_valid_move(csr_pos, items_copy);
     }
 }
-void inventory_modifier_selection(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, NoDelete &perm_config, const std::vector<const Item*> &items_copy){
+void inventory_modifier_selection(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, NoDelete &perm_config, const std::vector<Item*> items_copy){
     unsigned int csr_pos = 0;
     int ch;
     while(true){

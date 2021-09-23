@@ -138,7 +138,13 @@ void Player::add_item(Item input){
     }
     inv.item[inv.item.size()-1].initialize_item();
 }
-void Player::remove_item(int pos){
+void Player::remove_item(Item *address){
+    int pos = 0;
+    for(; pos<inv.item.size(); pos++){
+        if(&inv.item[pos]==address){
+            break;
+        }
+    }
     inv.item.erase(inv.item.begin()+pos);
 //    equip=Equipped();
     for(int i=0; i<inv.item.size(); i++){ // loops through every single item and finds all items that is_equipped

@@ -239,102 +239,107 @@ void print_description(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, co
     }
     context->present(*main_win);
 }
-void equip_item(Player &User, unsigned int csr_pos, unsigned int page_num){
-    User.inv.item[csr_pos+(page_num*30)].is_equipped=true;
-    if(User.inv.item[csr_pos+(page_num*30)].type=='h'){
+void equip_item(Player &User, Item *cur_item){
+    cur_item->is_equipped=true;
+    if(cur_item->type=='h'){
         if(User.equip.helmet!=nullptr){
             User.uninitialize_gear(User.equip.helmet);
             User.equip.helmet->is_equipped=false;
         }
-        User.equip.helmet=&User.inv.item[csr_pos+(page_num*30)];
+        User.equip.helmet=cur_item;
         User.initialize_gear(User.equip.helmet);
     }
-    if(User.inv.item[csr_pos+(page_num*30)].type=='c'){
+    if(cur_item->type=='c'){
         if(User.equip.chestplate!=nullptr){
             User.uninitialize_gear(User.equip.chestplate);
             User.equip.chestplate->is_equipped=false;
         }
-        User.equip.chestplate=&User.inv.item[csr_pos+(page_num*30)];
+        User.equip.chestplate=cur_item;
         User.initialize_gear(User.equip.chestplate);
     }
-    if(User.inv.item[csr_pos+(page_num*30)].type=='g'){
+    if(cur_item->type=='g'){
         if(User.equip.greaves!=nullptr){
             User.uninitialize_gear(User.equip.greaves);
             User.equip.greaves->is_equipped=false;
         }
-        User.equip.greaves=&User.inv.item[csr_pos+(page_num*30)];
+        User.equip.greaves=cur_item;
         User.initialize_gear(User.equip.greaves);
     }
-    if(User.inv.item[csr_pos+(page_num*30)].type=='b'){
+    if(cur_item->type=='b'){
         if(User.equip.boots!=nullptr){
             User.uninitialize_gear(User.equip.boots);
             User.equip.boots->is_equipped=false;
         }
-        User.equip.boots=&User.inv.item[csr_pos+(page_num*30)];
+        User.equip.boots=cur_item;
         User.initialize_gear(User.equip.boots);
     }
-    if(User.inv.item[csr_pos+(page_num*30)].type=='s'){
+    if(cur_item->type=='s'){
         if(User.equip.shield!=nullptr){
             User.uninitialize_gear(User.equip.shield);
             User.equip.shield->is_equipped=false;
         }
-        User.equip.shield=&User.inv.item[csr_pos+(page_num*30)];
+        User.equip.shield=cur_item;
         User.initialize_gear(User.equip.shield);
     }
-    if(User.inv.item[csr_pos+(page_num*30)].type=='w'){
+    if(cur_item->type=='w'){
         if(User.equip.weapon!=nullptr){
             User.uninitialize_gear(User.equip.weapon);
             User.equip.weapon->is_equipped=false;
         }
-        User.equip.weapon=&User.inv.item[csr_pos+(page_num*30)];
+        User.equip.weapon=cur_item;
         User.initialize_gear(User.equip.weapon);
     }
 }
-bool unequip_item(Player &User, unsigned int csr_pos, unsigned int page_num){
-    if(User.cur_hp<=User.inv.item[csr_pos+(page_num*30)].hp){
+bool unequip_item(Player &User, Item *cur_item){
+    if(User.cur_hp<=cur_item->hp){
         return false;
     }
-    if(User.inv.item[csr_pos+(page_num*30)].type=='h'&&User.cur_hp>User.inv.item[csr_pos+(page_num*30)].hp){
+    if(cur_item->type=='h'&&User.cur_hp>cur_item->hp){
         User.uninitialize_gear(User.equip.helmet);
         User.equip.helmet=nullptr;
-        User.inv.item[csr_pos+(page_num*30)].is_equipped=false;
+        cur_item->is_equipped=false;
     }
-    if(User.inv.item[csr_pos+(page_num*30)].type=='c'&&User.cur_hp>User.inv.item[csr_pos+(page_num*30)].hp){
+    if(cur_item->type=='c'&&User.cur_hp>cur_item->hp){
         User.uninitialize_gear(User.equip.chestplate);
         User.equip.chestplate=nullptr;
-        User.inv.item[csr_pos+(page_num*30)].is_equipped=false;
+        cur_item->is_equipped=false;
     }
-    if(User.inv.item[csr_pos+(page_num*30)].type=='g'){
+    if(cur_item->type=='g'){
         User.uninitialize_gear(User.equip.greaves);
         User.equip.greaves=nullptr;
-        User.inv.item[csr_pos+(page_num*30)].is_equipped=false;
+        cur_item->is_equipped=false;
     }
-    if(User.inv.item[csr_pos+(page_num*30)].type=='b'){
+    if(cur_item->type=='b'){
         User.uninitialize_gear(User.equip.boots);
         User.equip.boots=nullptr;
-        User.inv.item[csr_pos+(page_num*30)].is_equipped=false;
+        cur_item->is_equipped=false;
     }
-    if(User.inv.item[csr_pos+(page_num*30)].type=='s'){
+    if(cur_item->type=='s'){
         User.uninitialize_gear(User.equip.shield);
         User.equip.shield=nullptr;
-        User.inv.item[csr_pos+(page_num*30)].is_equipped=false;
+        cur_item->is_equipped=false;
     }
-    if(User.inv.item[csr_pos+(page_num*30)].type=='w'){
+    if(cur_item->type=='w'){
         User.uninitialize_gear(User.equip.weapon);
         User.equip.weapon=nullptr;
-        User.inv.item[csr_pos+(page_num*30)].is_equipped=false;
+        cur_item->is_equipped=false;
     }
     return true;
 }
-void draw_inventory(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, const Player &User, const std::vector<const Item*> items_copy, unsigned int page_num, unsigned int csr_pos, bool is_blacksmith_mode=false, bool is_inventory_modeifier_mode = false){
+void draw_inventory(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, const Player &User, const std::vector<Item*> items_copy, unsigned int page_num, unsigned int csr_pos, bool is_blacksmith_mode=false, bool is_inventory_modeifier_mode = false){
     SDL_wclear_main_win(main_win, context);
     draw_base(main_win, context, 34, items_copy.size(), page_num, is_blacksmith_mode, is_inventory_modeifier_mode);
     draw_stats(main_win, context, User);
-    for(int i=page_num*30, iterator=0; i<items_copy.size()&&iterator<30; i++, iterator++){
-        print_item(main_win, context, items_copy[i], iterator);
+    if(!items_copy.empty()){
+        for(int i=page_num*30, iterator=0; i<items_copy.size()&&iterator<30; i++, iterator++){
+            print_item(main_win, context, items_copy[i], iterator);
+        }
+        print_bold_item(main_win, context, items_copy[page_num*30+csr_pos], csr_pos);
+        print_description(main_win, context, items_copy[page_num*30+csr_pos], 35);
     }
-    print_bold_item(main_win, context, items_copy[page_num*30+csr_pos], csr_pos);
-    print_description(main_win, context, items_copy[page_num*30+csr_pos], 35);
+    else{
+        context->present(*main_win);
+    }
 }
 std::string get_string(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, std::string original){
     std::string input;
@@ -568,11 +573,11 @@ bool decrease_materials(char rarity, Miscellaneous &misc, unsigned int amount){
     }
     return false;
 }
-bool enhance_item(Item &item, Miscellaneous &misc, unsigned int amount){
+bool enhance_item(Item *cur_item, Miscellaneous &misc, unsigned int amount){
     bool require_enhance=false;
-    if(decrease_materials(item.rarity, misc, amount)){
-        item.enhancement+=amount;
-        item.reinitialize_item();
+    if(decrease_materials(cur_item->rarity, misc, amount)){
+        cur_item->enhancement+=amount;
+        cur_item->reinitialize_item();
         return true;
     }
     return false;
@@ -863,35 +868,35 @@ void crafting_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player
         }
     }
 }
-void salvage_item(Player &User, long long int pos){
-    switch(User.inv.item[pos].rarity){
+void salvage_item(Player &User, Item *item){
+    switch(item->rarity){
         case RARITY_COMMON:
-            User.inv.misc.materials.common+=(User.inv.item[pos].enhancement/2)+2;
+            User.inv.misc.materials.common+=(item->enhancement/2)+2;
             break;
         case RARITY_UNCOMMON:
-            User.inv.misc.materials.uncommon+=(User.inv.item[pos].enhancement/2)+2;
+            User.inv.misc.materials.uncommon+=(item->enhancement/2)+2;
             break;
         case RARITY_RARE:
-            User.inv.misc.materials.rare+=(User.inv.item[pos].enhancement/2)+2;
+            User.inv.misc.materials.rare+=(item->enhancement/2)+2;
             break;
         case RARITY_EPIC:
-            User.inv.misc.materials.epic+=(User.inv.item[pos].enhancement/2)+2;
+            User.inv.misc.materials.epic+=(item->enhancement/2)+2;
             break;
         case RARITY_LEGENDARY:
-            User.inv.misc.materials.legendary+=(User.inv.item[pos].enhancement/2)+2;
+            User.inv.misc.materials.legendary+=(item->enhancement/2)+2;
             break;
         case RARITY_ARTIFACT:
-            User.inv.misc.materials.artifact+=(User.inv.item[pos].enhancement/2)+2;
+            User.inv.misc.materials.artifact+=(item->enhancement/2)+2;
             break;
         default:
             break;
     }
     User.uninitialize_stats();
-    User.remove_item(pos);
+    User.remove_item(item);
     User.initialize_stats();
 }
 void inventory_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player &User, NoDelete &perm_config){
-    std::vector<const Item*> items_copy;
+    std::vector<Item*> items_copy;
     unsigned int page_num=0;
     int csr_pos=0;
     init_copy(User, items_copy);
@@ -901,7 +906,7 @@ void inventory_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Playe
     draw_inventory(main_win, context, User, items_copy, page_num, csr_pos);
     while(true){
         int ch=SDL_getch(main_win, context);
-        if((ch=='s'||ch==SDLK_DOWN)&&((csr_pos+page_num*30)<User.inv.item.size()-1&&csr_pos<29)){
+        if((ch=='s'||ch==SDLK_DOWN)&&((csr_pos+page_num*30)<items_copy.size()-1&&csr_pos<29)){
             csr_pos++;
             draw_inventory(main_win, context, User, items_copy, page_num, csr_pos);
         }
@@ -917,25 +922,24 @@ void inventory_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Playe
             }
         }
         if(ch=='d'||ch==SDLK_RIGHT){
-            if((page_num+1)*30<User.inv.item.size()){
+            if((page_num+1)*30<items_copy.size()){
                 page_num++;
                 csr_pos=0;
                 draw_inventory(main_win, context, User, items_copy, page_num, csr_pos);
             }
         }
         if(ch=='e'){
-            if(!User.inv.item[csr_pos+(page_num*30)].is_equipped&&User.inv.item[csr_pos+(page_num*30)].durability>0){ // if there current item is unequipped
-                equip_item(User, csr_pos, page_num);
+            if(!items_copy[csr_pos+(page_num*30)]->is_equipped&&items_copy[csr_pos+(page_num*30)]->durability>0){ // if there current item is unequipped
+                equip_item(User, items_copy[csr_pos+(page_num*30)]);
                 draw_inventory(main_win, context, User, items_copy, page_num, csr_pos);
             }
-            else if(User.inv.item[csr_pos+(page_num*30)].is_equipped){
-                unequip_item(User, csr_pos, page_num);
+            else if(items_copy[csr_pos+(page_num*30)]->is_equipped){
+                unequip_item(User, items_copy[csr_pos+(page_num*30)]);
                 draw_inventory(main_win, context, User, items_copy, page_num, csr_pos);
             }
         }
         if(ch=='r'){
-            std::string input=get_string(main_win, context, User.inv.item[csr_pos+(page_num*30)].name);
-            User.inv.item[csr_pos+(page_num*30)].name=input;
+            items_copy[csr_pos+(page_num*30)]->name=get_string(main_win, context, items_copy[csr_pos+(page_num*30)]->name);
             draw_inventory(main_win, context, User, items_copy, page_num, csr_pos);
         }
         if(ch=='m'){
@@ -955,12 +959,13 @@ void inventory_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Playe
                 }
             }
             if(ch=='y'){
-                if(unequip_item(User, csr_pos, page_num)){
-                    User.remove_item(csr_pos+(page_num*30));
+                if(unequip_item(User, items_copy[csr_pos+(page_num*30)])){
+                    User.remove_item(items_copy[csr_pos+(page_num*30)]);
                     if(User.inv.item.empty()) return;
                     if(csr_pos>0){
                         csr_pos--;
                     }
+                    process_copy(User, items_copy, perm_config);
                 }
             }
             draw_inventory(main_win, context, User, items_copy, page_num, csr_pos);
@@ -976,45 +981,46 @@ void inventory_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Playe
     }
 }
 void reforge_repair_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context,  Player &User, NoDelete &perm_config){
-    std::vector<const Item*> items_copy;
-    for(int i = 0; i<User.inv.item.size(); i++){
-        items_copy.push_back(&User.inv.item[i]);
+    std::vector<Item*> items_copy;
+    init_copy(User, items_copy);
+    if(perm_config.keep_changes_persistent){
+        process_copy(User, items_copy, perm_config);
     }
     unsigned int page_num=0;
-    unsigned int csr_pos=0;
+    int csr_pos=0;
     draw_inventory(main_win, context, User, items_copy, page_num, csr_pos, true);
     while(true){
         int ch=SDL_getch(main_win, context);
-        if((ch=='s'||ch==SDLK_DOWN)&&((csr_pos+page_num*30)<User.inv.item.size()-1&&csr_pos<29)){
+        if((ch=='s'||ch==SDLK_DOWN)&&((csr_pos+page_num*30)<items_copy.size()-1&&csr_pos<29)){
             csr_pos++;
-            draw_inventory(main_win, context, User, items_copy, page_num, csr_pos, true);
+            draw_inventory(main_win, context, User, items_copy, page_num, csr_pos);
         }
         if((ch=='w'||ch==SDLK_UP)&&csr_pos>0){
             csr_pos--;
-            draw_inventory(main_win, context, User, items_copy, page_num, csr_pos, true);
+            draw_inventory(main_win, context, User, items_copy, page_num, csr_pos);
         }
         if(ch=='a'||ch==SDLK_LEFT){
             if(page_num>0){
                 page_num--;
                 csr_pos=0;
-                draw_inventory(main_win, context, User, items_copy, page_num, csr_pos, true);
+                draw_inventory(main_win, context, User, items_copy, page_num, csr_pos);
             }
         }
         if(ch=='d'||ch==SDLK_RIGHT){
-            if((page_num+1)*30<User.inv.item.size()){
+            if((page_num+1)*30<items_copy.size()){
                 page_num++;
                 csr_pos=0;
-                draw_inventory(main_win, context, User, items_copy, page_num, csr_pos, true);
+                draw_inventory(main_win, context, User, items_copy, page_num, csr_pos);
             }
         }
         if(ch=='m'){
             show_misc_items(main_win, context, User.inv.misc);
             draw_inventory(main_win, context, User, items_copy, page_num, csr_pos, true);
         }
-        if(ch=='r'){
-            if(User.inv.item[csr_pos+(page_num*30)].durability<100.0){
-                const unsigned int cost=(100.0-User.inv.item[csr_pos+(page_num*30)].durability)*rarity_value(User.inv.item[csr_pos+(page_num*30)].rarity)*15;
-                const unsigned int material_cost=2*(1+((100-User.inv.item[csr_pos+(page_num*30)].durability)/100));
+        if(ch=='r'){ // Repair
+            if(items_copy[csr_pos+(page_num*30)]->durability<100.0){
+                const unsigned int cost=(100.0-items_copy[csr_pos+(page_num*30)]->durability)*rarity_value(items_copy[csr_pos+(page_num*30)]->rarity)*15;
+                const unsigned int material_cost=2*(1+((100-items_copy[csr_pos+(page_num*30)]->durability)/100));
                 std::stringstream ss;
                 ss<<"[System] Attempt repair? Gold:"<<cost<<" Material:"<<material_cost<<" [y/n]";
                 clear_and_draw_dialog(main_win, context, ss.str());
@@ -1025,11 +1031,11 @@ void reforge_repair_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, 
                     }
                 }
                 if(ch=='y'){
-                    if(User.gold>=cost&&decrease_materials(User.inv.item[csr_pos+(page_num*30)].rarity, User.inv.misc, material_cost)){
+                    if(User.gold>=cost&&decrease_materials(items_copy[csr_pos+(page_num*30)]->rarity, User.inv.misc, material_cost)){
                         User.gold-=cost;
                         draw_stats(main_win, context, User);
-                        if(return_chance(User.inv.item[csr_pos+(page_num*30)].durability*2)){
-                            User.inv.item[csr_pos+(page_num*30)].durability=100.0;
+                        if(return_chance(items_copy[csr_pos+(page_num*30)]->durability*2)){
+                            items_copy[csr_pos+(page_num*30)]->durability=100.0;
                             draw_inventory(main_win, context, User, items_copy, page_num, csr_pos, true);
                             clear_and_draw_dialog(main_win, context, "[System] Success: Item Repaired.");
                         }
@@ -1050,7 +1056,7 @@ void reforge_repair_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, 
             unsigned int amount=get_int(main_win, context, "[System] Amount of materials you want to use in this enhancement: ");
             if(amount>0){
                 User.uninitialize_stats();
-                enhance_item(User.inv.item[csr_pos+(page_num*30)], User.inv.misc, amount);
+                enhance_item(items_copy[csr_pos+(page_num*30)], User.inv.misc, amount);
                 User.initialize_stats();
                 draw_inventory(main_win, context, User, items_copy, page_num, csr_pos, true);
             }
@@ -1067,11 +1073,11 @@ void reforge_repair_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, 
                 }
             }
             if(ch=='y'){
-                unsigned int gold_cost=rarity_value(User.inv.item[csr_pos+(page_num)*30].rarity)*200;
-                unsigned int material_cost=2*(1+((100-User.inv.item[csr_pos+(page_num*30)].durability)/100.0));
+                unsigned int gold_cost=rarity_value(items_copy[csr_pos+(page_num*30)]->rarity)*200;
+                unsigned int material_cost=2*(1+((100-items_copy[csr_pos+(page_num*30)]->durability)/100.0));
                 clear_and_draw_dialog(main_win, context, "Proceed? Cost of reforge: "+std::to_string(gold_cost)+" Gold, "+std::to_string(material_cost)+" Materials [y/n]");
                 ch=SDL_getch(main_win, context);
-                if(decrease_materials(User.inv.item[csr_pos+(page_num)*30].rarity, User.inv.misc, material_cost)&&User.gold>=gold_cost&&ch=='y'){
+                if(decrease_materials(items_copy[csr_pos+(page_num*30)]->rarity, User.inv.misc, material_cost)&&User.gold>=gold_cost&&ch=='y'){
                     User.gold-=gold_cost;
                     bool use_crystallium=false, use_ancient_core=false;
                     unsigned int crystallium_amount=get_int(main_win, context, "Use Crystallium? [0 to not use any]: ");
@@ -1089,8 +1095,8 @@ void reforge_repair_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, 
                         User.inv.misc.ancient_core-=ancient_core_amount;
                         User.inv.misc.crystallium-=crystallium_amount;
                         User.uninitialize_stats();
-                        reforge_item(ancient_core_amount, crystallium_amount, User.inv.item[csr_pos+(page_num*30)]);
-                        User.inv.item[csr_pos+(page_num*30)].reinitialize_item();
+                        reforge_item(ancient_core_amount, crystallium_amount, items_copy[csr_pos+(page_num*30)]);
+                        items_copy[csr_pos+(page_num*30)]->reinitialize_item();
                         User.initialize_stats();
                         draw_inventory(main_win, context, User, items_copy, page_num, csr_pos, true);
                         draw_stats(main_win, context, User);
@@ -1120,13 +1126,14 @@ void reforge_repair_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, 
                 }
             }
             if(ch=='y'){
-                if(unequip_item(User, csr_pos, page_num)){
-                    salvage_item(User, csr_pos+(page_num*30));
+                if(unequip_item(User, items_copy[csr_pos+(page_num*30)])){
+                    salvage_item(User, items_copy[csr_pos+(page_num*30)]);
                     if(User.inv.item.empty()) return;
                     if(csr_pos>0){
                         csr_pos--;
                     }
                 }
+                process_copy(User, items_copy, perm_config);
             }
             draw_inventory(main_win, context, User, items_copy, page_num, csr_pos, true);
         }

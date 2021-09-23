@@ -234,8 +234,8 @@ Item craft_item(char loot_rarity, char loot_type){
     }
     return{"Placeholder",loot_type,loot_rarity,false,hp,attk,def,shield,crit_chance,crit_dmg,0,0,100.0};
 }
-void reforge_item(unsigned int ancient_cores, unsigned int crystallium, Item &item){
-    char loot_rarity = item.rarity;
+void reforge_item(unsigned int ancient_cores, unsigned int crystallium, Item *item){
+    char loot_rarity = item->rarity;
     unsigned int ancient_cores_bonus = 1;
     unsigned int crystallium_bonus = 1;
     if(ancient_cores>0){
@@ -244,66 +244,66 @@ void reforge_item(unsigned int ancient_cores, unsigned int crystallium, Item &it
     if(crystallium>0){
         crystallium_bonus = log(crystallium+1)/log(1.02);
     }
-    item.uses=0;
-    item.enhancement=0;
-    item.durability=100;
-    char loot_type=item.type;
+    item->uses=0;
+    item->enhancement=0;
+    item->durability=100;
+    char loot_type=item->type;
     std::random_device device;
     std::mt19937 generator(device());
     std::uniform_int_distribution<int> deviation(-25, 25);
     std::uniform_int_distribution<int> bonus_stats(1, 100);
     if(loot_type==TYPE_CHESTPLATE){ // chestplate
-        item.original.hp=(100+deviation(generator))*rarity_value(loot_rarity);
+        item->original.hp=(100+deviation(generator))*rarity_value(loot_rarity);
         if(bonus_stats(generator)<=1*rarity_bonus(loot_rarity)*ancient_cores_bonus){
-            item.original.def=15*rarity_value(loot_rarity);
+            item->original.def=15*rarity_value(loot_rarity);
         }
         if(bonus_stats(generator)<=1*rarity_bonus(loot_rarity)*crystallium_bonus){
-            item.original.crit_dmg=10*rarity_value(loot_rarity);
+            item->original.crit_dmg=10*rarity_value(loot_rarity);
         }
     }
     if(loot_type==TYPE_HELMET){ // helmet
-        item.original.hp=(40+deviation(generator))*rarity_value(loot_rarity);
+        item->original.hp=(40+deviation(generator))*rarity_value(loot_rarity);
         if(bonus_stats(generator)<=1*rarity_bonus(loot_rarity)*ancient_cores_bonus){
-            item.original.def=5*rarity_value(loot_rarity);
+            item->original.def=5*rarity_value(loot_rarity);
         }
         if(bonus_stats(generator)<=1*rarity_bonus(loot_rarity)*crystallium_bonus){
-            item.original.crit_chance=3*rarity_value(loot_rarity);
+            item->original.crit_chance=3*rarity_value(loot_rarity);
         }
         if(bonus_stats(generator)<=10*rarity_bonus(loot_rarity)){
-            item.original.shield=20*rarity_value(loot_rarity);
+            item->original.shield=20*rarity_value(loot_rarity);
         }
     }
     if(loot_type==TYPE_GREAVES){ // greaves
-        item.original.def=(50+deviation(generator))*rarity_value(loot_rarity);
+        item->original.def=(50+deviation(generator))*rarity_value(loot_rarity);
         if(bonus_stats(generator)<=1*rarity_bonus(loot_rarity)*ancient_cores_bonus){
-            item.original.def+=20*rarity_value(loot_rarity);
+            item->original.def+=20*rarity_value(loot_rarity);
         }
         if(bonus_stats(generator)<=5*rarity_bonus(loot_rarity)){
-            item.original.shield=15*rarity_value(loot_rarity);
+            item->original.shield=15*rarity_value(loot_rarity);
         }
     }
     if(loot_type==TYPE_BOOTS){ // boots
-        item.original.def=(30+deviation(generator))*rarity_value(loot_rarity);
+        item->original.def=(30+deviation(generator))*rarity_value(loot_rarity);
         if(bonus_stats(generator)<=1*rarity_bonus(loot_rarity)*ancient_cores_bonus){
-            item.original.def+=10*rarity_value(loot_rarity);
+            item->original.def+=10*rarity_value(loot_rarity);
         }
         if(bonus_stats(generator)<=1*rarity_bonus(loot_rarity)*crystallium_bonus){
-            item.original.crit_chance=5*rarity_value(loot_rarity);
+            item->original.crit_chance=5*rarity_value(loot_rarity);
         }
     }
     if(loot_type==TYPE_WEAPON){ // weapon
-        item.original.attk=(200+deviation(generator))*rarity_value(loot_rarity);
+        item->original.attk=(200+deviation(generator))*rarity_value(loot_rarity);
         if(bonus_stats(generator)<=1*rarity_bonus(loot_rarity)*crystallium_bonus){
-            item.original.crit_dmg=30*rarity_value(loot_rarity);
+            item->original.crit_dmg=30*rarity_value(loot_rarity);
         }
         if(bonus_stats(generator)<=1*rarity_bonus(loot_rarity)*crystallium_bonus){
-            item.original.crit_chance=2*rarity_value(loot_rarity);
+            item->original.crit_chance=2*rarity_value(loot_rarity);
         }
     }
     if(loot_type==TYPE_SHIELD){ // shield
-        item.original.shield=(100+deviation(generator))*rarity_value(loot_rarity);
+        item->original.shield=(100+deviation(generator))*rarity_value(loot_rarity);
         if(bonus_stats(generator)<=10*rarity_bonus(loot_rarity)*ancient_cores_bonus){
-            item.original.def=20*rarity_value(loot_rarity);
+            item->original.def=20*rarity_value(loot_rarity);
         }
     }
     // if(item.rarity==RARITY_ARTIFACT){ WIP: 50/50 to get special skills }
