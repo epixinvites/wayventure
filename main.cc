@@ -14,7 +14,7 @@
 #include <cereal/types/vector.hpp>
 #include <cereal/types/string.hpp>
 int SDL_getch(tcod::ConsolePtr &main_win, tcod::ContextPtr &context){
-    void SDL_FlushEvent(SDL_KeyboardEvent);
+    SDL_FlushEvent(SDL_KEYDOWN);
     SDL_Event event;
     SDL_WaitEvent(nullptr);
     while(SDL_PollEvent(&event)){
@@ -42,6 +42,33 @@ int SDL_getch(tcod::ConsolePtr &main_win, tcod::ContextPtr &context){
         }
     }
     return 0;
+}
+std::pair<int,int>SDL_getch_ex(tcod::ConsolePtr &main_win, tcod::ContextPtr &context){
+    SDL_FlushEvent(SDL_KEYDOWN);
+    SDL_Event event;
+    SDL_WaitEvent(nullptr);
+    while(SDL_PollEvent(&event)){
+        if(event.type==SDL_WINDOWEVENT){
+            if(event.window.event==SDL_WINDOWEVENT_EXPOSED){
+                context->present(*main_win);
+            }
+        }
+        if(event.type==SDL_QUIT){
+            std::exit(1);
+        }
+        if(event.type==SDL_KEYDOWN){
+            if(event.key.keysym.mod&KMOD_CTRL){
+                if(event.key.keysym.sym=='r'){
+                    SDL_SetWindowSize(context->get_sdl_window(), main_win->w*tileset->tile_width, main_win->h*tileset->tile_height);
+                    continue;
+                }
+            }
+            else{
+                return {event.key.keysym.mod,event.key.keysym.sym};
+            }
+        }
+    }
+    return {0,0};
 }
 void SDL_wclear_dialog_bar(tcod::ConsolePtr &main_win, tcod::ContextPtr &context){
     tcod::print(*main_win, {0,0}, empty_line, &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
@@ -442,8 +469,11 @@ void init_dungeon(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Csr &cs
         if(ch=='i'){
             if(!User.inv.item.empty()){
                 inventory_mode(main_win, context, User, perm_config);
+                redraw_everything(main_win, context, csr_pos, User, Current, monsters);
             }
-            redraw_everything(main_win, context, csr_pos, User, Current, monsters);
+            else{
+                clear_and_draw_dialog(main_win, context, "[System] Error: Inventory Empty");
+            }
         }
         if(ch=='e'){
             eat_drink_mode(main_win, context, User);
@@ -461,9 +491,8 @@ void init_dungeon(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Csr &cs
         }
         if(ch=='S'){
             save_data(User, Current, csr_pos, monsters, npc, perm_config);
-            clear_and_draw_dialog(main_win, context, "Data saved successfully!");
-            std::this_thread::sleep_for(std::chrono::seconds(1));
             redraw_everything(main_win, context, csr_pos, User, Current, monsters);
+            clear_and_draw_dialog(main_win, context, "Data saved successfully!");
         }
         if(ch=='H'){
             help_mode(main_win, context, "dungeon_mode");

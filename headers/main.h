@@ -49,6 +49,7 @@ constexpr char SORT_TYPE_RARITY_DESCENDING='d';
 
 void clear_and_draw_dialog(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, std::string dialog);
 int SDL_getch(tcod::ConsolePtr &main_win, tcod::ContextPtr &context);
+std::pair<int,int>SDL_getch_ex(tcod::ConsolePtr &main_win, tcod::ContextPtr &context);
 void SDL_wclear_main_win(tcod::ConsolePtr &main_win, tcod::ContextPtr &context);
 void SDL_wclear_dialog_bar(tcod::ConsolePtr &main_win, tcod::ContextPtr &context);
 void SDL_wclear_stats_bar(tcod::ConsolePtr &main_win, tcod::ContextPtr &context);

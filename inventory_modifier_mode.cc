@@ -31,14 +31,20 @@ struct SortDescending{
         return priority_i>priority_j;
     }
 }sort_descending;
-void init_copy(Player &User, std::vector<Item*> &items_copy){
+void reset_inv_params(NoDelete &perm_config){
+    perm_config.default_show_type_type = DEFAULT_SHOW_SELECTION;
+    perm_config.default_show_rarity_type = DEFAULT_SHOW_SELECTION;
+    perm_config.default_sort_rarity_method = DEFAULT_SHOW_SELECTION;
+    perm_config.only_show_equipped = false;
+}
+void init_copy(std::vector<Item> &original, std::vector<Item*> &items_copy){
     items_copy.clear();
-    for(int i = 0; i<User.inv.item.size(); i++){
-        items_copy.push_back(&User.inv.item[i]);
+    for(int i = 0; i<original.size(); i++){
+        items_copy.push_back(&original[i]);
     }
 }
-void process_copy(Player &User, std::vector<Item*> &items_copy, const NoDelete &perm_config){
-    init_copy(User, items_copy);
+void process_copy(std::vector<Item> &original, std::vector<Item*> &items_copy, NoDelete &perm_config){
+    init_copy(original, items_copy);
     if(perm_config.only_show_equipped){ // Only show Equipped
         items_copy.erase(std::remove_if(items_copy.begin(), items_copy.end(), [](const Item *v){return v->is_equipped==false;}), items_copy.end());
     }
@@ -53,6 +59,10 @@ void process_copy(Player &User, std::vector<Item*> &items_copy, const NoDelete &
     }
     if(perm_config.default_sort_rarity_method==SORT_TYPE_RARITY_DESCENDING){ // Sort by rarity descending
         std::sort(items_copy.begin(), items_copy.end(), sort_descending);
+    }
+    if(items_copy.empty()){
+        reset_inv_params(perm_config);
+        process_copy(original, items_copy, perm_config);
     }
 }
 void print_item(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, bool curr_pos_matches_condition, bool curr_config_matches_condition, int line, std::string output, bool is_valid=true){
@@ -294,7 +304,7 @@ void repeat_down_until_valid_move(unsigned int &csr_pos, const std::vector<Item*
 void repeat_up_until_valid_move(unsigned int &csr_pos, const std::vector<Item*> items_copy){
     csr_pos--;
     if(!check_if_csr_move_valid(csr_pos, items_copy)){
-        repeat_down_until_valid_move(csr_pos, items_copy);
+        repeat_up_until_valid_move(csr_pos, items_copy);
     }
 }
 void inventory_modifier_selection(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, NoDelete &perm_config, const std::vector<Item*> items_copy){
@@ -311,10 +321,7 @@ void inventory_modifier_selection(tcod::ConsolePtr &main_win, tcod::ContextPtr &
         }
         if(ch==SDLK_RETURN){
             if(csr_pos==21){
-                perm_config.default_show_type_type = DEFAULT_SHOW_SELECTION;
-                perm_config.default_show_rarity_type = DEFAULT_SHOW_SELECTION;
-                perm_config.default_sort_rarity_method = DEFAULT_SHOW_SELECTION;
-                perm_config.only_show_equipped = false;
+                reset_inv_params(perm_config);
             }
             if(csr_pos==22){
                 return;

@@ -2,6 +2,7 @@
 #include <sstream>
 #include <vector>
 #include <string>
+#include <queue>
 #include <unordered_map>
 #include "headers/classes.h"
 #include "headers/mode.h"
@@ -10,7 +11,10 @@
 void draw_base(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, int y, unsigned int size, unsigned int page, bool is_blacksmith_mode, bool is_inventory_modifier_mode){
     std::stringstream ss;
     SDL_wclear_dialog_bar(main_win, context);
-    if(is_blacksmith_mode){
+    if(size==0){
+        ss<<"[System] Inventory Empty";
+    }
+    else if(is_blacksmith_mode){
         ss<<"[Blacksmith] How can I help you today? "<<"("<<page+1<<"/"<<((size-1)/30)+1<<")";
     }
     else if(is_inventory_modifier_mode){
@@ -328,6 +332,7 @@ bool unequip_item(Player &User, Item *cur_item){
 }
 void draw_inventory(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, const Player &User, const std::vector<Item*> items_copy, unsigned int page_num, unsigned int csr_pos, bool is_blacksmith_mode=false, bool is_inventory_modeifier_mode = false){
     SDL_wclear_main_win(main_win, context);
+    SDL_wclear_stats_bar(main_win, context);
     draw_stats(main_win, context, User);
     if(!items_copy.empty()){
         draw_base(main_win, context, 34, items_copy.size(), page_num, is_blacksmith_mode, is_inventory_modeifier_mode);
@@ -338,6 +343,7 @@ void draw_inventory(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, const
         print_description(main_win, context, items_copy[page_num*30+csr_pos], 35);
     }
     else{
+        draw_base(main_win, context, 34, 0, page_num, is_blacksmith_mode, is_inventory_modeifier_mode);
         context->present(*main_win);
     }
 }
@@ -899,9 +905,9 @@ void inventory_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Playe
     std::vector<Item*> items_copy;
     unsigned int page_num=0;
     int csr_pos=0;
-    init_copy(User, items_copy);
+    init_copy(User.inv.item, items_copy);
     if(perm_config.keep_changes_persistent){
-        process_copy(User, items_copy, perm_config);
+        process_copy(User.inv.item, items_copy, perm_config);
     }
     draw_inventory(main_win, context, User, items_copy, page_num, csr_pos);
     while(true){
@@ -965,7 +971,7 @@ void inventory_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Playe
                     if(csr_pos>0){
                         csr_pos--;
                     }
-                    process_copy(User, items_copy, perm_config);
+                    process_copy(User.inv.item, items_copy, perm_config);
                 }
             }
             draw_inventory(main_win, context, User, items_copy, page_num, csr_pos);
@@ -975,17 +981,18 @@ void inventory_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Playe
         }
         if(ch=='-'){ // Inventory Modifier
             inventory_modifier_selection(main_win, context, perm_config, items_copy);
-            process_copy(User, items_copy, perm_config);
+            process_copy(User.inv.item, items_copy, perm_config);
             draw_inventory(main_win, context, User, items_copy, page_num, csr_pos);
         }
     }
 }
 void reforge_repair_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context,  Player &User, NoDelete &perm_config){
     std::vector<Item*> items_copy;
-    init_copy(User, items_copy);
+    init_copy(User.inv.item, items_copy);
     if(perm_config.keep_changes_persistent){
-        process_copy(User, items_copy, perm_config);
+        process_copy(User.inv.item, items_copy, perm_config);
     }
+    bool safety_mode = true;
     unsigned int page_num=0;
     int csr_pos=0;
     draw_inventory(main_win, context, User, items_copy, page_num, csr_pos, true);
@@ -1016,6 +1023,16 @@ void reforge_repair_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, 
         if(ch=='m'){
             show_misc_items(main_win, context, User.inv.misc);
             draw_inventory(main_win, context, User, items_copy, page_num, csr_pos, true);
+        }
+        if(ch=='M'){ // Multiselect salvage (std::queue)
+            if(!safety_mode){
+                safety_mode=true;
+                clear_and_draw_dialog(main_win, context, "Safety Mode ON");
+            }
+            else{
+                safety_mode=false;
+                clear_and_draw_dialog(main_win, context, "Safety Mode OFF [Salvaging will now not require confirmation]");
+            }
         }
         if(ch=='r'){ // Repair
             if(items_copy[csr_pos+(page_num*30)]->durability<100.0){
@@ -1118,24 +1135,41 @@ void reforge_repair_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, 
             draw_inventory(main_win, context, User, items_copy, page_num, csr_pos, true);
         }
         if(ch=='S'){
-            clear_and_draw_dialog(main_win, context, "Salvage item? (This action is irreversible) [y/n]");
-            while(true){
-                ch=SDL_getch(main_win, context);
-                if(ch>0&&ch<128){
-                    break;
+            if(safety_mode){
+                clear_and_draw_dialog(main_win, context, "Salvage item? (This action is irreversible) [y/n]");
+                while(true){
+                    ch=SDL_getch(main_win, context);
+                    if(ch>0&&ch<128){
+                        break;
+                    }
+                }
+                if(ch=='y'){
+                    if(unequip_item(User, items_copy[csr_pos+(page_num*30)])){
+                        salvage_item(User, items_copy[csr_pos+(page_num*30)]);
+                        if(User.inv.item.empty()) return;
+                        if(csr_pos>0){
+                            csr_pos--;
+                        }
+                    }
+                    process_copy(User.inv.item, items_copy, perm_config);
+                    draw_inventory(main_win, context, User, items_copy, page_num, csr_pos, true);
                 }
             }
-            if(ch=='y'){
+            else{
                 if(unequip_item(User, items_copy[csr_pos+(page_num*30)])){
                     salvage_item(User, items_copy[csr_pos+(page_num*30)]);
                     if(User.inv.item.empty()) return;
                     if(csr_pos>0){
                         csr_pos--;
                     }
+                    process_copy(User.inv.item, items_copy, perm_config);
+                    draw_inventory(main_win, context, User, items_copy, page_num, csr_pos, true);
+                    clear_and_draw_dialog(main_win, context, "[System] Salvage success");
                 }
-                process_copy(User, items_copy, perm_config);
+                else{
+                    clear_and_draw_dialog(main_win, context, "[System] Salvage Failure");
+                }
             }
-            draw_inventory(main_win, context, User, items_copy, page_num, csr_pos, true);
         }
         if(ch=='H'){
             help_mode(main_win, context, "blacksmith_mode");
