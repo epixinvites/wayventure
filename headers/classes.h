@@ -136,15 +136,16 @@ struct Farmer{
     template<class Archive>void serialize(Archive &archive){archive(relation);}
 };
 struct Bank{
-    unsigned int saved_gold = 0;
-    unsigned int total_gold = 0;
-    double interest = 0.01;
-    unsigned long long last_applied = 0;
-    template<class Archive>void serialize(Archive &archive){archive(saved_gold,total_gold<interest,last_applied);}
+    // Bank Gold Storage
+    long long int saved_gold = 0;
+    double storage_interest = 1.01; // Compound Interest (Increases according to money saved)
+    long long int storage_last_applied = 0; // Last time interest was applied
+    template<class Archive>void serialize(Archive &archive){archive(saved_gold, storage_interest, storage_last_applied);}
 };
 struct Chest{
-    std::vector<Item> storage;
-    template<class Archive>void serialize(Archive &archive){archive(storage);}
+    std::vector<Item> gear_storage;
+    Miscellaneous misc_storage;
+    template<class Archive>void serialize(Archive &archive){archive(gear_storage, misc_storage);}
 };
 struct Merchant{
     int relation = 0;

@@ -11,7 +11,7 @@ void refresh_gear_merchant_store(Merchant &gear_merchant){
     std::random_device device;
     std::mt19937 generator(device());
     std::uniform_int_distribution<int> item_type(1, 100);
-    for(int i = 0; i<20; i++){
+    for(int i=0; i<20; i++){
         int item=item_type(generator);
         if(item<20){
             gear_merchant.store.push_back(generate_loot_from_rarity_type('c'));
@@ -33,8 +33,8 @@ void refresh_gear_merchant_store(Merchant &gear_merchant){
 void redraw_bar(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, std::vector<std::string> pub_layout, Csr csr_pos){
     SDL_wclear_main_win(main_win, context);
     SDL_wclear_dialog_bar(main_win, context);
-    for(int i = 0; i<pub_layout.size(); i++){
-        for(int j = 0; j<pub_layout[i].size(); j++){
+    for(int i=0; i<pub_layout.size(); i++){
+        for(int j=0; j<pub_layout[i].size(); j++){
             if(pub_layout[i][j]=='.'){
                 TCOD_console_put_char_ex(main_win.get(), j, i+1, pub_layout[i][j], GREEN, BLACK);
             }
@@ -76,7 +76,7 @@ char search_surroundings(std::vector<std::string> pub_layout, int x, int y){
     }
     return '0';
 }
-void draw_bartender_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, const Bartender &bartender, Player &User, bool refresh_everything = true){
+void draw_bartender_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, const Bartender &bartender, Player &User, bool refresh_everything=true){
     SDL_wclear_main_win(main_win, context);
     if(refresh_everything){
         draw_stats(main_win, context, User);
@@ -97,7 +97,7 @@ void draw_bartender_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, 
     tcod::print(*main_win, {0,14}, output.str(), &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
     context->present(*main_win);
 }
-void bartender_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context,  Bartender &bartender, Player &User){
+void bartender_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Bartender &bartender, Player &User){
     draw_bartender_mode(main_win, context, bartender, User);
     int ch;
     while(true){
@@ -175,7 +175,7 @@ void bartender_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context,  Bart
         }
     }
 }
-void draw_farmer_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, const Farmer &farmer, Player &User, bool refresh_everything = true){
+void draw_farmer_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, const Farmer &farmer, Player &User, bool refresh_everything=true){
     SDL_wclear_main_win(main_win, context);
     if(refresh_everything){
         draw_stats(main_win, context, User);
@@ -200,7 +200,7 @@ void draw_farmer_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, con
     tcod::print(*main_win, {0,17}, output.str(), &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
     context->present(*main_win);
 }
-void farmer_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context,  Farmer &farmer, Player &User){
+void farmer_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Farmer &farmer, Player &User){
     draw_farmer_mode(main_win, context, farmer, User);
     int ch;
     while(true){
@@ -330,12 +330,74 @@ void char_move(int ch, tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Cs
         redraw_bar(main_win, context, pub_layout, csr_pos);
     }
 }
-void bar_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context,  Player &User, NPC &npc, NoDelete &perm_config){
+void draw_bank_menu_selections(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, int line, bool is_bold, std::string output){
+    if(is_bold){
+        tcod::print(*main_win, {0,line}, output, &BLACK, &WHITE, TCOD_BKGND_SET, TCOD_LEFT);
+    }
+    else{
+        tcod::print(*main_win, {0,line}, output, &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+    }
+}
+void draw_bank_menu(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Chest &chest, Bank &bank, unsigned int csr_pos, unsigned long long steps){
+    SDL_wclear_main_win(main_win, context);
+    SDL_wclear_dialog_bar(main_win, context);
+    tcod::print(*main_win, {0,0}, "Bank Menu", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+    tcod::print(*main_win, {0,1}, "[Kiosk] How can we help you?", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+    draw_bank_menu_selections(main_win, context, 3, csr_pos==0, "[Store Gears]");
+    draw_bank_menu_selections(main_win, context, 4, csr_pos==1, "[Retrieve Gears]");
+    draw_bank_menu_selections(main_win, context, 6, csr_pos==2, "[Store Materials and Blueprints]");
+    draw_bank_menu_selections(main_win, context, 7, csr_pos==3, "[Retrieve Materials and Blueprints]");
+    draw_bank_menu_selections(main_win, context, 9, csr_pos==4, "[Store Gold]");
+    draw_bank_menu_selections(main_win, context, 10, csr_pos==5, "[Retrieve Gold]");
+    // Draw bank stats
+    if(!chest.gear_storage.empty()){
+        tcod::print(*main_win, {0,47}, "Total Gear stored: ["+std::to_string(chest.gear_storage.size())+"]", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+    }
+    else{
+        tcod::print(*main_win, {0,47}, "Total Gear stored: ["+std::to_string(chest.gear_storage.size())+"]", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+    }
+    tcod::print(*main_win, {0,48}, "Total Gold stored: ["+std::to_string(bank.saved_gold)+"]", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+    if(bank.saved_gold>0){
+        tcod::print(*main_win, {0,49}, "Next Interest Compound in: ["+std::to_string(1000-steps-bank.storage_last_applied)+"] moves", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+    }
+    else{
+        tcod::print(*main_win, {0,49}, "Next Interest Compound in: [Invalid] moves", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+    }
+    context->present(*main_win);
+}
+void bank_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, NoDelete &perm_config, Player &User, Chest &chest, Bank &bank){
+    unsigned int csr_pos=0;
+    int ch;
+    while(true){
+        draw_bank_menu(main_win, context, chest, bank, csr_pos, User.steps);
+        ch=SDL_getch(main_win, context);
+        if((ch==SDLK_DOWN||ch=='s')&&csr_pos<5){
+            csr_pos++;
+        }
+        if((ch==SDLK_UP||ch=='w')&&csr_pos>0){
+            csr_pos--;
+        }
+        if(ch=='q'){
+            return;
+        }
+        if(ch==SDLK_RETURN){
+            switch(csr_pos){
+                case 0:
+                    inventory_storage(main_win, context, User, perm_config, chest);
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+}
+void bar_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player &User, NPC &npc, NoDelete &perm_config){
     Csr csr_pos{78,1};
     std::ifstream pub_layout_file("res/bar_layout.txt");
     std::vector<std::string> pub_layout; // {50,80}
-    for(int i = 0; i<50; i++){
-        std::string line; std::getline(pub_layout_file,line);
+    for(int i=0; i<50; i++){
+        std::string line;
+        std::getline(pub_layout_file, line);
         pub_layout.push_back(line);
     }
     redraw_bar(main_win, context, pub_layout, csr_pos);
@@ -346,7 +408,7 @@ void bar_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context,  Player &Us
             char_move(ch, main_win, context, csr_pos, pub_layout);
         }
         if(ch=='x'){
-            char target = search_surroundings(pub_layout, csr_pos.first, csr_pos.second);
+            char target=search_surroundings(pub_layout, csr_pos.first, csr_pos.second);
             if(target=='0'){
                 continue;
             }
@@ -365,14 +427,11 @@ void bar_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context,  Player &Us
                 // Gear Merchant & Sells First Aid Kits
             }
             else if(target=='T'){
-                // Bank & Chest
-                // show_misc_items()
+                bank_mode(main_win, context, perm_config, User, npc.chest, npc.bank);
             }
             else if(target=='S'){
-                if(!User.inv.item.empty()){
-                    reforge_repair_mode(main_win, context, User, perm_config);
-                    redraw_bar(main_win, context, pub_layout, csr_pos);
-                }
+                reforge_repair_mode(main_win, context, User, perm_config);
+                redraw_bar(main_win, context, pub_layout, csr_pos);
             }
         }
         if(ch=='r'){

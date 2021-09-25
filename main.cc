@@ -124,9 +124,6 @@ void char_move(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, int ch, Cs
     }
     if(require_move){
         User.steps++;
-        if(User.steps>100000000000000000){
-            User.steps/=10;
-        }
         if(User.steps%25==0){
             User.hydration--;
         }

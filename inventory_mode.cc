@@ -986,6 +986,55 @@ void inventory_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Playe
         }
     }
 }
+void inventory_storage(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player &User, NoDelete &perm_config, Chest &chest){
+    std::vector<Item*> items_copy;
+    unsigned int page_num=0;
+    int csr_pos=0;
+    init_copy(User.inv.item, items_copy);
+    if(perm_config.keep_changes_persistent){
+        process_copy(User.inv.item, items_copy, perm_config);
+    }
+    draw_inventory(main_win, context, User, items_copy, page_num, csr_pos);
+    while(true){
+        int ch=SDL_getch(main_win, context);
+        if((ch=='s'||ch==SDLK_DOWN)&&((csr_pos+page_num*30)<items_copy.size()-1&&csr_pos<29)){
+            csr_pos++;
+            draw_inventory(main_win, context, User, items_copy, page_num, csr_pos);
+        }
+        if((ch=='w'||ch==SDLK_UP)&&csr_pos>0){
+            csr_pos--;
+            draw_inventory(main_win, context, User, items_copy, page_num, csr_pos);
+        }
+        if(ch=='a'||ch==SDLK_LEFT){
+            if(page_num>0){
+                page_num--;
+                csr_pos=0;
+                draw_inventory(main_win, context, User, items_copy, page_num, csr_pos);
+            }
+        }
+        if(ch=='d'||ch==SDLK_RIGHT){
+            if((page_num+1)*30<items_copy.size()){
+                page_num++;
+                csr_pos=0;
+                draw_inventory(main_win, context, User, items_copy, page_num, csr_pos);
+            }
+        }
+        if(ch=='S'){
+            chest.gear_storage.push_back(*items_copy[csr_pos+page_num*30]);
+            User.remove_item(items_copy[csr_pos+page_num*30]);
+            process_copy(User.inv.item, items_copy, perm_config);
+            draw_inventory(main_win, context, User, items_copy, page_num, csr_pos);
+        }
+        if(ch=='q'){
+            return;
+        }
+        if(ch=='-'){ // Inventory Modifier
+            inventory_modifier_selection(main_win, context, perm_config, items_copy);
+            process_copy(User.inv.item, items_copy, perm_config);
+            draw_inventory(main_win, context, User, items_copy, page_num, csr_pos);
+        }
+    }
+}
 void reforge_repair_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context,  Player &User, NoDelete &perm_config){
     std::vector<Item*> items_copy;
     init_copy(User.inv.item, items_copy);
@@ -1023,6 +1072,11 @@ void reforge_repair_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, 
         if(ch=='m'){
             show_misc_items(main_win, context, User.inv.misc);
             draw_inventory(main_win, context, User, items_copy, page_num, csr_pos, true);
+        }
+        if(ch=='-'){ // Inventory Modifier
+            inventory_modifier_selection(main_win, context, perm_config, items_copy);
+            process_copy(User.inv.item, items_copy, perm_config);
+            draw_inventory(main_win, context, User, items_copy, page_num, csr_pos);
         }
         if(ch=='M'){ // Multiselect salvage (std::queue)
             if(!safety_mode){
@@ -1073,9 +1127,15 @@ void reforge_repair_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, 
             unsigned int amount=get_int(main_win, context, "[System] Amount of materials you want to use in this enhancement: ");
             if(amount>0){
                 User.uninitialize_stats();
-                enhance_item(items_copy[csr_pos+(page_num*30)], User.inv.misc, amount);
-                User.initialize_stats();
-                draw_inventory(main_win, context, User, items_copy, page_num, csr_pos, true);
+                if(enhance_item(items_copy[csr_pos+(page_num*30)], User.inv.misc, amount)){
+                    User.initialize_stats();
+                    draw_inventory(main_win, context, User, items_copy, page_num, csr_pos, true);
+                    clear_and_draw_dialog(main_win, context, "[System] Success");
+                }
+                else{
+                    User.initialize_stats();
+                    clear_and_draw_dialog(main_win, context, "[System] Failure");
+                }
             }
             else{
                 clear_and_draw_dialog(main_win, context, "[System] Failure");
