@@ -139,6 +139,7 @@ void Player::add_item(Item input){
     inv.item[inv.item.size()-1].initialize_item();
 }
 void Player::remove_item(Item *address){
+    uninitialize_stats();
     int pos = 0;
     for(; pos<inv.item.size(); pos++){
         if(&inv.item[pos]==address){
@@ -169,6 +170,7 @@ void Player::remove_item(Item *address){
             }
         }
     }
+    initialize_stats();
 }
 void Player::eat(int *food){
     if(saturation<100){

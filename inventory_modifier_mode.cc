@@ -307,7 +307,7 @@ void repeat_up_until_valid_move(unsigned int &csr_pos, const std::vector<Item*> 
         repeat_up_until_valid_move(csr_pos, items_copy);
     }
 }
-void inventory_modifier_selection(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, NoDelete &perm_config, const std::vector<Item*> items_copy){
+void inventory_modifier_selection(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, NoDelete &perm_config, std::vector<Item> original_copy, std::vector<Item*> items_copy){
     unsigned int csr_pos = 0;
     int ch;
     while(true){
@@ -322,6 +322,7 @@ void inventory_modifier_selection(tcod::ConsolePtr &main_win, tcod::ContextPtr &
         if(ch==SDLK_RETURN){
             if(csr_pos==21){
                 reset_inv_params(perm_config);
+                process_copy(original_copy, items_copy, perm_config);
             }
             if(csr_pos==22){
                 return;

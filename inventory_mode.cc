@@ -295,6 +295,9 @@ void equip_item(Player &User, Item *cur_item){
     }
 }
 bool unequip_item(Player &User, Item *cur_item){
+    if(!cur_item->is_equipped){
+        return true;
+    }
     if(User.cur_hp<=cur_item->hp){
         return false;
     }
@@ -330,12 +333,12 @@ bool unequip_item(Player &User, Item *cur_item){
     }
     return true;
 }
-void draw_inventory(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, const Player &User, const std::vector<Item*> items_copy, unsigned int page_num, unsigned int csr_pos, bool is_blacksmith_mode=false, bool is_inventory_modeifier_mode = false){
+void draw_inventory(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, const Player &User, const std::vector<Item*> items_copy, unsigned int page_num, unsigned int csr_pos, bool is_blacksmith_mode=false, bool is_inventory_modifier_mode = false){
     SDL_wclear_main_win(main_win, context);
     SDL_wclear_stats_bar(main_win, context);
     draw_stats(main_win, context, User);
     if(!items_copy.empty()){
-        draw_base(main_win, context, 34, items_copy.size(), page_num, is_blacksmith_mode, is_inventory_modeifier_mode);
+        draw_base(main_win, context, 34, items_copy.size(), page_num, is_blacksmith_mode, is_inventory_modifier_mode);
         for(int i=page_num*30, iterator=0; i<items_copy.size()&&iterator<30; i++, iterator++){
             print_item(main_win, context, items_copy[i], iterator);
         }
@@ -343,7 +346,7 @@ void draw_inventory(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, const
         print_description(main_win, context, items_copy[page_num*30+csr_pos], 35);
     }
     else{
-        draw_base(main_win, context, 34, 0, page_num, is_blacksmith_mode, is_inventory_modeifier_mode);
+        draw_base(main_win, context, 34, 0, page_num, is_blacksmith_mode, is_inventory_modifier_mode);
         context->present(*main_win);
     }
 }
@@ -980,7 +983,7 @@ void inventory_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Playe
             return;
         }
         if(ch=='-'){ // Inventory Modifier
-            inventory_modifier_selection(main_win, context, perm_config, items_copy);
+            inventory_modifier_selection(main_win, context, perm_config, User.inv.item, items_copy);
             process_copy(User.inv.item, items_copy, perm_config);
             draw_inventory(main_win, context, User, items_copy, page_num, csr_pos);
         }
@@ -990,10 +993,8 @@ void inventory_storage(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Pl
     std::vector<Item*> items_copy;
     unsigned int page_num=0;
     int csr_pos=0;
+    bool is_modifier_called = false;
     init_copy(User.inv.item, items_copy);
-    if(perm_config.keep_changes_persistent){
-        process_copy(User.inv.item, items_copy, perm_config);
-    }
     draw_inventory(main_win, context, User, items_copy, page_num, csr_pos);
     while(true){
         int ch=SDL_getch(main_win, context);
@@ -1020,17 +1021,93 @@ void inventory_storage(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Pl
             }
         }
         if(ch=='S'){
-            chest.gear_storage.push_back(*items_copy[csr_pos+page_num*30]);
-            User.remove_item(items_copy[csr_pos+page_num*30]);
+            if(unequip_item(User, items_copy[csr_pos+page_num*30])){
+                chest.gear_storage.push_back(*items_copy[csr_pos+page_num*30]);
+                User.remove_item(items_copy[csr_pos+page_num*30]);
+                if(csr_pos>0){
+                    csr_pos--;
+                }
+                if(User.inv.item.empty()){
+                    return;
+                }
+                if(is_modifier_called){
+                    process_copy(User.inv.item, items_copy, perm_config);
+                }
+                else{
+                    init_copy(User.inv.item, items_copy);
+                }
+                draw_inventory(main_win, context, User, items_copy, page_num, csr_pos);
+            }
+            else{
+                clear_and_draw_dialog(main_win, context, "[System] Error Storing Item");
+            }
+        }
+        if(ch=='q'){
+            return;
+        }
+        if(ch=='-'){ // Inventory Modifier
+            is_modifier_called=true;
+            inventory_modifier_selection(main_win, context, perm_config, User.inv.item, items_copy);
             process_copy(User.inv.item, items_copy, perm_config);
+            draw_inventory(main_win, context, User, items_copy, page_num, csr_pos);
+        }
+    }
+}
+void inventory_retrieve(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player &User, NoDelete &perm_config, Chest &chest){
+    std::vector<Item*> items_copy;
+    unsigned int page_num=0;
+    int csr_pos=0;
+    bool is_modifier_called = false;
+    init_copy(chest.gear_storage, items_copy);
+    draw_inventory(main_win, context, User, items_copy, page_num, csr_pos);
+    while(true){
+        int ch=SDL_getch(main_win, context);
+        if((ch=='s'||ch==SDLK_DOWN)&&((csr_pos+page_num*30)<items_copy.size()-1&&csr_pos<29)){
+            csr_pos++;
+            draw_inventory(main_win, context, User, items_copy, page_num, csr_pos);
+        }
+        if((ch=='w'||ch==SDLK_UP)&&csr_pos>0){
+            csr_pos--;
+            draw_inventory(main_win, context, User, items_copy, page_num, csr_pos);
+        }
+        if(ch=='a'||ch==SDLK_LEFT){
+            if(page_num>0){
+                page_num--;
+                csr_pos=0;
+                draw_inventory(main_win, context, User, items_copy, page_num, csr_pos);
+            }
+        }
+        if(ch=='d'||ch==SDLK_RIGHT){
+            if((page_num+1)*30<items_copy.size()){
+                page_num++;
+                csr_pos=0;
+                draw_inventory(main_win, context, User, items_copy, page_num, csr_pos);
+            }
+        }
+        if(ch=='R'){
+            User.add_item(*items_copy[csr_pos+page_num*30]);
+            chest.gear_storage.erase(chest.gear_storage.begin()+(csr_pos+page_num*30));
+            if(csr_pos>0){
+                csr_pos--;
+            }
+            if(chest.gear_storage.empty()){
+                return;
+            }
+            if(is_modifier_called){
+                process_copy(chest.gear_storage, items_copy, perm_config);
+            }
+            else{
+                init_copy(chest.gear_storage, items_copy);
+            }
             draw_inventory(main_win, context, User, items_copy, page_num, csr_pos);
         }
         if(ch=='q'){
             return;
         }
         if(ch=='-'){ // Inventory Modifier
-            inventory_modifier_selection(main_win, context, perm_config, items_copy);
-            process_copy(User.inv.item, items_copy, perm_config);
+            is_modifier_called = true;
+            inventory_modifier_selection(main_win, context, perm_config, chest.gear_storage, items_copy);
+            process_copy(chest.gear_storage, items_copy, perm_config);
             draw_inventory(main_win, context, User, items_copy, page_num, csr_pos);
         }
     }
@@ -1074,7 +1151,7 @@ void reforge_repair_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, 
             draw_inventory(main_win, context, User, items_copy, page_num, csr_pos, true);
         }
         if(ch=='-'){ // Inventory Modifier
-            inventory_modifier_selection(main_win, context, perm_config, items_copy);
+            inventory_modifier_selection(main_win, context, perm_config, User.inv.item, items_copy);
             process_copy(User.inv.item, items_copy, perm_config);
             draw_inventory(main_win, context, User, items_copy, page_num, csr_pos);
         }

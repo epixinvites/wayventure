@@ -368,14 +368,16 @@ void draw_bank_menu(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Chest
 void bank_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, NoDelete &perm_config, Player &User, Chest &chest, Bank &bank){
     unsigned int csr_pos=0;
     int ch;
+    draw_bank_menu(main_win, context, chest, bank, csr_pos, User.steps);
     while(true){
-        draw_bank_menu(main_win, context, chest, bank, csr_pos, User.steps);
         ch=SDL_getch(main_win, context);
         if((ch==SDLK_DOWN||ch=='s')&&csr_pos<5){
             csr_pos++;
+            draw_bank_menu(main_win, context, chest, bank, csr_pos, User.steps);
         }
         if((ch==SDLK_UP||ch=='w')&&csr_pos>0){
             csr_pos--;
+            draw_bank_menu(main_win, context, chest, bank, csr_pos, User.steps);
         }
         if(ch=='q'){
             return;
@@ -383,7 +385,22 @@ void bank_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, NoDelete &
         if(ch==SDLK_RETURN){
             switch(csr_pos){
                 case 0:
-                    inventory_storage(main_win, context, User, perm_config, chest);
+                    if(!User.inv.item.empty()){
+                        inventory_storage(main_win, context, User, perm_config, chest);
+                        draw_bank_menu(main_win, context, chest, bank, csr_pos, User.steps);
+                    }
+                    else{
+                        clear_and_draw_dialog(main_win, context, "[System] Error: Inventory Empty");
+                    }
+                    break;
+                case 1:
+                    if(!chest.gear_storage.empty()){
+                        inventory_retrieve(main_win, context, User, perm_config, chest);
+                        draw_bank_menu(main_win, context, chest, bank, csr_pos, User.steps);
+                    }
+                    else{
+                        clear_and_draw_dialog(main_win, context, "[System] Error: Storage Empty");
+                    }
                     break;
                 default:
                     break;
@@ -428,6 +445,7 @@ void bar_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player &Use
             }
             else if(target=='T'){
                 bank_mode(main_win, context, perm_config, User, npc.chest, npc.bank);
+                redraw_bar(main_win, context, pub_layout, csr_pos);
             }
             else if(target=='S'){
                 reforge_repair_mode(main_win, context, User, perm_config);
