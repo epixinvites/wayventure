@@ -402,6 +402,14 @@ void bank_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, NoDelete &
                         clear_and_draw_dialog(main_win, context, "[System] Error: Storage Empty");
                     }
                     break;
+                case 2:
+                    store_misc_items(main_win, context, User.inv.misc);
+                    draw_bank_menu(main_win, context, chest, bank, csr_pos, User.steps);
+                    break;
+                case 3:
+                    retrieve_misc_items(main_win, context, User.inv.misc);
+                    draw_bank_menu(main_win, context, chest, bank, csr_pos, User.steps);
+                    break;
                 default:
                     break;
             }

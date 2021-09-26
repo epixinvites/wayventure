@@ -53,3 +53,5 @@ std::pair<int,int>SDL_getch_ex(tcod::ConsolePtr &main_win, tcod::ContextPtr &con
 void SDL_wclear_main_win(tcod::ConsolePtr &main_win, tcod::ContextPtr &context);
 void SDL_wclear_dialog_bar(tcod::ConsolePtr &main_win, tcod::ContextPtr &context);
 void SDL_wclear_stats_bar(tcod::ConsolePtr &main_win, tcod::ContextPtr &context);
+std::string get_string(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, std::string dialogue, std::string original);
+unsigned int get_int(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, std::string dialogue);

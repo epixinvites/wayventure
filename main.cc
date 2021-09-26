@@ -88,6 +88,56 @@ void SDL_wclear_main_win(tcod::ConsolePtr &main_win, tcod::ContextPtr &context){
     }
 //    context->present(*main_win);
 }
+std::string get_string(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, std::string dialogue, std::string original){
+    std::string input;
+    clear_and_draw_dialog(main_win, context, dialogue);
+    int ch;
+    while(true){
+        ch=SDL_getch(main_win, context);
+        if(ch==SDLK_RETURN&&input.length()>0){ // KEY_ENTER
+            return input;
+        }
+        if(ch==SDLK_BACKSPACE){ // KEY_BACKSPACE
+            if(input.length()>0){
+                input.pop_back();
+            }
+        }
+        if(ch==SDLK_ESCAPE){ // KEY_ESC
+            return original;
+        }
+        else if((ch>0&&ch<128)&&input.length()<30&&(isdigit(ch)||isalpha(ch)||isblank(ch))){
+            input.push_back(ch);
+        }
+        std::stringstream ss;
+        ss<<dialogue<<input;
+        clear_and_draw_dialog(main_win, context, ss.str());
+    }
+}
+unsigned int get_int(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, std::string dialogue){
+    std::string input;
+    clear_and_draw_dialog(main_win, context, dialogue);
+    int ch;
+    while(true){
+        ch=SDL_getch(main_win, context);
+        if(ch==SDLK_RETURN&&input.length()>0){ // KEY_ENTER
+            return std::stoi(input);
+        }
+        if(ch==SDLK_BACKSPACE){ // KEY_BACKSPACE
+            if(input.length()>0){
+                input.pop_back();
+            }
+        }
+        if(ch==SDLK_ESCAPE||ch=='q'){ // KEY_ESC
+            return 0;
+        }
+        else if((ch>0&&ch<128)&&input.length()<8&&isdigit(ch)){
+            input.push_back(ch);
+        }
+        std::stringstream ss;
+        ss<<dialogue<<input;
+        clear_and_draw_dialog(main_win, context, ss.str());
+    }
+}
 bool check_surroundings(std::vector<monster> monsters, int x, int y){
     for(int i=0; i<monsters.size(); i++){
         if(x==monsters[i].x&&y==monsters[i].y){

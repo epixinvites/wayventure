@@ -333,7 +333,7 @@ bool unequip_item(Player &User, Item *cur_item){
     }
     return true;
 }
-void draw_inventory(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, const Player &User, const std::vector<Item*> items_copy, unsigned int page_num, unsigned int csr_pos, bool is_blacksmith_mode=false, bool is_inventory_modifier_mode = false){
+void draw_inventory(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, const Player &User, const std::vector<Item*> items_copy, unsigned int page_num, unsigned int csr_pos, bool is_blacksmith_mode, bool is_inventory_modifier_mode){
     SDL_wclear_main_win(main_win, context);
     SDL_wclear_stats_bar(main_win, context);
     draw_stats(main_win, context, User);
@@ -348,56 +348,6 @@ void draw_inventory(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, const
     else{
         draw_base(main_win, context, 34, 0, page_num, is_blacksmith_mode, is_inventory_modifier_mode);
         context->present(*main_win);
-    }
-}
-std::string get_string(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, std::string original){
-    std::string input;
-    clear_and_draw_dialog(main_win, context, "([ESC] to cancel) Rename item to: ");
-    int ch;
-    while(true){
-        ch=SDL_getch(main_win, context);
-        if(ch==SDLK_RETURN&&input.length()>0){ // KEY_ENTER
-            return input;
-        }
-        if(ch==SDLK_BACKSPACE){ // KEY_BACKSPACE
-            if(input.length()>0){
-                input.pop_back();
-            }
-        }
-        if(ch==SDLK_ESCAPE){ // KEY_ESC
-            return original;
-        }
-        else if((ch>0&&ch<128)&&input.length()<30&&(isdigit(ch)||isalpha(ch)||isblank(ch))){
-            input.push_back(ch);
-        }
-        std::stringstream ss;
-        ss<<"Rename item to: "<<input;
-        clear_and_draw_dialog(main_win, context, ss.str());
-    }
-}
-unsigned int get_int(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, std::string dialogue){
-    std::string input;
-    clear_and_draw_dialog(main_win, context, dialogue);
-    int ch;
-    while(true){
-        ch=SDL_getch(main_win, context);
-        if(ch==SDLK_RETURN&&input.length()>0){ // KEY_ENTER
-            return std::stoi(input);
-        }
-        if(ch==SDLK_BACKSPACE){ // KEY_BACKSPACE
-            if(input.length()>0){
-                input.pop_back();
-            }
-        }
-        if(ch==SDLK_ESCAPE||ch=='q'){ // KEY_ESC
-            return 0;
-        }
-        else if((ch>0&&ch<128)&&input.length()<8&&isdigit(ch)){
-            input.push_back(ch);
-        }
-        std::stringstream ss;
-        ss<<dialogue<<input;
-        clear_and_draw_dialog(main_win, context, ss.str());
     }
 }
 void print_misc_bold(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Miscellaneous &User, unsigned int csr_pos){
@@ -496,6 +446,54 @@ bool remove_misc_item(Miscellaneous &User, unsigned int csr_pos, unsigned int am
             return decrease_amount(User.blueprint.weapon, amount);
         default:
             return false;
+    }
+}
+void add_misc_item(Miscellaneous &User, unsigned int csr_pos, unsigned int amount){
+    switch(csr_pos){
+        case 0:
+            User.ancient_core+=amount;
+            break;
+        case 1:
+            User.crystallium+=amount;
+            break;
+        case 4:
+            User.materials.common+=amount;
+            break;
+        case 5:
+            User.materials.uncommon+=amount;
+            break;
+        case 6:
+            User.materials.rare+=amount;
+            break;
+        case 7:
+            User.materials.epic+=amount;
+            break;
+        case 8:
+            User.materials.legendary+=amount;
+            break;
+        case 9:
+            User.materials.artifact+=amount;
+            break;
+        case 12:
+            User.blueprint.helmet+=amount;
+            break;
+        case 13:
+            User.blueprint.chestplate+=amount;
+            break;
+        case 14:
+            User.blueprint.greaves+=amount;
+            break;
+        case 15:
+            User.blueprint.boots+=amount;
+            break;
+        case 16:
+            User.blueprint.shield+=amount;
+            break;
+        case 17:
+            User.blueprint.weapon+=amount;
+            break;
+        default:
+            break;
     }
 }
 void print_misc_item(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Miscellaneous &User, unsigned int csr_pos){
@@ -948,7 +946,7 @@ void inventory_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Playe
             }
         }
         if(ch=='r'){
-            items_copy[csr_pos+(page_num*30)]->name=get_string(main_win, context, items_copy[csr_pos+(page_num*30)]->name);
+            items_copy[csr_pos+(page_num*30)]->name=get_string(main_win, context, "([ESC] to cancel) Rename item to: ", items_copy[csr_pos+(page_num*30)]->name);
             draw_inventory(main_win, context, User, items_copy, page_num, csr_pos);
         }
         if(ch=='m'){
@@ -985,129 +983,6 @@ void inventory_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Playe
         if(ch=='-'){ // Inventory Modifier
             inventory_modifier_selection(main_win, context, perm_config, User.inv.item, items_copy);
             process_copy(User.inv.item, items_copy, perm_config);
-            draw_inventory(main_win, context, User, items_copy, page_num, csr_pos);
-        }
-    }
-}
-void inventory_storage(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player &User, NoDelete &perm_config, Chest &chest){
-    std::vector<Item*> items_copy;
-    unsigned int page_num=0;
-    int csr_pos=0;
-    bool is_modifier_called = false;
-    init_copy(User.inv.item, items_copy);
-    draw_inventory(main_win, context, User, items_copy, page_num, csr_pos);
-    while(true){
-        int ch=SDL_getch(main_win, context);
-        if((ch=='s'||ch==SDLK_DOWN)&&((csr_pos+page_num*30)<items_copy.size()-1&&csr_pos<29)){
-            csr_pos++;
-            draw_inventory(main_win, context, User, items_copy, page_num, csr_pos);
-        }
-        if((ch=='w'||ch==SDLK_UP)&&csr_pos>0){
-            csr_pos--;
-            draw_inventory(main_win, context, User, items_copy, page_num, csr_pos);
-        }
-        if(ch=='a'||ch==SDLK_LEFT){
-            if(page_num>0){
-                page_num--;
-                csr_pos=0;
-                draw_inventory(main_win, context, User, items_copy, page_num, csr_pos);
-            }
-        }
-        if(ch=='d'||ch==SDLK_RIGHT){
-            if((page_num+1)*30<items_copy.size()){
-                page_num++;
-                csr_pos=0;
-                draw_inventory(main_win, context, User, items_copy, page_num, csr_pos);
-            }
-        }
-        if(ch=='S'){
-            if(unequip_item(User, items_copy[csr_pos+page_num*30])){
-                chest.gear_storage.push_back(*items_copy[csr_pos+page_num*30]);
-                User.remove_item(items_copy[csr_pos+page_num*30]);
-                if(csr_pos>0){
-                    csr_pos--;
-                }
-                if(User.inv.item.empty()){
-                    return;
-                }
-                if(is_modifier_called){
-                    process_copy(User.inv.item, items_copy, perm_config);
-                }
-                else{
-                    init_copy(User.inv.item, items_copy);
-                }
-                draw_inventory(main_win, context, User, items_copy, page_num, csr_pos);
-            }
-            else{
-                clear_and_draw_dialog(main_win, context, "[System] Error Storing Item");
-            }
-        }
-        if(ch=='q'){
-            return;
-        }
-        if(ch=='-'){ // Inventory Modifier
-            is_modifier_called=true;
-            inventory_modifier_selection(main_win, context, perm_config, User.inv.item, items_copy);
-            process_copy(User.inv.item, items_copy, perm_config);
-            draw_inventory(main_win, context, User, items_copy, page_num, csr_pos);
-        }
-    }
-}
-void inventory_retrieve(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player &User, NoDelete &perm_config, Chest &chest){
-    std::vector<Item*> items_copy;
-    unsigned int page_num=0;
-    int csr_pos=0;
-    bool is_modifier_called = false;
-    init_copy(chest.gear_storage, items_copy);
-    draw_inventory(main_win, context, User, items_copy, page_num, csr_pos);
-    while(true){
-        int ch=SDL_getch(main_win, context);
-        if((ch=='s'||ch==SDLK_DOWN)&&((csr_pos+page_num*30)<items_copy.size()-1&&csr_pos<29)){
-            csr_pos++;
-            draw_inventory(main_win, context, User, items_copy, page_num, csr_pos);
-        }
-        if((ch=='w'||ch==SDLK_UP)&&csr_pos>0){
-            csr_pos--;
-            draw_inventory(main_win, context, User, items_copy, page_num, csr_pos);
-        }
-        if(ch=='a'||ch==SDLK_LEFT){
-            if(page_num>0){
-                page_num--;
-                csr_pos=0;
-                draw_inventory(main_win, context, User, items_copy, page_num, csr_pos);
-            }
-        }
-        if(ch=='d'||ch==SDLK_RIGHT){
-            if((page_num+1)*30<items_copy.size()){
-                page_num++;
-                csr_pos=0;
-                draw_inventory(main_win, context, User, items_copy, page_num, csr_pos);
-            }
-        }
-        if(ch=='R'){
-            User.add_item(*items_copy[csr_pos+page_num*30]);
-            chest.gear_storage.erase(chest.gear_storage.begin()+(csr_pos+page_num*30));
-            if(csr_pos>0){
-                csr_pos--;
-            }
-            if(chest.gear_storage.empty()){
-                return;
-            }
-            if(is_modifier_called){
-                process_copy(chest.gear_storage, items_copy, perm_config);
-            }
-            else{
-                init_copy(chest.gear_storage, items_copy);
-            }
-            draw_inventory(main_win, context, User, items_copy, page_num, csr_pos);
-        }
-        if(ch=='q'){
-            return;
-        }
-        if(ch=='-'){ // Inventory Modifier
-            is_modifier_called = true;
-            inventory_modifier_selection(main_win, context, perm_config, chest.gear_storage, items_copy);
-            process_copy(chest.gear_storage, items_copy, perm_config);
             draw_inventory(main_win, context, User, items_copy, page_num, csr_pos);
         }
     }
