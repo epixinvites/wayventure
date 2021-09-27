@@ -113,7 +113,7 @@ void inventory_storage(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Pl
         }
         if(ch=='S'){
             if(unequip_item(User, items_copy[csr_pos+page_num*30])){
-                chest.gear_storage.push_back(*items_copy[csr_pos+page_num*30]);
+                chest.gear_storage.insert(chest.gear_storage.begin(),*items_copy[csr_pos+page_num*30]);
                 User.remove_item(items_copy[csr_pos+page_num*30]);
                 if(csr_pos>0){
                     csr_pos--;

@@ -55,3 +55,4 @@ void SDL_wclear_dialog_bar(tcod::ConsolePtr &main_win, tcod::ContextPtr &context
 void SDL_wclear_stats_bar(tcod::ConsolePtr &main_win, tcod::ContextPtr &context);
 std::string get_string(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, std::string dialogue, std::string original);
 unsigned int get_int(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, std::string dialogue);
+long long int get_llint(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, std::string dialogue);

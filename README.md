@@ -12,8 +12,8 @@ Run ./wayventure to start playing
 How to play? Congratulations if you got the game working, you should be able to summon the help page with Shift+h
 ```
 ## Issues/Feature Requests
-Please open an issue if you found any bugs, for feature requests go to the Discussions page and open a new discussion!  
-For upcoming releases/features please refer [here](https://app.simplenote.com/p/kkFf1V)  
+Please open an issue if you found any bugs or simply just want to give suggestions about the gameplay!  
+For upcoming releases/features please refer [here](https://app.simplenote.com/p/kkFf1V).
 ## Special Thanks 
 Special thanks to [@HexDecimal](https://github.com/HexDecimal) for helping me so much throughout the development of this project and his [libtcod](https://github.com/libtcod/libtcod) lib!  
 ## Donations

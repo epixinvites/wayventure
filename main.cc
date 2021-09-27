@@ -138,6 +138,31 @@ unsigned int get_int(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, std:
         clear_and_draw_dialog(main_win, context, ss.str());
     }
 }
+long long int get_llint(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, std::string dialogue){
+    std::string input;
+    clear_and_draw_dialog(main_win, context, dialogue);
+    int ch;
+    while(true){
+        ch=SDL_getch(main_win, context);
+        if(ch==SDLK_RETURN&&input.length()>0){ // KEY_ENTER
+            return std::stoll(input);
+        }
+        if(ch==SDLK_BACKSPACE){ // KEY_BACKSPACE
+            if(input.length()>0){
+                input.pop_back();
+            }
+        }
+        if(ch==SDLK_ESCAPE||ch=='q'){ // KEY_ESC
+            return 0;
+        }
+        else if((ch>0&&ch<128)&&input.length()<18&&isdigit(ch)){
+            input.push_back(ch);
+        }
+        std::stringstream ss;
+        ss<<dialogue<<input;
+        clear_and_draw_dialog(main_win, context, ss.str());
+    }
+}
 bool check_surroundings(std::vector<monster> monsters, int x, int y){
     for(int i=0; i<monsters.size(); i++){
         if(x==monsters[i].x&&y==monsters[i].y){
@@ -154,7 +179,7 @@ std::pair<int,char> check_monster_pos(std::vector<monster> monsters, int x, int 
     }
     return{-1,'0'};
 }
-void char_move(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, int ch, Csr &csr_pos, std::vector<monster> monsters, Player &User, level Current){
+void char_move(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, int ch, Csr &csr_pos, std::vector<monster> monsters, Player &User, NPC &npc, level Current){
     bool require_move=false;
     if((ch=='a'||ch==SDLK_LEFT)&&csr_pos.first>1&&!check_surroundings(monsters, csr_pos.first-1, csr_pos.second)){
         csr_pos.first--;
@@ -179,6 +204,10 @@ void char_move(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, int ch, Cs
         }
         if(User.steps%35==0){
             User.saturation--;
+        }
+        if(User.steps>49999&&(User.steps%50000==0)){
+            npc.bank.storage_last_applied=User.steps;
+            npc.bank.saved_gold*=npc.bank.storage_interest;
         }
     }
 }
@@ -484,7 +513,7 @@ void init_dungeon(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Csr &cs
     while(true){
         int ch=SDL_getch(main_win, context);
         if(ch=='w'||ch=='a'||ch=='s'||ch=='d'||ch==SDLK_LEFT||ch==SDLK_RIGHT||ch==SDLK_DOWN||ch==SDLK_UP){
-            char_move(main_win, context, ch, csr_pos, monsters, User, Current);
+            char_move(main_win, context, ch, csr_pos, monsters, User, npc, Current);
             redraw_everything(main_win, context, csr_pos, User, Current, monsters);
         }
         if(ch=='z'){
