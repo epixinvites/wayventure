@@ -7,27 +7,40 @@
 #include <cereal/archives/binary.hpp>
 #include <cereal/types/vector.hpp>
 #include <cereal/types/string.hpp>
-void refresh_gear_merchant_store(Merchant &gear_merchant){
-    std::random_device device;
-    std::mt19937 generator(device());
-    std::uniform_int_distribution<int> item_type(1, 100);
-    for(int i=0; i<20; i++){
-        int item=item_type(generator);
-        if(item<20){
-            gear_merchant.store.push_back(generate_loot_from_rarity_type('c'));
+void refresh_gear_merchant_store(Merchant &gear_merchant, long long int steps){
+    if((steps>4999&&steps%5000==0)||gear_merchant.initial_refresh){
+        if(!gear_merchant.store.empty()){
+            gear_merchant.store.erase(std::remove_if(gear_merchant.store.begin(), gear_merchant.store.end(), [](const std::pair<Item, bool> cur){return cur.second==false;}), gear_merchant.store.end());
         }
-        else if(item<40){
-            gear_merchant.store.push_back(generate_loot_from_rarity_type('u'));
+        gear_merchant.initial_refresh=false;
+        std::random_device device;
+        std::mt19937 generator(device());
+        std::uniform_int_distribution<int> item_type(1, 100);
+        const int store_size = gear_merchant.store.size();
+        for(int i=0; i<20-store_size; i++){
+            int item=item_type(generator);
+            if(item<20){
+                gear_merchant.store.push_back({generate_trade_items(RARITY_COMMON),false});
+            }
+            else if(item<40){
+                gear_merchant.store.push_back({generate_trade_items(RARITY_UNCOMMON),false});
+            }
+            else if(item<70){
+                gear_merchant.store.push_back({generate_trade_items(RARITY_RARE),false});
+            }
+            else if(item<90){
+                gear_merchant.store.push_back({generate_trade_items(RARITY_EPIC),false});
+            }
+            else{
+                gear_merchant.store.push_back({generate_trade_items(RARITY_LEGENDARY),false});
+            }
         }
-        else if(item<70){
-            gear_merchant.store.push_back(generate_loot_from_rarity_type('r'));
-        }
-        else if(item<90){
-            gear_merchant.store.push_back(generate_loot_from_rarity_type('e'));
-        }
-        else{
-            gear_merchant.store.push_back(generate_loot_from_rarity_type('l'));
-        }
+        std::sort(gear_merchant.store.begin(), gear_merchant.store.end(), sort_ascending);
+    }
+}
+void refresh_mysterious_merchant_store(Merchant &mysterious_trader){
+    for(int i = 0; i<10; i++){
+        mysterious_trader.store.push_back({generate_trade_items(RARITY_ARTIFACT),false});
     }
 }
 void redraw_bar(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player &User, std::vector<std::string> pub_layout, Csr csr_pos){
@@ -57,10 +70,6 @@ void redraw_bar(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player &U
     draw_stats(main_win, context, User);
     tcod::print(*main_win, {0,0}, "Pub", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
     context->present(*main_win);
-}
-void refresh_mysterious_merchant_store(Merchant &mysterious_trader){
-    mysterious_trader.store.push_back(generate_loot_from_rarity_type('a'));
-    mysterious_trader.store.push_back(generate_loot_from_rarity_type('a'));
 }
 char search_surroundings(std::vector<std::string> pub_layout, int x, int y){
     if(pub_layout[y][x-1]!='#'&&pub_layout[y][x-1]!=' '){
@@ -331,7 +340,7 @@ void char_move(int ch, tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Pl
         redraw_bar(main_win, context, User, pub_layout, csr_pos);
     }
 }
-void draw_bank_menu_selections(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, int line, bool is_bold, std::string output){
+void draw_menu_selections(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, int line, bool is_bold, std::string output){
     if(is_bold){
         tcod::print(*main_win, {0,line}, output, &BLACK, &WHITE, TCOD_BKGND_SET, TCOD_LEFT);
     }
@@ -344,12 +353,12 @@ void draw_bank_menu(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Chest
     SDL_wclear_dialog_bar(main_win, context);
     tcod::print(*main_win, {0,0}, "Bank Menu", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
     tcod::print(*main_win, {0,1}, "[Kiosk] How can we help you?", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
-    draw_bank_menu_selections(main_win, context, 3, csr_pos==0, "[Store Gears]");
-    draw_bank_menu_selections(main_win, context, 4, csr_pos==1, "[Retrieve Gears]");
-    draw_bank_menu_selections(main_win, context, 6, csr_pos==2, "[Store Materials and Blueprints]");
-    draw_bank_menu_selections(main_win, context, 7, csr_pos==3, "[Retrieve Materials and Blueprints]");
-    draw_bank_menu_selections(main_win, context, 9, csr_pos==4, "[Store Gold]");
-    draw_bank_menu_selections(main_win, context, 10, csr_pos==5, "[Retrieve Gold]");
+    draw_menu_selections(main_win, context, 3, csr_pos==0, "[Store Gears]");
+    draw_menu_selections(main_win, context, 4, csr_pos==1, "[Retrieve Gears]");
+    draw_menu_selections(main_win, context, 6, csr_pos==2, "[Store Materials and Blueprints]");
+    draw_menu_selections(main_win, context, 7, csr_pos==3, "[Retrieve Materials and Blueprints]");
+    draw_menu_selections(main_win, context, 9, csr_pos==4, "[Store Gold]");
+    draw_menu_selections(main_win, context, 10, csr_pos==5, "[Retrieve Gold]");
     // Draw bank stats
     if(!chest.gear_storage.empty()){
         tcod::print(*main_win, {0,47}, "Total Gear stored: ["+std::to_string(chest.gear_storage.size())+"]", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
@@ -450,6 +459,47 @@ void bank_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, NoDelete &
         }
     }
 }
+void draw_gear_merchant(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, unsigned int csr_pos){
+    SDL_wclear_main_win(main_win, context);
+    SDL_wclear_dialog_bar(main_win, context);
+    tcod::print(*main_win, {0,0}, "Gear Shop", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+    tcod::print(*main_win, {0,1}, "[Merchant] How can I help you?", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+    draw_menu_selections(main_win, context, 3, csr_pos==0, "[Buy Gears]");
+    draw_menu_selections(main_win, context, 4, csr_pos==1, "[Sell Gears]");
+    draw_menu_selections(main_win, context, 6, csr_pos==2, "[Buy Materials/Blueprints/First Aid Kits]");
+    draw_menu_selections(main_win, context, 7, csr_pos==3, "[Sell Materials]");
+    context->present(*main_win);
+}
+void gear_merchant_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Merchant &gear_merchant, Player &User){
+    unsigned int csr_pos=0;
+    int ch;
+    refresh_gear_merchant_store(gear_merchant, User.steps);
+    draw_gear_merchant(main_win, context, csr_pos);
+    while(true){
+        ch=SDL_getch(main_win, context);
+        if((ch==SDLK_DOWN||ch=='s')&&csr_pos<4){
+            csr_pos++;
+            draw_gear_merchant(main_win, context, csr_pos);
+        }
+        if((ch==SDLK_UP||ch=='w')&&csr_pos>0){
+            csr_pos--;
+            draw_gear_merchant(main_win, context, csr_pos);
+        }
+        if(ch=='q'){
+            return;
+        }
+        if(ch==SDLK_RETURN){
+            switch(csr_pos){
+                case 0:
+                    show_merchant_items(main_win, context, gear_merchant, User);
+                    draw_gear_merchant(main_win, context, csr_pos);
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+}
 void bar_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player &User, NPC &npc, NoDelete &perm_config){
     Csr csr_pos{78,1};
     std::ifstream pub_layout_file("res/bar_layout.txt");
@@ -483,7 +533,8 @@ void bar_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player &Use
                 redraw_bar(main_win, context, User, pub_layout, csr_pos);
             }
             else if(target=='G'){
-                // Gear Merchant & Sells First Aid Kits
+                gear_merchant_mode(main_win, context, npc.gear_merchant, User);
+                redraw_bar(main_win, context, User, pub_layout, csr_pos);
             }
             else if(target=='T'){
                 bank_mode(main_win, context, perm_config, User, npc.chest, npc.bank);

@@ -10,9 +10,10 @@
 #include "headers/draw.h"
 #include "headers/generate.h"
 #include "headers/mode.h"
-#include <cereal/archives/json.hpp>
+#include <cereal/archives/portable_binary.hpp>
 #include <cereal/types/vector.hpp>
 #include <cereal/types/string.hpp>
+#include <cereal/types/utility.hpp>
 int SDL_getch(tcod::ConsolePtr &main_win, tcod::ContextPtr &context){
     SDL_FlushEvent(SDL_KEYDOWN);
     SDL_Event event;
@@ -480,13 +481,17 @@ bool is_empty(std::ifstream &pFile){
     return pFile.peek()==std::ifstream::traits_type::eof();
 }
 void init_data(Player &User, level &Current, Csr &csr_pos, std::vector<monster> &monsters, NPC &npc, NoDelete &perm_config){
+    std::string version_check;
     if(username.length()>30){
         throw std::runtime_error("Nope. Nopenopenopenope. You didn't follow my instructions.");
     }
     std::ifstream ifile("save/user.save", std::ios::binary);
     if(!is_empty(ifile)){
-        cereal::JSONInputArchive retrieve(ifile);
-        retrieve(User, Current, csr_pos, monsters, npc, perm_config);
+        cereal::PortableBinaryInputArchive retrieve(ifile);
+        retrieve(User, Current, csr_pos, monsters, npc, perm_config, version_check);
+        if(save_file_version!=version_check){
+            throw std::runtime_error("Versions of save files do not match. Aborting. Do not attempt to edit the save files, lost of data will be expected.");
+        }
         // Insert data corruption checks
         std::filesystem::remove("save/user.save.1");
         std::filesystem::copy("save/user.save", "save/user.save.1");
@@ -494,9 +499,9 @@ void init_data(Player &User, level &Current, Csr &csr_pos, std::vector<monster> 
 }
 void save_data(Player User, level Current, Csr csr_pos, std::vector<monster> monsters, NPC npc, NoDelete perm_config){
     std::ofstream ofile("save/user.save", std::ios::trunc|std::ios::binary);
-    cereal::JSONOutputArchive archive(ofile);
+    cereal::PortableBinaryOutputArchive archive(ofile);
     User.uninitialize_stats();
-    archive(User, Current, csr_pos, monsters, npc, perm_config);
+    archive(User, Current, csr_pos, monsters, npc, perm_config, save_file_version);
 }
 void drop_items_on_death(Player &User, Csr &csr_pos, level &current){
     User=Player();

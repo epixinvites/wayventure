@@ -968,7 +968,8 @@ void inventory_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Playe
             if(ch=='y'){
                 if(unequip_item(User, items_copy[csr_pos+(page_num*30)])){
                     User.remove_item(items_copy[csr_pos+(page_num*30)]);
-                    if(User.inv.item.empty()) return;
+                    if(User.inv.item.empty())
+                        return;
                     if(csr_pos>0){
                         csr_pos--;
                     }
@@ -987,13 +988,13 @@ void inventory_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Playe
         }
     }
 }
-void reforge_repair_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context,  Player &User, NoDelete &perm_config){
+void reforge_repair_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player &User, NoDelete &perm_config){
     std::vector<Item*> items_copy;
     init_copy(User.inv.item, items_copy);
     if(perm_config.keep_changes_persistent){
         process_copy(User.inv.item, items_copy, perm_config);
     }
-    bool safety_mode = true;
+    bool safety_mode=true;
     unsigned int page_num=0;
     int csr_pos=0;
     draw_inventory(main_win, context, User, items_copy, page_num, csr_pos, true);
@@ -1158,7 +1159,8 @@ void reforge_repair_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, 
                 if(ch=='y'){
                     if(unequip_item(User, items_copy[csr_pos+(page_num*30)])){
                         salvage_item(User, items_copy[csr_pos+(page_num*30)]);
-                        if(User.inv.item.empty()) return;
+                        if(User.inv.item.empty())
+                            return;
                         if(csr_pos>0){
                             csr_pos--;
                         }
@@ -1170,7 +1172,8 @@ void reforge_repair_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, 
             else{
                 if(unequip_item(User, items_copy[csr_pos+(page_num*30)])){
                     salvage_item(User, items_copy[csr_pos+(page_num*30)]);
-                    if(User.inv.item.empty()) return;
+                    if(User.inv.item.empty())
+                        return;
                     if(csr_pos>0){
                         csr_pos--;
                     }

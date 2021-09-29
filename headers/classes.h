@@ -150,9 +150,9 @@ struct Chest{
 };
 struct Merchant{
     int relation = 0;
-    unsigned long long last_refresh = 0;
-    std::vector<Item> store;
-    template<class Archive>void serialize(Archive &archive){archive(relation,last_refresh,store);}
+    bool initial_refresh = true;
+    std::vector<std::pair<Item, bool>>store; // bool is used to indicate whether to
+    template<class Archive>void serialize(Archive &archive){archive(relation,initial_refresh,store);}
 };
 struct NPC{
     Bartender bartender;

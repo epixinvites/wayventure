@@ -15,9 +15,9 @@ bar.o: bar.cc
 	g++ -g -c -std=c++17 -Iinclude/ bar.cc -o bar.o
 inventory_modifier_mode.o: inventory_modifier_mode.cc
 	g++ -g -c -std=c++17 inventory_modifier_mode.cc -o inventory_modifier_mode.o
-bank.o: bank.cc
-	g++ -g -c -std=c++17 bank.cc -o bank.o
-project-cosmos: main.o inventory_mode.o classes.o draw.o generate.o bar.o help_mode.o inventory_modifier_mode.o bank.o
-	g++ -static-libstdc++ -static-libgcc -g -std=c++17 draw.o main.o inventory_mode.o classes.o generate.o bar.o help_mode.o inventory_modifier_mode.o bank.o -o wayventure -Llibs/ -ltcod -lSDL2 -lpthread -lz -ldl
+bar_additional.o: bar_additional.cc
+	g++ -g -c -std=c++17 bar_additional.cc -o bar_additional.o
+project-cosmos: main.o inventory_mode.o classes.o draw.o generate.o bar.o help_mode.o inventory_modifier_mode.o bar_additional.o
+	g++ -static-libstdc++ -static-libgcc -g -std=c++17 draw.o main.o inventory_mode.o classes.o generate.o bar.o help_mode.o inventory_modifier_mode.o bar_additional.o -o wayventure -Llibs/ -ltcod -lSDL2 -lpthread -lz -ldl
 clean:
-	rm -f main.o inventory_mode.o classes.o draw.o generate.o bar.o help_mode.o inventory_modifier_mode.o bank.o wayventure
+	rm -f main.o inventory_mode.o classes.o draw.o generate.o bar.o help_mode.o inventory_modifier_mode.o bar_additional.o wayventure

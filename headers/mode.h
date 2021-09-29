@@ -1,6 +1,51 @@
 #pragma once
 #include "classes.h"
 #include "main.h"
+
+struct SortAscending{
+    std::unordered_map<char,int> priority{
+        {RARITY_ARTIFACT,0},
+        {RARITY_LEGENDARY,1},
+        {RARITY_EPIC,2},
+        {RARITY_RARE,3},
+        {RARITY_UNCOMMON,4},
+        {RARITY_COMMON,5}
+    };
+    bool operator()(const Item *i, const Item *j){
+        int priority_i=priority[i->rarity];
+        int priority_j=priority[j->rarity];
+        return priority_i<priority_j;
+    }
+    bool operator()(const std::pair<Item, bool> i, const std::pair<Item, bool> j){
+        int priority_i=priority[i.first.rarity];
+        int priority_j=priority[j.first.rarity];
+        return priority_i<priority_j;
+    }
+}const sort_ascending;
+struct SortDescending{
+    std::unordered_map<char,int> priority{
+        {RARITY_ARTIFACT,0},
+        {RARITY_LEGENDARY,1},
+        {RARITY_EPIC,2},
+        {RARITY_RARE,3},
+        {RARITY_UNCOMMON,4},
+        {RARITY_COMMON,5}
+    };
+    bool operator()(const Item *i, const Item *j){
+        int priority_i=priority[i->rarity];
+        int priority_j=priority[j->rarity];
+        return priority_i>priority_j;
+    }
+    bool operator()(const std::pair<Item, bool> i, const std::pair<Item, bool> j){
+        int priority_i=priority[i.first.rarity];
+        int priority_j=priority[j.first.rarity];
+        return priority_i>priority_j;
+    }
+}const sort_descending;
+
+void draw_base(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, int y, unsigned int size, unsigned int page, bool is_blacksmith_mode, bool is_inventory_modifier_mode);
+void print_item(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, const Item *cur_item, int line);
+void print_bold_item(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, const Item *cur_item, int line);
 void print_description(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, const Item *cur_item, int line);
 void inventory_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player &User, NoDelete &perm_config);
 void bar_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player &User,NPC &npc, NoDelete &perm_config);
@@ -18,5 +63,7 @@ void process_copy(std::vector<Item> &original, std::vector<Item*> &items_copy, N
 void inventory_storage(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player &User, NoDelete &perm_config, Chest &chest);
 void inventory_retrieve(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player &User, NoDelete &perm_config, Chest &chest);
 void inventory_modifier_selection(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, NoDelete &perm_config, std::vector<Item> original_copy, std::vector<Item*> items_copy);
+void show_merchant_items(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Merchant &gear_merchant, Player &User);
 void store_misc_items(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Miscellaneous &User);
 void retrieve_misc_items(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Miscellaneous &User);
+int calculate_price(const Item cur, int relationship, bool player_sell=false);

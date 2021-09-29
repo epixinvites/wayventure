@@ -1,36 +1,6 @@
 #include "headers/main.h"
 #include "headers/classes.h"
 #include "headers/mode.h"
-struct SortAscending{
-    std::unordered_map<char,int> priority{
-        {RARITY_ARTIFACT,0},
-        {RARITY_LEGENDARY,1},
-        {RARITY_EPIC,2},
-        {RARITY_RARE,3},
-        {RARITY_UNCOMMON,4},
-        {RARITY_COMMON,5}
-    };
-    bool operator()(const Item *i, const Item *j){
-        int priority_i=priority[i->rarity];
-        int priority_j=priority[j->rarity];
-        return priority_i<priority_j;
-    }
-}sort_ascending;
-struct SortDescending{
-    std::unordered_map<char,int> priority{
-        {RARITY_ARTIFACT,0},
-        {RARITY_LEGENDARY,1},
-        {RARITY_EPIC,2},
-        {RARITY_RARE,3},
-        {RARITY_UNCOMMON,4},
-        {RARITY_COMMON,5}
-    };
-    bool operator()(const Item *i, const Item *j){
-        int priority_i=priority[i->rarity];
-        int priority_j=priority[j->rarity];
-        return priority_i>priority_j;
-    }
-}sort_descending;
 void reset_inv_params(NoDelete &perm_config){
     perm_config.default_show_type_type = DEFAULT_SHOW_SELECTION;
     perm_config.default_show_rarity_type = DEFAULT_SHOW_SELECTION;

@@ -4,8 +4,8 @@
 const auto modkeys=KMOD_CTRL|KMOD_SHIFT|KMOD_ALT;
 const std::string TILESET_FILE="res/alphabet.png";
 const tcod::TilesetPtr tileset=tcod::load_tilesheet(TILESET_FILE, {16,16}, tcod::CHARMAP_CP437);
-
-const std::string username="Wayfarer"; // Please don't put weird characters and keep the length under 30 characters. The program will grumble if you don't follow my instructions.
+const std::string save_file_version="1.0"; // DO NOT MODIFY
+const std::string username="Wayfarrer"; // Please don't put weird characters and keep the length under 30 characters. The program will grumble if you don't follow my instructions.
 
 // Tweak these colors if your eyes go ouch. You can play around with the colors and rebuild the program when you're ready.
 static constexpr TCOD_ColorRGB BLACK{32,32,32}; // def_background
