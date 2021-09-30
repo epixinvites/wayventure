@@ -192,7 +192,7 @@ void store_misc_items(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Mis
     while(true){
         print_misc_item(main_win, context, User, csr_pos);
         int ch=SDL_getch(main_win, context);
-        if((ch==SDLK_DOWN||ch=='s')&&csr_pos<14){
+        if((ch==SDLK_DOWN||ch=='s')&&csr_pos<15){
             clear_and_draw_dialog(main_win, context, "[Inventory] Miscallaneous items:");
             csr_pos++;
         }
@@ -219,9 +219,9 @@ void retrieve_misc_items(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, 
     unsigned int csr_pos=0;
     clear_and_draw_dialog(main_win, context, "[Storage] Miscallaneous items:");
     while(true){
-        print_misc_item(main_win, context, User, csr_pos);
+        print_misc_item(main_win, context, chest.misc_storage, csr_pos);
         int ch=SDL_getch(main_win, context);
-        if((ch==SDLK_DOWN||ch=='s')&&csr_pos<18){
+        if((ch==SDLK_DOWN||ch=='s')&&csr_pos<15){
             clear_and_draw_dialog(main_win, context, "[Storage] Miscallaneous items:");
             csr_pos++;
         }

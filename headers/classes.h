@@ -58,7 +58,7 @@ struct Miscellaneous{
         unsigned long long int artifact = 0;
         template<class Archive> void serialize(Archive &archive){archive(common,uncommon,rare,epic,legendary,artifact);}
     };
-    struct Type{
+    struct Material_type{
         unsigned long long int helmet = 0;
         unsigned long long int chestplate = 0;
         unsigned long long int greaves = 0;
@@ -70,17 +70,17 @@ struct Miscellaneous{
     unsigned long long int ancient_core = 0;
     unsigned long long int crystallium = 0;
     unsigned long long int crystal_cores = 0;
+    unsigned long long int heal_amount=0;
     Material_rarity materials;
-    Type blueprint;
-    template<class Archive> void serialize(Archive &archive){archive(ancient_core,crystallium,materials,blueprint,crystal_cores);}
+    Material_type blueprint;
+    template<class Archive> void serialize(Archive &archive){archive(ancient_core,crystallium,materials,blueprint,crystal_cores,heal_amount);}
 };
 struct Inventory{
     std::vector<Item> item;
     Food food;
     Water water;
     Miscellaneous misc;
-    int heal_amount=20;
-    template<class Archive>void serialize(Archive &archive){archive(food,water,heal_amount,item,misc);}
+    template<class Archive>void serialize(Archive &archive){archive(food,water,item,misc);}
 };
 struct Equipped{
     Item *helmet=nullptr;

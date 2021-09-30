@@ -273,7 +273,7 @@ bool player_battle(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player
         std::stringstream user_output;
         std::stringstream enemy_output;
         draw_stats(main_win, context, User);
-        user_output<<username<<"~ HP:"<<User.cur_hp<<" Defence:"<<User.def<<" Shield:"<<User.cur_shield<<" Heal:"<<User.inv.heal_amount;
+        user_output<<username<<"~ HP:"<<User.cur_hp<<" Defence:"<<User.def<<" Shield:"<<User.cur_shield<<" Heal:"<<User.inv.misc.heal_amount;
         enemy_output<<"Enemy~ HP:"<<monster.hp<<" Attk:"<<monster.attk<<" Def:"<<monster.def;
         tcod::print(*main_win, {1,49}, user_output.str(), &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
         tcod::print(*main_win, {1,2}, enemy_output.str(), &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
@@ -305,8 +305,8 @@ bool player_battle(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player
             }
         }
         if(ch=='2'){
-            if(User.inv.heal_amount>0&&User.cur_hp!=User.ori_hp){
-                User.inv.heal_amount--;
+            if(User.inv.misc.heal_amount>0&&User.cur_hp!=User.ori_hp){
+                User.inv.misc.heal_amount;
                 User.cur_hp=User.ori_hp;
             }
         }
@@ -642,6 +642,7 @@ int main(int argc, char *argv[]){
     level Current{1,1,1};
     NPC npc;
     NoDelete perm_config;
+    User.inv.misc.heal_amount=10;
     tcod::ConsolePtr main_win=tcod::new_console(80, 55);
     TCOD_ContextParams params{};
     params.tcod_version=TCOD_COMPILEDVERSION;

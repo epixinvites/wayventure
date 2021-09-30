@@ -344,6 +344,8 @@ bool remove_misc_item(Miscellaneous &User, unsigned int csr_pos, unsigned int am
             return decrease_amount(User.blueprint.shield, amount);
         case 14:
             return decrease_amount(User.blueprint.weapon, amount);
+        case 15:
+            return decrease_amount(User.heal_amount, amount);
         default:
             return false;
     }
@@ -395,6 +397,9 @@ void add_misc_item(Miscellaneous &User, unsigned int csr_pos, unsigned int amoun
         case 14:
             User.blueprint.weapon+=amount;
             break;
+        case 15:
+            User.heal_amount+=amount;
+            break;
         default:
             break;
     }
@@ -418,6 +423,8 @@ void print_misc_item(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Misc
     print_bold_with_condition(main_win, context, "Boots: "+std::to_string(User.blueprint.boots), WHITE, 17, csr_pos==12);
     print_bold_with_condition(main_win, context, "Shield: "+std::to_string(User.blueprint.shield), WHITE, 18, csr_pos==13);
     print_bold_with_condition(main_win, context, "Weapon: "+std::to_string(User.blueprint.weapon), WHITE, 19, csr_pos==14);
+    tcod::print(*main_win, {0,21}, "Others:", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+    print_bold_with_condition(main_win, context, "First-Aid Kits: "+std::to_string(User.heal_amount), WHITE, 22, csr_pos==15);
     context->present(*main_win);
 }
 void show_misc_items(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Miscellaneous &User){
@@ -426,7 +433,7 @@ void show_misc_items(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Misc
     while(true){
         print_misc_item(main_win, context, User, csr_pos);
         int ch=SDL_getch(main_win, context);
-        if((ch==SDLK_DOWN||ch=='s')&&csr_pos<14){
+        if((ch==SDLK_DOWN||ch=='s')&&csr_pos<15){
             clear_and_draw_dialog(main_win, context, "Miscallaneous items:");
             csr_pos++;
         }
@@ -438,6 +445,9 @@ void show_misc_items(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Misc
             unsigned int quantity=get_int(main_win, context, "([ESC] to cancel) Quantity to be trashed: ");
             if(!remove_misc_item(User, csr_pos, quantity)){
                 clear_and_draw_dialog(main_win, context, "[System] Invalid amount");
+            }
+            else{
+                clear_and_draw_dialog(main_win, context, "[System] Success");
             }
         }
         if(ch=='q'||ch=='m'){
