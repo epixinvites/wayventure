@@ -413,11 +413,11 @@ void bank_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, NoDelete &
                     }
                     break;
                 case 2:
-                    store_misc_items(main_win, context, User.inv.misc);
+                    store_misc_items(main_win, context, User.inv.misc, chest);
                     draw_bank_menu(main_win, context, chest, bank, csr_pos, User.steps);
                     break;
                 case 3:
-                    retrieve_misc_items(main_win, context, User.inv.misc);
+                    retrieve_misc_items(main_win, context, User.inv.misc, chest);
                     draw_bank_menu(main_win, context, chest, bank, csr_pos, User.steps);
                     break;
                 case 4:
@@ -467,10 +467,10 @@ void draw_gear_merchant(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, u
     draw_menu_selections(main_win, context, 3, csr_pos==0, "[Buy Gears]");
     draw_menu_selections(main_win, context, 4, csr_pos==1, "[Sell Gears]");
     draw_menu_selections(main_win, context, 6, csr_pos==2, "[Buy Materials/Blueprints/First Aid Kits]");
-    draw_menu_selections(main_win, context, 7, csr_pos==3, "[Sell Materials]");
+    draw_menu_selections(main_win, context, 7, csr_pos==3, "[Sell Materials/Crystal Cores]");
     context->present(*main_win);
 }
-void gear_merchant_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Merchant &gear_merchant, Player &User){
+void gear_merchant_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Merchant &gear_merchant, Player &User, NoDelete &perm_config){
     unsigned int csr_pos=0;
     int ch;
     refresh_gear_merchant_store(gear_merchant, User.steps);
@@ -492,7 +492,18 @@ void gear_merchant_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, M
             switch(csr_pos){
                 case 0:
                     show_merchant_items(main_win, context, gear_merchant, User);
+                    draw_stats(main_win, context, User);
                     draw_gear_merchant(main_win, context, csr_pos);
+                    break;
+                case 1:
+                    if(!User.inv.item.empty()){
+                        sell_items_to_merchant(main_win, context, gear_merchant, User, perm_config);
+                        draw_stats(main_win, context, User);
+                        draw_gear_merchant(main_win, context, csr_pos);
+                    }
+                    else{
+                        clear_and_draw_dialog(main_win, context, "[System] Error: Inventory Empty");
+                    }
                     break;
                 default:
                     break;
@@ -533,7 +544,7 @@ void bar_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player &Use
                 redraw_bar(main_win, context, User, pub_layout, csr_pos);
             }
             else if(target=='G'){
-                gear_merchant_mode(main_win, context, npc.gear_merchant, User);
+                gear_merchant_mode(main_win, context, npc.gear_merchant, User, perm_config);
                 redraw_bar(main_win, context, User, pub_layout, csr_pos);
             }
             else if(target=='T'){
