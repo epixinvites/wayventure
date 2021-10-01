@@ -477,7 +477,7 @@ void gear_merchant_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, M
     draw_gear_merchant(main_win, context, csr_pos);
     while(true){
         ch=SDL_getch(main_win, context);
-        if((ch==SDLK_DOWN||ch=='s')&&csr_pos<4){
+        if((ch==SDLK_DOWN||ch=='s')&&csr_pos<3){
             csr_pos++;
             draw_gear_merchant(main_win, context, csr_pos);
         }
@@ -504,6 +504,11 @@ void gear_merchant_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, M
                     else{
                         clear_and_draw_dialog(main_win, context, "[System] Error: Inventory Empty");
                     }
+                    break;
+                case 2:
+                    trader_misc_menu(main_win, context, User, gear_merchant);
+                    draw_stats(main_win, context, User);
+                    draw_gear_merchant(main_win, context, csr_pos);
                     break;
                 default:
                     break;

@@ -164,6 +164,31 @@ long long int get_llint(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, s
         clear_and_draw_dialog(main_win, context, ss.str());
     }
 }
+unsigned long long int get_ullint(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, std::string dialogue){
+    std::string input;
+    clear_and_draw_dialog(main_win, context, dialogue);
+    int ch;
+    while(true){
+        ch=SDL_getch(main_win, context);
+        if(ch==SDLK_RETURN&&input.length()>0){ // KEY_ENTER
+            return std::stoull(input);
+        }
+        if(ch==SDLK_BACKSPACE){ // KEY_BACKSPACE
+            if(input.length()>0){
+                input.pop_back();
+            }
+        }
+        if(ch==SDLK_ESCAPE||ch=='q'){ // KEY_ESC
+            return 0;
+        }
+        else if((ch>0&&ch<128)&&input.length()<19&&isdigit(ch)){
+            input.push_back(ch);
+        }
+        std::stringstream ss;
+        ss<<dialogue<<input;
+        clear_and_draw_dialog(main_win, context, ss.str());
+    }
+}
 bool check_surroundings(std::vector<monster> monsters, int x, int y){
     for(int i=0; i<monsters.size(); i++){
         if(x==monsters[i].x&&y==monsters[i].y){
@@ -472,7 +497,7 @@ void end_program(int sig){
 }
 void end_program(int sig, std::string error){
     if(sig==-1){
-        std::cout<<"Bzzt- Something fatal has occurred- Error detected. *dev cries in the background*"<<std::endl;
+        std::cout<<"Bug vs Programmer - 1:0"<<std::endl;
         std::cerr<<error<<std::endl;
         return;
     }
@@ -648,7 +673,7 @@ int main(int argc, char *argv[]){
     params.tcod_version=TCOD_COMPILEDVERSION;
     params.columns=main_win->w;
     params.rows=main_win->h;
-    params.window_title="Wayventure";
+    params.window_title="Wayventure Client";
     params.sdl_window_flags=SDL_WINDOW_RESIZABLE;
     params.vsync=true;
     params.renderer_type=TCOD_RENDERER_SDL2;

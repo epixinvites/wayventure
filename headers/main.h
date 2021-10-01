@@ -56,4 +56,5 @@ void SDL_wclear_stats_bar(tcod::ConsolePtr &main_win, tcod::ContextPtr &context)
 std::string get_string(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, std::string dialogue, std::string original);
 unsigned int get_int(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, std::string dialogue);
 long long int get_llint(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, std::string dialogue);
+unsigned long long int get_ullint(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, std::string dialogue);
 void print_bold_with_condition(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, std::string output, const TCOD_ColorRGB &foreground, int line, bool is_bold);

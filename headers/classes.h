@@ -49,6 +49,12 @@ struct Water{
 	template<class Archive>void serialize(Archive &archive){archive(water,sparkling_juice);}
 };
 struct Miscellaneous{
+    struct Cores{
+        unsigned long long int ancient_core = 0;
+        unsigned long long int crystallium = 0;
+        unsigned long long int crystal_core = 0;
+        template<class Archive> void serialize(Archive &archive){archive(ancient_core,crystallium,crystal_core);}
+    };
     struct Material_rarity{
         unsigned long long int common = 0;
         unsigned long long int uncommon = 0;
@@ -67,13 +73,11 @@ struct Miscellaneous{
         unsigned long long int weapon = 0;
         template<class Archive> void serialize(Archive &archive){archive(helmet,chestplate,greaves,boots,shield,weapon);}
     };
-    unsigned long long int ancient_core = 0;
-    unsigned long long int crystallium = 0;
-    unsigned long long int crystal_cores = 0;
     unsigned long long int heal_amount=0;
     Material_rarity materials;
     Material_type blueprint;
-    template<class Archive> void serialize(Archive &archive){archive(ancient_core,crystallium,materials,blueprint,crystal_cores,heal_amount);}
+    Cores cores;
+    template<class Archive> void serialize(Archive &archive){archive(cores,materials,blueprint,heal_amount);}
 };
 struct Inventory{
     std::vector<Item> item;

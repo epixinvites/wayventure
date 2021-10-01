@@ -315,11 +315,11 @@ bool remove_misc_item(Miscellaneous &User, unsigned int csr_pos, unsigned int am
     }
     switch(csr_pos){
         case 0:
-            return decrease_amount(User.ancient_core, amount);
+            return decrease_amount(User.cores.ancient_core, amount);
         case 1:
-            return decrease_amount(User.crystallium, amount);
+            return decrease_amount(User.cores.crystallium, amount);
         case 2:
-            return decrease_amount(User.crystal_cores, amount);
+            return decrease_amount(User.cores.crystal_core, amount);
         case 3:
             return decrease_amount(User.materials.common, amount);
         case 4:
@@ -353,13 +353,13 @@ bool remove_misc_item(Miscellaneous &User, unsigned int csr_pos, unsigned int am
 void add_misc_item(Miscellaneous &User, unsigned int csr_pos, unsigned int amount){
     switch(csr_pos){
         case 0:
-            User.ancient_core+=amount;
+            User.cores.ancient_core+=amount;
             break;
         case 1:
-            User.crystallium+=amount;
+            User.cores.crystallium+=amount;
             break;
         case 2:
-            User.crystal_cores+=amount;
+            User.cores.crystal_core+=amount;
             break;
         case 3:
             User.materials.common+=amount;
@@ -406,25 +406,26 @@ void add_misc_item(Miscellaneous &User, unsigned int csr_pos, unsigned int amoun
 }
 void print_misc_item(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Miscellaneous &User, unsigned int csr_pos){
     SDL_wclear_main_win(main_win, context);
-    print_bold_with_condition(main_win, context, "Ancient Cores: "+std::to_string(User.ancient_core), DARK_RED, 1, csr_pos==0);
-    print_bold_with_condition(main_win, context, "Crystallium: "+std::to_string(User.crystallium), YELLOW, 2, csr_pos==1);
-    print_bold_with_condition(main_win, context, "Crystal Cores: "+std::to_string(User.crystal_cores), PURPLE, 3, csr_pos==2);
-    tcod::print(*main_win, {0,5}, "Materials:", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
-    print_bold_with_condition(main_win, context, "Common: "+std::to_string(User.materials.common), WHITE, 6, csr_pos==3);
-    print_bold_with_condition(main_win, context, "Uncommon: "+std::to_string(User.materials.uncommon), GREEN, 7, csr_pos==4);
-    print_bold_with_condition(main_win, context, "Rare: "+std::to_string(User.materials.rare), BLUE, 8, csr_pos==5);
-    print_bold_with_condition(main_win, context, "Epic: "+std::to_string(User.materials.epic), PURPLE, 9, csr_pos==6);
-    print_bold_with_condition(main_win, context, "Legendary: "+std::to_string(User.materials.legendary), YELLOW, 10, csr_pos==7);
-    print_bold_with_condition(main_win, context, "Artifact: "+std::to_string(User.materials.artifact), DARK_RED, 11, csr_pos==8);
-    tcod::print(*main_win, {0,13}, "Blueprints:", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
-    print_bold_with_condition(main_win, context, "Helmet: "+std::to_string(User.blueprint.helmet), WHITE, 14, csr_pos==9);
-    print_bold_with_condition(main_win, context, "Chestplate: "+std::to_string(User.blueprint.chestplate), WHITE, 15, csr_pos==10);
-    print_bold_with_condition(main_win, context, "Greaves: "+std::to_string(User.blueprint.greaves), WHITE, 16, csr_pos==11);
-    print_bold_with_condition(main_win, context, "Boots: "+std::to_string(User.blueprint.boots), WHITE, 17, csr_pos==12);
-    print_bold_with_condition(main_win, context, "Shield: "+std::to_string(User.blueprint.shield), WHITE, 18, csr_pos==13);
-    print_bold_with_condition(main_win, context, "Weapon: "+std::to_string(User.blueprint.weapon), WHITE, 19, csr_pos==14);
-    tcod::print(*main_win, {0,21}, "Others:", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
-    print_bold_with_condition(main_win, context, "First-Aid Kits: "+std::to_string(User.heal_amount), WHITE, 22, csr_pos==15);
+    tcod::print(*main_win, {0,1}, "Cores:", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+    print_bold_with_condition(main_win, context, "Ancient Cores: "+std::to_string(User.cores.ancient_core), DARK_RED, 2, csr_pos==0);
+    print_bold_with_condition(main_win, context, "Crystallium: "+std::to_string(User.cores.crystallium), YELLOW, 3, csr_pos==1);
+    print_bold_with_condition(main_win, context, "Crystal Cores: "+std::to_string(User.cores.crystal_core), PURPLE, 4, csr_pos==2);
+    tcod::print(*main_win, {0,6}, "Materials:", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+    print_bold_with_condition(main_win, context, "Common: "+std::to_string(User.materials.common), WHITE, 7, csr_pos==3);
+    print_bold_with_condition(main_win, context, "Uncommon: "+std::to_string(User.materials.uncommon), GREEN, 8, csr_pos==4);
+    print_bold_with_condition(main_win, context, "Rare: "+std::to_string(User.materials.rare), BLUE, 9, csr_pos==5);
+    print_bold_with_condition(main_win, context, "Epic: "+std::to_string(User.materials.epic), PURPLE, 10, csr_pos==6);
+    print_bold_with_condition(main_win, context, "Legendary: "+std::to_string(User.materials.legendary), YELLOW, 11, csr_pos==7);
+    print_bold_with_condition(main_win, context, "Artifact: "+std::to_string(User.materials.artifact), DARK_RED, 12, csr_pos==8);
+    tcod::print(*main_win, {0,14}, "Blueprints:", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+    print_bold_with_condition(main_win, context, "Helmet: "+std::to_string(User.blueprint.helmet), WHITE, 15, csr_pos==9);
+    print_bold_with_condition(main_win, context, "Chestplate: "+std::to_string(User.blueprint.chestplate), WHITE, 16, csr_pos==10);
+    print_bold_with_condition(main_win, context, "Greaves: "+std::to_string(User.blueprint.greaves), WHITE, 17, csr_pos==11);
+    print_bold_with_condition(main_win, context, "Boots: "+std::to_string(User.blueprint.boots), WHITE, 18, csr_pos==12);
+    print_bold_with_condition(main_win, context, "Shield: "+std::to_string(User.blueprint.shield), WHITE, 19, csr_pos==13);
+    print_bold_with_condition(main_win, context, "Weapon: "+std::to_string(User.blueprint.weapon), WHITE, 20, csr_pos==14);
+    tcod::print(*main_win, {0,22}, "Others:", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+    print_bold_with_condition(main_win, context, "First-Aid Kits: "+std::to_string(User.heal_amount), WHITE, 23, csr_pos==15);
     context->present(*main_win);
 }
 void show_misc_items(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Miscellaneous &User){
@@ -1027,9 +1028,9 @@ void reforge_repair_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, 
                     else if(crystallium_amount>0){
                         use_crystallium=true;
                     }
-                    if(User.inv.misc.ancient_core>=ancient_core_amount&&User.inv.misc.crystallium>=crystallium_amount){
-                        User.inv.misc.ancient_core-=ancient_core_amount;
-                        User.inv.misc.crystallium-=crystallium_amount;
+                    if(User.inv.misc.cores.ancient_core>=ancient_core_amount&&User.inv.misc.cores.crystallium>=crystallium_amount){
+                        User.inv.misc.cores.ancient_core-=ancient_core_amount;
+                        User.inv.misc.cores.crystallium-=crystallium_amount;
                         User.uninitialize_stats();
                         reforge_item(ancient_core_amount, crystallium_amount, items_copy[csr_pos+(page_num*30)]);
                         items_copy[csr_pos+(page_num*30)]->reinitialize_item();
