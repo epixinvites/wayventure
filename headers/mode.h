@@ -42,7 +42,7 @@ struct SortDescending{
         return priority_i>priority_j;
     }
 }const sort_descending;
-static constexpr std::map<std::string, long long int> trader_prices{
+static const std::map<std::string, long long int> trader_prices{
     // Prices in Gold
     {"ancient_core",1000000},
     {"crystallium",150000},

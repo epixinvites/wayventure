@@ -2,7 +2,7 @@
 #include <math.h>
 Item::Item(std::string name, char type, char rarity, bool is_equipped, int hp, int attk, int def, int shield, int crit_chance, int crit_dmg, unsigned int calibration, unsigned int uses, double durability) : name{name}, type{type}, rarity{rarity}, is_equipped{is_equipped}, hp{hp}, attk{attk}, def{def}, shield{shield}, crit_chance{crit_chance}, crit_dmg{crit_dmg}, calibration{calibration}, uses{uses}, durability{durability}{
 }
-Player::Player(int ori_hp, int attk, int def, int ori_shield, int crit_chance, int crit_dmg, long long int gold) : ori_hp{ori_hp}, attk{attk}, def{def}, ori_shield{ori_shield}, crit_chance{crit_chance}, crit_dmg{crit_dmg}, gold{gold}{
+Player::Player(int ori_hp, int attk, int def, int ori_shield, int crit_chance, int crit_dmg, unsigned long long int gold) : ori_hp{ori_hp}, attk{attk}, def{def}, ori_shield{ori_shield}, crit_chance{crit_chance}, crit_dmg{crit_dmg}, gold{gold}{
 }
 ;
 void Player::init(){

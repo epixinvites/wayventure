@@ -529,30 +529,40 @@ void sell_items_to_merchant(tcod::ConsolePtr &main_win, tcod::ContextPtr &contex
 }
 void print_trader_misc_menu(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, unsigned int csr_pos){
     SDL_wclear_main_win(main_win, context);
-    tcod::print(*main_win, {0,1}, "Cores:", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
-    print_bold_with_condition(main_win, context, "[Crystal Cores]", PURPLE, 2, csr_pos==0);
-    tcod::print(*main_win, {0,4}, "Materials:", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
-    print_bold_with_condition(main_win, context, "[Common]", WHITE, 5, csr_pos==1);
-    print_bold_with_condition(main_win, context, "[Uncommon]", GREEN, 6, csr_pos==2);
-    print_bold_with_condition(main_win, context, "[Rare]", BLUE, 7, csr_pos==3);
-    print_bold_with_condition(main_win, context, "[Epic]", PURPLE, 8, csr_pos==4);
-    print_bold_with_condition(main_win, context, "[Legendary]", YELLOW, 9, csr_pos==5);
-    print_bold_with_condition(main_win, context, "[Artifact]", DARK_RED, 10, csr_pos==6);
-    tcod::print(*main_win, {0,12}, "Blueprints:", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
-    print_bold_with_condition(main_win, context, "[Helmet]", WHITE, 13, csr_pos==7);
-    print_bold_with_condition(main_win, context, "[Chestplate]", WHITE, 14, csr_pos==8);
-    print_bold_with_condition(main_win, context, "[Greaves]", WHITE, 15, csr_pos==9);
-    print_bold_with_condition(main_win, context, "[Boots]", WHITE, 16, csr_pos==10);
-    print_bold_with_condition(main_win, context, "[Shield]", WHITE, 17, csr_pos==11);
-    print_bold_with_condition(main_win, context, "[Weapon]", WHITE, 18, csr_pos==12);
-    tcod::print(*main_win, {0,20}, "Others:", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
-    print_bold_with_condition(main_win, context, "[First-Aid Kits]", WHITE, 21, csr_pos==13);
+    tcod::print(*main_win, {0,1}, "Materials:", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+    print_bold_with_condition(main_win, context, "[Common]", WHITE, 2, csr_pos==0);
+    print_bold_with_condition(main_win, context, "[Uncommon]", GREEN, 3, csr_pos==1);
+    print_bold_with_condition(main_win, context, "[Rare]", BLUE, 4, csr_pos==2);
+    print_bold_with_condition(main_win, context, "[Epic]", PURPLE, 5, csr_pos==3);
+    print_bold_with_condition(main_win, context, "[Legendary]", YELLOW, 6, csr_pos==4);
+    tcod::print(*main_win, {0,8}, "Blueprints:", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+    print_bold_with_condition(main_win, context, "[Helmet]", WHITE, 9, csr_pos==5);
+    print_bold_with_condition(main_win, context, "[Chestplate]", WHITE, 10, csr_pos==6);
+    print_bold_with_condition(main_win, context, "[Greaves]", WHITE, 11, csr_pos==7);
+    print_bold_with_condition(main_win, context, "[Boots]", WHITE, 12, csr_pos==8);
+    print_bold_with_condition(main_win, context, "[Shield]", WHITE, 13, csr_pos==9);
+    print_bold_with_condition(main_win, context, "[Weapon]", WHITE, 14, csr_pos==10);
+    tcod::print(*main_win, {0,16}, "Others:", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+    print_bold_with_condition(main_win, context, "[First-Aid Kits]", WHITE, 17, csr_pos==11);
     clear_and_draw_dialog(main_win, context, "Material Shop:");
 }
-void trader_process_payment(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player &User, Merchant &gear_merchant, unsigned int csr_pos, unsigned long long int amount){
+bool trader_check_if_payment_valid(unsigned long long int &gold, unsigned long long int amount){
+    if(original>=amount){
+        original-=amount;
+        return true;
+    }
+    else{
+        return false;
+    }
+}
+bool trader_process_payment(Player &User, Merchant &gear_merchant, unsigned int csr_pos, unsigned long long int amount){
     switch(csr_pos){
         case 0:
-
+            return trader_check_if_payment_valid(User.inv.misc.materials.common, amount);
+        case 1:
+            return trader_check_if_payment_valid(User.inv.misc.materials.uncommon, amount);
+        case 2:
+            return trader_check_if_payment_valid(User.inv.misc.materials.rare, amount);
     }
 }
 void trader_misc_menu(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player &User, Merchant &gear_merchant){
@@ -565,13 +575,16 @@ void trader_misc_menu(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Pla
             csr_pos--;
             print_trader_misc_menu(main_win, context, csr_pos);
         }
-        if((ch=='s'||ch==SDLK_DOWN)&&csr_pos<13){
+        if((ch=='s'||ch==SDLK_DOWN)&&csr_pos<11){
             csr_pos++;
             print_trader_misc_menu(main_win, context, csr_pos);
         }
+        if(ch=='q'){
+            return;
+        }
         if(ch==SDLK_RETURN){
             unsigned long long int amount = get_ullint(main_win, context, "Please enter the amount of items you wish to purchase: ");
-            if(amount>0){
+            if(amount>0&&trader_process_payment(User, gear_merchant, csr_pos, amount)){
 
             }
         }

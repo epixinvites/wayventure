@@ -100,11 +100,11 @@ public:
     unsigned long long int steps = 0;
     int saturation = 100, hydration = 100;
     int ori_hp, attk, def, ori_shield, crit_chance, crit_dmg;
-    long long int gold = 0;
+    unsigned long long int gold = 0;
     int cur_hp = 500, cur_shield = 0;
     Inventory inv;
     Equipped equip;
-    Player(int ori_hp = 500, int attk = 80, int def = 0, int ori_shield = 0, int crit_chance = 0, int crit_dmg = 0, long long int gold = 0);
+    Player(int ori_hp = 500, int attk = 80, int def = 0, int ori_shield = 0, int crit_chance = 0, int crit_dmg = 0, unsigned long long int gold = 0);
     void init();
     void eat(int *food);
     void drink(int *water);
@@ -142,9 +142,9 @@ struct Farmer{
 };
 struct Bank{
     // Bank Gold Storage
-    long long int saved_gold = 0;
+    unsigned long long int saved_gold = 0;
     double storage_interest = 1.02; // Compound Interest (Increases according to money saved)
-    long long int storage_last_applied = 0; // Last time interest was applied
+    unsigned long long int storage_last_applied = 0; // Last time interest was applied
     template<class Archive>void serialize(Archive &archive){archive(saved_gold, storage_interest, storage_last_applied);}
 };
 struct Chest{

@@ -673,7 +673,7 @@ int main(int argc, char *argv[]){
     params.tcod_version=TCOD_COMPILEDVERSION;
     params.columns=main_win->w;
     params.rows=main_win->h;
-    params.window_title="Wayventure Client";
+    params.window_title="Wayventure_Client";
     params.sdl_window_flags=SDL_WINDOW_RESIZABLE;
     params.vsync=true;
     params.renderer_type=TCOD_RENDERER_SDL2;
