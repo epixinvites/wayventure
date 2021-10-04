@@ -781,22 +781,22 @@ void crafting_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player
 void salvage_item(Player &User, Item *item){
     switch(item->rarity){
         case RARITY_COMMON:
-            User.inv.misc.materials.common+=(item->enhancement/2)+2;
+            User.inv.misc.materials.common+=((item->enhancement/2.0)+1.0)*(item->durability/50.0);
             break;
         case RARITY_UNCOMMON:
-            User.inv.misc.materials.uncommon+=(item->enhancement/2)+2;
+            User.inv.misc.materials.uncommon+=((item->enhancement/2.0)+1.0)*(item->durability/50.0);
             break;
         case RARITY_RARE:
-            User.inv.misc.materials.rare+=(item->enhancement/2)+2;
+            User.inv.misc.materials.rare+=((item->enhancement/2.0)+1.0)*(item->durability/50.0);
             break;
         case RARITY_EPIC:
-            User.inv.misc.materials.epic+=(item->enhancement/2)+2;
+            User.inv.misc.materials.epic+=((item->enhancement/2.0)+1.0)*(item->durability/50.0);
             break;
         case RARITY_LEGENDARY:
-            User.inv.misc.materials.legendary+=(item->enhancement/2)+2;
+            User.inv.misc.materials.legendary+=((item->enhancement/2.0)+1.0)*(item->durability/50.0);
             break;
         case RARITY_ARTIFACT:
-            User.inv.misc.materials.artifact+=(item->enhancement/2)+2;
+            User.inv.misc.materials.artifact+=((item->enhancement/2.0)+1.0)*(item->durability/50.0);
             break;
         default:
             break;
@@ -928,6 +928,9 @@ void reforge_repair_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, 
                 csr_pos=0;
                 draw_inventory(main_win, context, User, items_copy, page_num, csr_pos);
             }
+        }
+        if(ch=='q'){
+            return;
         }
         if(ch=='m'){
             show_misc_items(main_win, context, User.inv.misc);
@@ -1079,6 +1082,9 @@ void reforge_repair_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, 
                     process_copy(User.inv.item, items_copy, perm_config);
                     draw_inventory(main_win, context, User, items_copy, page_num, csr_pos, true);
                 }
+                else{
+                    draw_inventory(main_win, context, User, items_copy, page_num, csr_pos, true);
+                }
             }
             else{
                 if(unequip_item(User, items_copy[csr_pos+(page_num*30)])){
@@ -1104,9 +1110,6 @@ void reforge_repair_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, 
         if(ch=='H'){
             help_mode(main_win, context, "blacksmith_mode");
             draw_inventory(main_win, context, User, items_copy, page_num, csr_pos, true);
-        }
-        if(ch=='q'){
-            return;
         }
     }
 }

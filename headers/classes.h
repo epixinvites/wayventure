@@ -73,7 +73,7 @@ struct Miscellaneous{
         unsigned long long int weapon = 0;
         template<class Archive> void serialize(Archive &archive){archive(helmet,chestplate,greaves,boots,shield,weapon);}
     };
-    unsigned long long int heal_amount=0;
+    unsigned long long int heal_amount=10;
     Material_rarity materials;
     Material_type blueprint;
     Cores cores;
@@ -144,8 +144,8 @@ struct Bank{
     // Bank Gold Storage
     unsigned long long int saved_gold = 0;
     double storage_interest = 1.02; // Compound Interest (Increases according to money saved)
-    unsigned long long int storage_last_applied = 0; // Last time interest was applied
-    template<class Archive>void serialize(Archive &archive){archive(saved_gold, storage_interest, storage_last_applied);}
+    unsigned long long int interest_next_applied = 0; // Last time interest was applied
+    template<class Archive>void serialize(Archive &archive){archive(saved_gold, storage_interest, interest_next_applied);}
 };
 struct Chest{
     std::vector<Item> gear_storage;

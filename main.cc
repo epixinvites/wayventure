@@ -231,8 +231,8 @@ void char_move(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, int ch, Cs
         if(User.steps%35==0){
             User.saturation--;
         }
-        if(User.steps>49999&&(User.steps%50000==0)){
-            npc.bank.storage_last_applied=User.steps;
+        if(User.steps==npc.bank.interest_next_applied){
+            npc.bank.interest_next_applied+=50000;
             npc.bank.saved_gold*=npc.bank.storage_interest;
         }
     }

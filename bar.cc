@@ -348,7 +348,7 @@ void draw_menu_selections(tcod::ConsolePtr &main_win, tcod::ContextPtr &context,
         tcod::print(*main_win, {0,line}, output, &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
     }
 }
-void draw_bank_menu(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Chest &chest, Bank &bank, unsigned int csr_pos, long long int steps){
+void draw_bank_menu(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Chest &chest, Bank &bank, unsigned int csr_pos, unsigned long long int steps){
     SDL_wclear_main_win(main_win, context);
     SDL_wclear_dialog_bar(main_win, context);
     tcod::print(*main_win, {0,0}, "Bank Menu", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
@@ -367,8 +367,8 @@ void draw_bank_menu(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Chest
         tcod::print(*main_win, {0,47}, "Total Gear stored: ["+std::to_string(chest.gear_storage.size())+"]", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
     }
     tcod::print(*main_win, {0,48}, "Total Gold stored: ["+std::to_string(bank.saved_gold)+"]", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
-    if(bank.storage_last_applied>0){
-        tcod::print(*main_win, {0,49}, "Next Interest Compound in: ["+std::to_string(abs(steps-bank.storage_last_applied))+"] moves", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+    if(bank.interest_next_applied>0){
+        tcod::print(*main_win, {0,49}, "Next Interest Compound in: ["+std::to_string(bank.interest_next_applied-steps)+"] moves", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
     }
     else{
         tcod::print(*main_win, {0,49}, "Next Interest Compound in: [Invalid] moves", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
@@ -422,12 +422,12 @@ void bank_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, NoDelete &
                     break;
                 case 4:
                 {
-                    long long int input = get_llint(main_win, context, "Please enter a valid amount of gold to store: ");
+                    unsigned long long int input = get_ullint(main_win, context, "Please enter a valid amount of gold to store: ");
                     if(input<=User.gold&&input>0){
                         User.gold-=input;
                         bank.saved_gold+=input;
-                        if(bank.storage_last_applied==0){
-                            bank.storage_last_applied=50000;
+                        if(bank.interest_next_applied==0){
+                            bank.interest_next_applied=50000;
                         }
                         draw_bank_menu(main_win, context, chest, bank, csr_pos, User.steps);
                         draw_stats(main_win, context, User);
@@ -440,7 +440,7 @@ void bank_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, NoDelete &
                 }
                 case 5:
                 {
-                    long long int input = get_llint(main_win, context, "Please enter a valid amount of gold to retrieve: ");
+                    unsigned long long int input = get_ullint(main_win, context, "Please enter a valid amount of gold to retrieve: ");
                     if(input<=bank.saved_gold&&input>0){
                         bank.saved_gold-=input;
                         User.gold+=input;

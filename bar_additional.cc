@@ -530,25 +530,25 @@ void sell_items_to_merchant(tcod::ConsolePtr &main_win, tcod::ContextPtr &contex
 void print_trader_misc_menu(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, unsigned int csr_pos){
     SDL_wclear_main_win(main_win, context);
     tcod::print(*main_win, {0,1}, "Materials:", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
-    print_bold_with_condition(main_win, context, "[Common]", WHITE, 2, csr_pos==0);
-    print_bold_with_condition(main_win, context, "[Uncommon]", GREEN, 3, csr_pos==1);
-    print_bold_with_condition(main_win, context, "[Rare]", BLUE, 4, csr_pos==2);
-    print_bold_with_condition(main_win, context, "[Epic]", PURPLE, 5, csr_pos==3);
-    print_bold_with_condition(main_win, context, "[Legendary]", YELLOW, 6, csr_pos==4);
+    print_bold_with_condition(main_win, context, "[Common] "+std::to_string(trader_prices.at("common_material"))+" Gold each", WHITE, 2, csr_pos==0);
+    print_bold_with_condition(main_win, context, "[Uncommon] "+std::to_string(trader_prices.at("uncommon_material"))+" Gold each", GREEN, 3, csr_pos==1);
+    print_bold_with_condition(main_win, context, "[Rare] "+std::to_string(trader_prices.at("rare_material"))+" Gold each", BLUE, 4, csr_pos==2);
+    print_bold_with_condition(main_win, context, "[Epic] "+std::to_string(trader_prices.at("epic_material"))+" Gold each", PURPLE, 5, csr_pos==3);
+    print_bold_with_condition(main_win, context, "[Legendary] "+std::to_string(trader_prices.at("legendary_material"))+" Gold each", YELLOW, 6, csr_pos==4);
     tcod::print(*main_win, {0,8}, "Blueprints:", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
-    print_bold_with_condition(main_win, context, "[Helmet]", WHITE, 9, csr_pos==5);
-    print_bold_with_condition(main_win, context, "[Chestplate]", WHITE, 10, csr_pos==6);
-    print_bold_with_condition(main_win, context, "[Greaves]", WHITE, 11, csr_pos==7);
-    print_bold_with_condition(main_win, context, "[Boots]", WHITE, 12, csr_pos==8);
-    print_bold_with_condition(main_win, context, "[Shield]", WHITE, 13, csr_pos==9);
-    print_bold_with_condition(main_win, context, "[Weapon]", WHITE, 14, csr_pos==10);
+    print_bold_with_condition(main_win, context, "[Helmet] "+std::to_string(trader_prices.at("helmet_blueprint"))+" Crystal Cores each", WHITE, 9, csr_pos==5);
+    print_bold_with_condition(main_win, context, "[Chestplate] "+std::to_string(trader_prices.at("chestplate_blueprint"))+" Crystal Cores each", WHITE, 10, csr_pos==6);
+    print_bold_with_condition(main_win, context, "[Greaves] "+std::to_string(trader_prices.at("greaves_blueprint"))+" Crystal Cores each", WHITE, 11, csr_pos==7);
+    print_bold_with_condition(main_win, context, "[Boots] "+std::to_string(trader_prices.at("boots_blueprint"))+" Crystal Cores each", WHITE, 12, csr_pos==8);
+    print_bold_with_condition(main_win, context, "[Shield] "+std::to_string(trader_prices.at("shield_blueprint"))+" Crystal Cores each", WHITE, 13, csr_pos==9);
+    print_bold_with_condition(main_win, context, "[Weapon] "+std::to_string(trader_prices.at("weapon_blueprint"))+" Crystal Cores each", WHITE, 14, csr_pos==10);
     tcod::print(*main_win, {0,16}, "Others:", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
-    print_bold_with_condition(main_win, context, "[First-Aid Kits]", WHITE, 17, csr_pos==11);
+    print_bold_with_condition(main_win, context, "[First-Aid Kits] "+std::to_string(trader_prices.at("first_aid_kit"))+" Crystal Cores each", PURPLE, 17, csr_pos==11);
     clear_and_draw_dialog(main_win, context, "Material Shop:");
 }
-bool trader_check_if_payment_valid(unsigned long long int &gold, unsigned long long int amount){
-    if(original>=amount){
-        original-=amount;
+bool trader_check_if_payment_valid(std::string type, unsigned long long int &payment, unsigned long long int amount){
+    if(payment>=(trader_prices.at(type)*amount)){
+        payment-=(trader_prices.at(type)*amount);
         return true;
     }
     else{
@@ -558,12 +558,117 @@ bool trader_check_if_payment_valid(unsigned long long int &gold, unsigned long l
 bool trader_process_payment(Player &User, Merchant &gear_merchant, unsigned int csr_pos, unsigned long long int amount){
     switch(csr_pos){
         case 0:
-            return trader_check_if_payment_valid(User.inv.misc.materials.common, amount);
+            if(trader_check_if_payment_valid("common_material", User.gold, amount)){
+                User.inv.misc.materials.common+=amount;
+                return true;
+            }
+            else{
+                return false;
+            }
+            break;
         case 1:
-            return trader_check_if_payment_valid(User.inv.misc.materials.uncommon, amount);
+            if(trader_check_if_payment_valid("uncommon_material", User.gold, amount)){
+                User.inv.misc.materials.uncommon+=amount;
+                return true;
+            }
+            else{
+                return false;
+            }
+            break;
         case 2:
-            return trader_check_if_payment_valid(User.inv.misc.materials.rare, amount);
+            if(trader_check_if_payment_valid("rare_material", User.gold, amount)){
+                User.inv.misc.materials.rare+=amount;
+                return true;
+            }
+            else{
+                return false;
+            }
+            break;
+        case 3:
+            if(trader_check_if_payment_valid("epic_material", User.gold, amount)){
+                User.inv.misc.materials.epic+=amount;
+                return true;
+            }
+            else{
+                return false;
+            }
+            break;
+        case 4:
+            if(trader_check_if_payment_valid("legendary_material", User.gold, amount)){
+                User.inv.misc.materials.legendary+=amount;
+                return true;
+            }
+            else{
+                return false;
+            }
+            break;
+        case 5:
+            if(trader_check_if_payment_valid("helmet_blueprint", User.inv.misc.cores.crystal_core, amount)){
+                User.inv.misc.blueprint.helmet+=amount;
+                return true;
+            }
+            else{
+                return false;
+            }
+            break;
+        case 6:
+            if(trader_check_if_payment_valid("chestplate_blueprint", User.inv.misc.cores.crystal_core, amount)){
+                User.inv.misc.blueprint.chestplate+=amount;
+                return true;
+            }
+            else{
+                return false;
+            }
+            break;
+        case 7:
+            if(trader_check_if_payment_valid("greaves_blueprint", User.inv.misc.cores.crystal_core, amount)){
+                User.inv.misc.blueprint.greaves+=amount;
+                return true;
+            }
+            else{
+                return false;
+            }
+            break;
+        case 8:
+            if(trader_check_if_payment_valid("boots_blueprint", User.inv.misc.cores.crystal_core, amount)){
+                User.inv.misc.blueprint.boots+=amount;
+                return true;
+            }
+            else{
+                return false;
+            }
+            break;
+        case 9:
+            if(trader_check_if_payment_valid("shield_blueprint", User.inv.misc.cores.crystal_core, amount)){
+                User.inv.misc.blueprint.shield+=amount;
+                return true;
+            }
+            else{
+                return false;
+            }
+            break;
+        case 10:
+            if(trader_check_if_payment_valid("weapon_blueprint", User.inv.misc.cores.crystal_core, amount)){
+                User.inv.misc.blueprint.weapon+=amount;
+                return true;
+            }
+            else{
+                return false;
+            }
+            break;
+        case 11:
+            if(trader_check_if_payment_valid("first_aid_kit", User.inv.misc.cores.crystal_core, amount)){
+                User.inv.misc.heal_amount+=amount;
+                return true;
+            }
+            else{
+                return false;
+            }
+            break;
+        default:
+            break;
     }
+    return false;
 }
 void trader_misc_menu(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player &User, Merchant &gear_merchant){
     unsigned int csr_pos=0;
@@ -582,10 +687,19 @@ void trader_misc_menu(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Pla
         if(ch=='q'){
             return;
         }
+        if(ch=='m'){
+            show_misc_items(main_win, context, User.inv.misc);
+            print_trader_misc_menu(main_win, context, csr_pos);
+        }
         if(ch==SDLK_RETURN){
             unsigned long long int amount = get_ullint(main_win, context, "Please enter the amount of items you wish to purchase: ");
             if(amount>0&&trader_process_payment(User, gear_merchant, csr_pos, amount)){
-
+                print_trader_misc_menu(main_win, context, csr_pos);
+                draw_stats(main_win, context, User);
+                clear_and_draw_dialog(main_win, context, "[System] Purchase success");
+            }
+            else{
+                clear_and_draw_dialog(main_win, context, "[System] Purchase failure");
             }
         }
     }

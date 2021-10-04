@@ -16,7 +16,7 @@ struct SortAscending{
         int priority_j=priority[j->rarity];
         return priority_i<priority_j;
     }
-    bool operator()(const std::pair<Item, bool> i, const std::pair<Item, bool> j){
+    bool operator()(const std::pair<Item, bool> &i, const std::pair<Item, bool> &j){
         int priority_i=priority[i.first.rarity];
         int priority_j=priority[j.first.rarity];
         return priority_i<priority_j;
@@ -42,10 +42,8 @@ struct SortDescending{
         return priority_i>priority_j;
     }
 }const sort_descending;
-static const std::map<std::string, long long int> trader_prices{
+static const std::map<std::string, unsigned long long int> trader_prices{
     // Prices in Gold
-    {"ancient_core",1000000},
-    {"crystallium",150000},
     {"crystal_core",2500},
     {"common_material",150},
     {"uncommon_material",300},
@@ -55,10 +53,11 @@ static const std::map<std::string, long long int> trader_prices{
     // Prices in Crystal Cores
     {"helmet_blueprint",3},
     {"chestplate_blueprint",4},
-    {"greaves_blueprint",4},
+    {"greaves_blueprint",5},
     {"boots_blueprint",2},
     {"shield_blueprint",3},
-    {"weapon_blueprint",5}
+    {"weapon_blueprint",5},
+    {"first_aid_kit", 10}
 };
 void draw_base(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, int y, unsigned int size, unsigned int page, bool is_blacksmith_mode, bool is_inventory_modifier_mode);
 void print_item(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, const Item *cur_item, int line, bool is_selected);
