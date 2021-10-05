@@ -1,3 +1,4 @@
+#include <iomanip>
 #include "headers/main.h"
 #include "headers/mode.h"
 #include "headers/classes.h"
@@ -529,7 +530,8 @@ void sell_items_to_merchant(tcod::ConsolePtr &main_win, tcod::ContextPtr &contex
 }
 void print_trader_misc_menu(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, unsigned int csr_pos){
     SDL_wclear_main_win(main_win, context);
-    tcod::print(*main_win, {0,1}, "Materials:", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+    // Buy
+    tcod::print(*main_win, {0,1}, "Buy Materials/Blueprints:", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
     print_bold_with_condition(main_win, context, "[Common] "+std::to_string(trader_prices.at("common_material"))+" Gold each", WHITE, 2, csr_pos==0);
     print_bold_with_condition(main_win, context, "[Uncommon] "+std::to_string(trader_prices.at("uncommon_material"))+" Gold each", GREEN, 3, csr_pos==1);
     print_bold_with_condition(main_win, context, "[Rare] "+std::to_string(trader_prices.at("rare_material"))+" Gold each", BLUE, 4, csr_pos==2);
@@ -544,6 +546,17 @@ void print_trader_misc_menu(tcod::ConsolePtr &main_win, tcod::ContextPtr &contex
     print_bold_with_condition(main_win, context, "[Weapon] "+std::to_string(trader_prices.at("weapon_blueprint"))+" Crystal Cores each", WHITE, 14, csr_pos==10);
     tcod::print(*main_win, {0,16}, "Others:", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
     print_bold_with_condition(main_win, context, "[First-Aid Kits] "+std::to_string(trader_prices.at("first_aid_kit"))+" Crystal Cores each", PURPLE, 17, csr_pos==11);
+    // Sell
+    tcod::print(*main_win, {0,21}, "--------------------------------------------------------------------------------", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+    tcod::print(*main_win, {0,25}, "Sell Cores/Materials:", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+    tcod::print(*main_win, {0,26}, "Cores:", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+    print_bold_with_condition(main_win, context, "[Crystal Cores] "+std::to_string((unsigned long long int)(trader_prices.at("crystal_core")*0.8))+" Gold each", BLUE, 27, csr_pos==12);
+    tcod::print(*main_win, {0,29}, "Materials:", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+    print_bold_with_condition(main_win, context, "[Common] "+std::to_string((unsigned long long int)(trader_prices.at("common_material")*0.8))+" Gold each", WHITE, 30, csr_pos==13);
+    print_bold_with_condition(main_win, context, "[Uncommon] "+std::to_string((unsigned long long int)(trader_prices.at("uncommon_material")*0.8))+" Gold each", GREEN, 31, csr_pos==14);
+    print_bold_with_condition(main_win, context, "[Rare] "+std::to_string((unsigned long long int)(trader_prices.at("rare_material")*0.8))+" Gold each", BLUE, 32, csr_pos==15);
+    print_bold_with_condition(main_win, context, "[Epic] "+std::to_string((unsigned long long int)(trader_prices.at("epic_material")*0.8))+" Gold each", PURPLE, 33, csr_pos==16);
+    print_bold_with_condition(main_win, context, "[Legendary] "+std::to_string((unsigned long long int)(trader_prices.at("legendary_material")*0.8))+" Gold each", YELLOW, 34, csr_pos==17);
     clear_and_draw_dialog(main_win, context, "Material Shop:");
 }
 bool trader_check_if_payment_valid(std::string type, unsigned long long int &payment, unsigned long long int amount){
@@ -555,7 +568,8 @@ bool trader_check_if_payment_valid(std::string type, unsigned long long int &pay
         return false;
     }
 }
-bool trader_process_payment(Player &User, Merchant &gear_merchant, unsigned int csr_pos, unsigned long long int amount){
+bool trader_process_payment(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player &User, Merchant &gear_merchant, unsigned int csr_pos){
+    unsigned long long int amount = get_ullint(main_win, context, "Please enter the amount of items you wish to purchase: ");
     switch(csr_pos){
         case 0:
             if(trader_check_if_payment_valid("common_material", User.gold, amount)){
@@ -680,7 +694,7 @@ void trader_misc_menu(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Pla
             csr_pos--;
             print_trader_misc_menu(main_win, context, csr_pos);
         }
-        if((ch=='s'||ch==SDLK_DOWN)&&csr_pos<11){
+        if((ch=='s'||ch==SDLK_DOWN)&&csr_pos<17){
             csr_pos++;
             print_trader_misc_menu(main_win, context, csr_pos);
         }
@@ -692,14 +706,13 @@ void trader_misc_menu(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Pla
             print_trader_misc_menu(main_win, context, csr_pos);
         }
         if(ch==SDLK_RETURN){
-            unsigned long long int amount = get_ullint(main_win, context, "Please enter the amount of items you wish to purchase: ");
-            if(amount>0&&trader_process_payment(User, gear_merchant, csr_pos, amount)){
+            if(csr_pos<12&&trader_process_payment(main_win, context, User, gear_merchant, csr_pos)){
                 print_trader_misc_menu(main_win, context, csr_pos);
                 draw_stats(main_win, context, User);
                 clear_and_draw_dialog(main_win, context, "[System] Purchase success");
             }
             else{
-                clear_and_draw_dialog(main_win, context, "[System] Purchase failure");
+                clear_and_draw_dialog(main_win, context, "[System] Failure");
             }
         }
     }

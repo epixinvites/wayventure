@@ -467,7 +467,6 @@ void draw_gear_merchant(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, u
     draw_menu_selections(main_win, context, 3, csr_pos==0, "[Buy Gears]");
     draw_menu_selections(main_win, context, 4, csr_pos==1, "[Sell Gears]");
     draw_menu_selections(main_win, context, 6, csr_pos==2, "[Buy Materials/Blueprints/First Aid Kits]");
-    draw_menu_selections(main_win, context, 7, csr_pos==3, "[Sell Materials/Crystal Cores]");
     context->present(*main_win);
 }
 void gear_merchant_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Merchant &gear_merchant, Player &User, NoDelete &perm_config){
@@ -477,7 +476,7 @@ void gear_merchant_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, M
     draw_gear_merchant(main_win, context, csr_pos);
     while(true){
         ch=SDL_getch(main_win, context);
-        if((ch==SDLK_DOWN||ch=='s')&&csr_pos<3){
+        if((ch==SDLK_DOWN||ch=='s')&&csr_pos<2){
             csr_pos++;
             draw_gear_merchant(main_win, context, csr_pos);
         }
