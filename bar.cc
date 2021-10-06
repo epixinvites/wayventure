@@ -4,9 +4,7 @@
 #include "headers/mode.h"
 #include "headers/draw.h"
 #include "headers/generate.h"
-#include <cereal/archives/binary.hpp>
 #include <cereal/types/vector.hpp>
-#include <cereal/types/string.hpp>
 void refresh_gear_merchant_store(Merchant &gear_merchant, long long int steps){
     if((steps>4999&&steps%5000==0)||gear_merchant.initial_refresh){
         if(!gear_merchant.store.empty()){
@@ -43,13 +41,41 @@ void refresh_mysterious_merchant_store(Merchant &mysterious_trader){
         mysterious_trader.store.push_back({generate_trade_items(RARITY_ARTIFACT),false});
     }
 }
-void redraw_bar(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player &User, std::vector<std::string> pub_layout, Csr csr_pos){
+void draw_gear_merchant_store(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Item &cur, int x, int y){
+    switch(cur.rarity){
+        case RARITY_COMMON:
+            TCOD_console_put_char_ex(main_win.get(), x, y, '/', WHITE, BLACK);
+            break;
+        case RARITY_UNCOMMON:
+            TCOD_console_put_char_ex(main_win.get(), x, y, '/', GREEN, BLACK);
+            break;
+        case RARITY_RARE:
+            TCOD_console_put_char_ex(main_win.get(), x, y, '/', BLUE, BLACK);
+            break;
+        case RARITY_EPIC:
+            TCOD_console_put_char_ex(main_win.get(), x, y, '/', PURPLE, BLACK);
+            break;
+        case RARITY_LEGENDARY:
+            TCOD_console_put_char_ex(main_win.get(), x, y, '/', YELLOW, BLACK);
+            break;
+    }
+}
+void redraw_bar(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player &User, Merchant &gear_merchant, std::vector<std::string> pub_layout, Csr csr_pos){
     SDL_wclear_main_win(main_win, context);
     SDL_wclear_dialog_bar(main_win, context);
+    refresh_gear_merchant_store(gear_merchant, User.steps);
+    int gear_output_count=0;
     for(int i=0; i<pub_layout.size(); i++){
         for(int j=0; j<pub_layout[i].size(); j++){
             if(pub_layout[i][j]=='.'){
                 TCOD_console_put_char_ex(main_win.get(), j, i+1, pub_layout[i][j], GREEN, BLACK);
+            }
+            else if(pub_layout[i][j]=='/'&&gear_output_count<gear_merchant.store.size()){
+                draw_gear_merchant_store(main_win, context, gear_merchant.store[gear_output_count].first, j, i+1);
+                gear_output_count++;
+            }
+            else if(pub_layout[i][j]=='/'&&gear_output_count>=gear_merchant.store.size()){
+                continue;
             }
             else if(pub_layout[i][j]=='~'){
                 TCOD_console_put_char_ex(main_win.get(), j, i+1, pub_layout[i][j], LIGHT_BLUE, BLACK);
@@ -325,19 +351,15 @@ void farmer_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Farmer &
 void char_move(int ch, tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player &User, Csr &csr_pos, const std::vector<std::string> &pub_layout){
     if((ch=='a'||ch==SDLK_LEFT)&&csr_pos.first>1&&pub_layout[csr_pos.second][csr_pos.first-1]==' '){
         csr_pos.first--;
-        redraw_bar(main_win, context, User, pub_layout, csr_pos);
     }
     if((ch=='d'||ch==SDLK_RIGHT)&&csr_pos.first<78&&pub_layout[csr_pos.second][csr_pos.first+1]==' '){
         csr_pos.first++;
-        redraw_bar(main_win, context, User, pub_layout, csr_pos);
     }
     if((ch=='w'||ch==SDLK_UP)&&csr_pos.second>1&&pub_layout[csr_pos.second-1][csr_pos.first]==' '){
         csr_pos.second--;
-        redraw_bar(main_win, context, User, pub_layout, csr_pos);
     }
     if((ch=='s'||ch==SDLK_DOWN)&&csr_pos.second<48&&pub_layout[csr_pos.second+1][csr_pos.first]==' '){
         csr_pos.second++;
-        redraw_bar(main_win, context, User, pub_layout, csr_pos);
     }
 }
 void draw_menu_selections(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, int line, bool is_bold, std::string output){
@@ -472,7 +494,6 @@ void draw_gear_merchant(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, u
 void gear_merchant_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Merchant &gear_merchant, Player &User, NoDelete &perm_config){
     unsigned int csr_pos=0;
     int ch;
-    refresh_gear_merchant_store(gear_merchant, User.steps);
     draw_gear_merchant(main_win, context, csr_pos);
     while(true){
         ch=SDL_getch(main_win, context);
@@ -524,12 +545,13 @@ void bar_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player &Use
         std::getline(pub_layout_file, line);
         pub_layout.push_back(line);
     }
-    redraw_bar(main_win, context, User, pub_layout, csr_pos);
+    redraw_bar(main_win, context, User, npc.gear_merchant, pub_layout, csr_pos);
     int ch;
     while(true){
         ch=SDL_getch(main_win, context);
         if(ch=='w'||ch=='a'||ch=='s'||ch=='d'||ch==SDLK_LEFT||ch==SDLK_RIGHT||ch==SDLK_DOWN||ch==SDLK_UP){
             char_move(ch, main_win, context, User, csr_pos, pub_layout);
+            redraw_bar(main_win, context, User, npc.gear_merchant, pub_layout, csr_pos);
         }
         if(ch=='x'){
             char target=search_surroundings(pub_layout, csr_pos.first, csr_pos.second);
@@ -541,27 +563,24 @@ void bar_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player &Use
             }
             else if(target=='B'){
                 bartender_mode(main_win, context, npc.bartender, User);
-                redraw_bar(main_win, context, User, pub_layout, csr_pos);
+                redraw_bar(main_win, context, User, npc.gear_merchant, pub_layout, csr_pos);
             }
             else if(target=='F'){
                 farmer_mode(main_win, context, npc.farmer, User);
-                redraw_bar(main_win, context, User, pub_layout, csr_pos);
+                redraw_bar(main_win, context, User, npc.gear_merchant, pub_layout, csr_pos);
             }
             else if(target=='G'){
                 gear_merchant_mode(main_win, context, npc.gear_merchant, User, perm_config);
-                redraw_bar(main_win, context, User, pub_layout, csr_pos);
+                redraw_bar(main_win, context, User, npc.gear_merchant, pub_layout, csr_pos);
             }
             else if(target=='T'){
                 bank_mode(main_win, context, perm_config, User, npc.chest, npc.bank);
-                redraw_bar(main_win, context, User, pub_layout, csr_pos);
+                redraw_bar(main_win, context, User, npc.gear_merchant, pub_layout, csr_pos);
             }
             else if(target=='S'){
                 reforge_repair_mode(main_win, context, User, perm_config);
-                redraw_bar(main_win, context, User, pub_layout, csr_pos);
+                redraw_bar(main_win, context, User, npc.gear_merchant, pub_layout, csr_pos);
             }
-        }
-        if(ch=='r'){
-            redraw_bar(main_win, context, User, pub_layout, csr_pos);
         }
         if(ch=='c'){
             if(csr_pos.first==78&&csr_pos.second==1){
@@ -571,12 +590,12 @@ void bar_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player &Use
         if(ch=='i'){
             if(!User.inv.item.empty()){
                 inventory_mode(main_win, context, User, perm_config);
-                redraw_bar(main_win, context, User, pub_layout, csr_pos);
+                redraw_bar(main_win, context, User, npc.gear_merchant, pub_layout, csr_pos);
             }
         }
         if(ch=='e'){
             eat_drink_mode(main_win, context, User);
-            redraw_bar(main_win, context, User, pub_layout, csr_pos);
+            redraw_bar(main_win, context, User, npc.gear_merchant, pub_layout, csr_pos);
         }
         if(ch=='q'){
             return;
