@@ -569,7 +569,16 @@ bool trader_check_if_payment_valid(std::string type, unsigned long long int &pay
     }
 }
 bool trader_process_payment(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player &User, Merchant &gear_merchant, unsigned int csr_pos){
-    unsigned long long int amount = get_ullint(main_win, context, "Please enter the amount of items you wish to purchase: ");
+    unsigned long long int amount = 0;
+    if(csr_pos<12){
+        amount = get_ullint(main_win, context, "Please enter the amount of items you wish to purchase: ");
+    }
+    else if(csr_pos<18){
+        amount = get_ullint(main_win, context, "Please enter the amount of items you wish to sell: ");
+    }
+    if(amount<=0){
+        return false;
+    }
     switch(csr_pos){
         case 0:
             if(trader_check_if_payment_valid("common_material", User.gold, amount)){
@@ -679,6 +688,60 @@ bool trader_process_payment(tcod::ConsolePtr &main_win, tcod::ContextPtr &contex
                 return false;
             }
             break;
+        case 12:
+            if(User.inv.misc.cores.crystal_core>=amount){
+                User.inv.misc.cores.crystal_core-=amount;
+                User.gold+=(trader_prices.at("crystal_core")*amount)*0.8;
+                return true;
+            }
+            else{
+                return false;
+            }
+        case 13:
+            if(User.inv.misc.materials.common>=amount){
+                User.inv.misc.materials.common-=amount;
+                User.gold+=(trader_prices.at("common_material")*amount)*0.8;
+                return true;
+            }
+            else{
+                return false;
+            }
+        case 14:
+            if(User.inv.misc.materials.uncommon>=amount){
+                User.inv.misc.materials.uncommon-=amount;
+                User.gold+=(trader_prices.at("uncommon_material")*amount)*0.8;
+                return true;
+            }
+            else{
+                return false;
+            }
+        case 15:
+            if(User.inv.misc.materials.rare>=amount){
+                User.inv.misc.materials.rare-=amount;
+                User.gold+=(trader_prices.at("rare_material")*amount)*0.8;
+                return true;
+            }
+            else{
+                return false;
+            }
+        case 16:
+            if(User.inv.misc.materials.epic>=amount){
+                User.inv.misc.materials.epic-=amount;
+                User.gold+=(trader_prices.at("epic_material")*amount)*0.8;
+                return true;
+            }
+            else{
+                return false;
+            }
+        case 17:
+            if(User.inv.misc.materials.legendary>=amount){
+                User.inv.misc.materials.legendary-=amount;
+                User.gold+=(trader_prices.at("legendary_material")*amount)*0.8;
+                return true;
+            }
+            else{
+                return false;
+            }
         default:
             break;
     }
@@ -706,10 +769,10 @@ void trader_misc_menu(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Pla
             print_trader_misc_menu(main_win, context, csr_pos);
         }
         if(ch==SDLK_RETURN){
-            if(csr_pos<12&&trader_process_payment(main_win, context, User, gear_merchant, csr_pos)){
+            if(trader_process_payment(main_win, context, User, gear_merchant, csr_pos)){
                 print_trader_misc_menu(main_win, context, csr_pos);
                 draw_stats(main_win, context, User);
-                clear_and_draw_dialog(main_win, context, "[System] Purchase success");
+                clear_and_draw_dialog(main_win, context, "[System] Success");
             }
             else{
                 clear_and_draw_dialog(main_win, context, "[System] Failure");
