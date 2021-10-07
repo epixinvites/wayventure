@@ -12,7 +12,7 @@ void draw_level(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, level Cur
     tcod::print(*main_win, {0,0}, ss.str(), &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
 //    context->present(*main_win);
 }
-void draw_stats(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player User){
+void draw_stats(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, const Player &User){
     SDL_wclear_stats_bar(main_win, context);
     std::stringstream ss;
     ss<<"HP:"<<User.cur_hp<<" Attk:"<<User.attk<<" Def:"<<User.def<<" Shield:"<<User.cur_shield<<" CritChn:"<<User.crit_chance<<" CritDmg:"<<User.crit_dmg<<" Gold:"<<User.gold<<" T:"<<User.steps/10;
@@ -46,7 +46,7 @@ void draw_stats(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player Us
 void draw_player(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, int x, int y){
     TCOD_console_put_char_ex(main_win.get(), x, y+1, '@', CYAN, BLACK);
 }
-void draw_monster(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, std::vector<monster> monsters){
+void draw_monster(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, const std::vector<monster> &monsters){
     for(int i=0; i<monsters.size(); i++){
         if(monsters[i].type=='b'){ // boss
             TCOD_console_put_char_ex(main_win.get(), monsters[i].x, monsters[i].y+1, 'X', WHITE, BLACK);
@@ -95,16 +95,7 @@ void draw_doors(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, level Cur
         TCOD_console_put_char_ex(main_win.get(), 39, 25, '>', WHITE, BLACK);
     }
 }
-
-void redraw_dungeon(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, level Current, std::vector<monster> monsters, Csr csr_pos){
-    SDL_wclear_main_win(main_win, context);
-    draw_border(main_win, context);
-    draw_doors(main_win, context, Current);
-    draw_player(main_win, context, csr_pos.first, csr_pos.second);
-    draw_monster(main_win, context, monsters);
-    context->present(*main_win);
-}
-void redraw_everything(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Csr csr_pos, Player User, level Current, std::vector<monster> monsters){
+void redraw_everything(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Csr csr_pos, const Player &User, level Current, const std::vector<monster> &monsters){
     TCOD_console_clear(main_win.get());
     draw_level(main_win, context, Current);
     draw_stats(main_win, context, User);

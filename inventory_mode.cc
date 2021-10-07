@@ -317,34 +317,36 @@ bool remove_misc_item(Miscellaneous &User, unsigned int csr_pos, unsigned int am
         case 0:
             return decrease_amount(User.cores.ancient_core, amount);
         case 1:
-            return decrease_amount(User.cores.crystallium, amount);
+            return decrease_amount(User.cores.mysterious_shard, amount);
         case 2:
-            return decrease_amount(User.cores.crystal_core, amount);
+            return decrease_amount(User.cores.crystallium, amount);
         case 3:
-            return decrease_amount(User.materials.common, amount);
+            return decrease_amount(User.cores.crystal_core, amount);
         case 4:
-            return decrease_amount(User.materials.uncommon, amount);
+            return decrease_amount(User.materials.common, amount);
         case 5:
-            return decrease_amount(User.materials.rare, amount);
+            return decrease_amount(User.materials.uncommon, amount);
         case 6:
-            return decrease_amount(User.materials.epic, amount);
+            return decrease_amount(User.materials.rare, amount);
         case 7:
-            return decrease_amount(User.materials.legendary, amount);
+            return decrease_amount(User.materials.epic, amount);
         case 8:
-            return decrease_amount(User.materials.artifact, amount);
+            return decrease_amount(User.materials.legendary, amount);
         case 9:
-            return decrease_amount(User.blueprint.helmet, amount);
+            return decrease_amount(User.materials.artifact, amount);
         case 10:
-            return decrease_amount(User.blueprint.chestplate, amount);
+            return decrease_amount(User.blueprint.helmet, amount);
         case 11:
-            return decrease_amount(User.blueprint.greaves, amount);
+            return decrease_amount(User.blueprint.chestplate, amount);
         case 12:
-            return decrease_amount(User.blueprint.boots, amount);
+            return decrease_amount(User.blueprint.greaves, amount);
         case 13:
-            return decrease_amount(User.blueprint.shield, amount);
+            return decrease_amount(User.blueprint.boots, amount);
         case 14:
-            return decrease_amount(User.blueprint.weapon, amount);
+            return decrease_amount(User.blueprint.shield, amount);
         case 15:
+            return decrease_amount(User.blueprint.weapon, amount);
+        case 16:
             return decrease_amount(User.heal_amount, amount);
         default:
             return false;
@@ -356,48 +358,51 @@ void add_misc_item(Miscellaneous &User, unsigned int csr_pos, unsigned int amoun
             User.cores.ancient_core+=amount;
             break;
         case 1:
-            User.cores.crystallium+=amount;
+            User.cores.mysterious_shard+=amount;
             break;
         case 2:
-            User.cores.crystal_core+=amount;
+            User.cores.crystallium+=amount;
             break;
         case 3:
-            User.materials.common+=amount;
+            User.cores.crystal_core+=amount;
             break;
         case 4:
-            User.materials.uncommon+=amount;
+            User.materials.common+=amount;
             break;
         case 5:
-            User.materials.rare+=amount;
+            User.materials.uncommon+=amount;
             break;
         case 6:
-            User.materials.epic+=amount;
+            User.materials.rare+=amount;
             break;
         case 7:
-            User.materials.legendary+=amount;
+            User.materials.epic+=amount;
             break;
         case 8:
-            User.materials.artifact+=amount;
+            User.materials.legendary+=amount;
             break;
         case 9:
-            User.blueprint.helmet+=amount;
+            User.materials.artifact+=amount;
             break;
         case 10:
-            User.blueprint.chestplate+=amount;
+            User.blueprint.helmet+=amount;
             break;
         case 11:
-            User.blueprint.greaves+=amount;
+            User.blueprint.chestplate+=amount;
             break;
         case 12:
-            User.blueprint.boots+=amount;
+            User.blueprint.greaves+=amount;
             break;
         case 13:
-            User.blueprint.shield+=amount;
+            User.blueprint.boots+=amount;
             break;
         case 14:
-            User.blueprint.weapon+=amount;
+            User.blueprint.shield+=amount;
             break;
         case 15:
+            User.blueprint.weapon+=amount;
+            break;
+        case 16:
             User.heal_amount+=amount;
             break;
         default:
@@ -408,24 +413,25 @@ void print_misc_item(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Misc
     SDL_wclear_main_win(main_win, context);
     tcod::print(*main_win, {0,1}, "Cores:", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
     print_bold_with_condition(main_win, context, "Ancient Cores: "+std::to_string(User.cores.ancient_core), DARK_RED, 2, csr_pos==0);
-    print_bold_with_condition(main_win, context, "Crystallium: "+std::to_string(User.cores.crystallium), YELLOW, 3, csr_pos==1);
-    print_bold_with_condition(main_win, context, "Crystal Cores: "+std::to_string(User.cores.crystal_core), PURPLE, 4, csr_pos==2);
-    tcod::print(*main_win, {0,6}, "Materials:", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
-    print_bold_with_condition(main_win, context, "Common: "+std::to_string(User.materials.common), WHITE, 7, csr_pos==3);
-    print_bold_with_condition(main_win, context, "Uncommon: "+std::to_string(User.materials.uncommon), GREEN, 8, csr_pos==4);
-    print_bold_with_condition(main_win, context, "Rare: "+std::to_string(User.materials.rare), BLUE, 9, csr_pos==5);
-    print_bold_with_condition(main_win, context, "Epic: "+std::to_string(User.materials.epic), PURPLE, 10, csr_pos==6);
-    print_bold_with_condition(main_win, context, "Legendary: "+std::to_string(User.materials.legendary), YELLOW, 11, csr_pos==7);
-    print_bold_with_condition(main_win, context, "Artifact: "+std::to_string(User.materials.artifact), DARK_RED, 12, csr_pos==8);
-    tcod::print(*main_win, {0,14}, "Blueprints:", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
-    print_bold_with_condition(main_win, context, "Helmet: "+std::to_string(User.blueprint.helmet), WHITE, 15, csr_pos==9);
-    print_bold_with_condition(main_win, context, "Chestplate: "+std::to_string(User.blueprint.chestplate), WHITE, 16, csr_pos==10);
-    print_bold_with_condition(main_win, context, "Greaves: "+std::to_string(User.blueprint.greaves), WHITE, 17, csr_pos==11);
-    print_bold_with_condition(main_win, context, "Boots: "+std::to_string(User.blueprint.boots), WHITE, 18, csr_pos==12);
-    print_bold_with_condition(main_win, context, "Shield: "+std::to_string(User.blueprint.shield), WHITE, 19, csr_pos==13);
-    print_bold_with_condition(main_win, context, "Weapon: "+std::to_string(User.blueprint.weapon), WHITE, 20, csr_pos==14);
-    tcod::print(*main_win, {0,22}, "Others:", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
-    print_bold_with_condition(main_win, context, "First-Aid Kits: "+std::to_string(User.heal_amount), WHITE, 23, csr_pos==15);
+    print_bold_with_condition(main_win, context, "Mysterious Shard: "+std::to_string(User.cores.crystal_core), DARK_RED, 3, csr_pos==1);
+    print_bold_with_condition(main_win, context, "Crystallium: "+std::to_string(User.cores.crystallium), YELLOW, 4, csr_pos==2);
+    print_bold_with_condition(main_win, context, "Crystal Cores: "+std::to_string(User.cores.crystal_core), PURPLE, 5, csr_pos==3);
+    tcod::print(*main_win, {0,7}, "Materials:", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+    print_bold_with_condition(main_win, context, "Common: "+std::to_string(User.materials.common), WHITE, 8, csr_pos==4);
+    print_bold_with_condition(main_win, context, "Uncommon: "+std::to_string(User.materials.uncommon), GREEN, 9, csr_pos==5);
+    print_bold_with_condition(main_win, context, "Rare: "+std::to_string(User.materials.rare), BLUE, 10, csr_pos==6);
+    print_bold_with_condition(main_win, context, "Epic: "+std::to_string(User.materials.epic), PURPLE, 11, csr_pos==7);
+    print_bold_with_condition(main_win, context, "Legendary: "+std::to_string(User.materials.legendary), YELLOW, 12, csr_pos==8);
+    print_bold_with_condition(main_win, context, "Artifact: "+std::to_string(User.materials.artifact), DARK_RED, 13, csr_pos==9);
+    tcod::print(*main_win, {0,15}, "Blueprints:", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+    print_bold_with_condition(main_win, context, "Helmet: "+std::to_string(User.blueprint.helmet), WHITE, 16, csr_pos==10);
+    print_bold_with_condition(main_win, context, "Chestplate: "+std::to_string(User.blueprint.chestplate), WHITE, 17, csr_pos==11);
+    print_bold_with_condition(main_win, context, "Greaves: "+std::to_string(User.blueprint.greaves), WHITE, 18, csr_pos==12);
+    print_bold_with_condition(main_win, context, "Boots: "+std::to_string(User.blueprint.boots), WHITE, 19, csr_pos==13);
+    print_bold_with_condition(main_win, context, "Shield: "+std::to_string(User.blueprint.shield), WHITE, 20, csr_pos==14);
+    print_bold_with_condition(main_win, context, "Weapon: "+std::to_string(User.blueprint.weapon), WHITE, 21, csr_pos==15);
+    tcod::print(*main_win, {0,23}, "Others:", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+    print_bold_with_condition(main_win, context, "First-Aid Kits: "+std::to_string(User.heal_amount), WHITE, 24, csr_pos==16);
     context->present(*main_win);
 }
 void show_misc_items(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Miscellaneous &User){
@@ -434,7 +440,7 @@ void show_misc_items(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Misc
     while(true){
         print_misc_item(main_win, context, User, csr_pos);
         int ch=SDL_getch(main_win, context);
-        if((ch==SDLK_DOWN||ch=='s')&&csr_pos<15){
+        if((ch==SDLK_DOWN||ch=='s')&&csr_pos<16){
             clear_and_draw_dialog(main_win, context, "Miscallaneous items:");
             csr_pos++;
         }

@@ -53,7 +53,8 @@ struct Miscellaneous{
         unsigned long long int ancient_core = 0;
         unsigned long long int crystallium = 0;
         unsigned long long int crystal_core = 0;
-        template<class Archive> void serialize(Archive &archive){archive(ancient_core,crystallium,crystal_core);}
+        unsigned long long int mysterious_shard = 0;
+        template<class Archive> void serialize(Archive &archive){archive(ancient_core,crystallium,crystal_core,mysterious_shard);}
     };
     struct Material_rarity{
         unsigned long long int common = 0;
@@ -73,7 +74,7 @@ struct Miscellaneous{
         unsigned long long int weapon = 0;
         template<class Archive> void serialize(Archive &archive){archive(helmet,chestplate,greaves,boots,shield,weapon);}
     };
-    unsigned long long int heal_amount=10;
+    unsigned long long int heal_amount=0;
     Material_rarity materials;
     Material_type blueprint;
     Cores cores;
@@ -155,7 +156,7 @@ struct Chest{
 struct Merchant{
     int relation = 0;
     bool initial_refresh = true;
-    std::vector<std::pair<Item, bool>>store; // bool is used to indicate whether to
+    std::vector<std::pair<Item, bool>>store;
     template<class Archive>void serialize(Archive &archive){archive(relation,initial_refresh,store);}
 };
 struct NPC{

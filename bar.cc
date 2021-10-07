@@ -5,8 +5,8 @@
 #include "headers/draw.h"
 #include "headers/generate.h"
 #include <cereal/types/vector.hpp>
-void refresh_gear_merchant_store(Merchant &gear_merchant, long long int steps){
-    if((steps>4999&&steps%5000==0)||gear_merchant.initial_refresh){
+void refresh_gear_merchant_store(Merchant &gear_merchant, unsigned long long int steps){
+    if((steps>19999&&steps%20000==0)||gear_merchant.initial_refresh){
         if(!gear_merchant.store.empty()){
             gear_merchant.store.erase(std::remove_if(gear_merchant.store.begin(), gear_merchant.store.end(), [](const std::pair<Item, bool> cur){return cur.second==false;}), gear_merchant.store.end());
         }
@@ -36,9 +36,15 @@ void refresh_gear_merchant_store(Merchant &gear_merchant, long long int steps){
         std::sort(gear_merchant.store.begin(), gear_merchant.store.end(), sort_ascending);
     }
 }
-void refresh_mysterious_merchant_store(Merchant &mysterious_trader){
-    for(int i = 0; i<10; i++){
-        mysterious_trader.store.push_back({generate_trade_items(RARITY_ARTIFACT),false});
+void refresh_mysterious_merchant_store(Merchant &mysterious_trader, long long int steps){
+    if((steps>99999&&steps%100000==0)||mysterious_trader.initial_refresh){
+        mysterious_trader.initial_refresh=false;
+        if(!mysterious_trader.store.empty()){
+            mysterious_trader.store.clear();
+        }
+        for(int i = 0; i<5; i++){
+            mysterious_trader.store.push_back({generate_trade_items(RARITY_ARTIFACT),false});
+        }
     }
 }
 void draw_gear_merchant_store(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Item &cur, int x, int y){
@@ -63,7 +69,6 @@ void draw_gear_merchant_store(tcod::ConsolePtr &main_win, tcod::ContextPtr &cont
 void redraw_bar(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player &User, Merchant &gear_merchant, std::vector<std::string> pub_layout, Csr csr_pos){
     SDL_wclear_main_win(main_win, context);
     SDL_wclear_dialog_bar(main_win, context);
-    refresh_gear_merchant_store(gear_merchant, User.steps);
     int gear_output_count=0;
     for(int i=0; i<pub_layout.size(); i++){
         for(int j=0; j<pub_layout[i].size(); j++){
@@ -83,7 +88,10 @@ void redraw_bar(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player &U
             else if(pub_layout[i][j]=='{'||pub_layout[i][j]=='}'){
                 TCOD_console_put_char_ex(main_win.get(), j, i+1, pub_layout[i][j], DARK_RED, BLACK);
             }
-            else if(pub_layout[i][j]=='M'||pub_layout[i][j]=='B'||pub_layout[i][j]=='F'||pub_layout[i][j]=='G'||pub_layout[i][j]=='T'||pub_layout[i][j]=='S'){
+            else if(pub_layout[i][j]=='x'){
+                TCOD_console_put_char_ex(main_win.get(), j, i+1, pub_layout[i][j], LIGHT_RED, BLACK);
+            }
+            else if(pub_layout[i][j]=='M'||pub_layout[i][j]=='B'||pub_layout[i][j]=='F'||pub_layout[i][j]=='G'||pub_layout[i][j]=='T'||pub_layout[i][j]=='S'||pub_layout[i][j]=='I'||pub_layout[i][j]=='A'){
                 TCOD_console_put_char_ex(main_win.get(), j, i+1, '@', MAGENTA, BLACK);
             }
             else{
@@ -94,7 +102,7 @@ void redraw_bar(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player &U
     TCOD_console_put_char_ex(main_win.get(), 78, 2, '>', WHITE, BLACK);
     draw_player(main_win, context, csr_pos.first, csr_pos.second);
     draw_stats(main_win, context, User);
-    tcod::print(*main_win, {0,0}, "Pub", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+    tcod::print(*main_win, {0,0}, "Town", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
     context->present(*main_win);
 }
 char search_surroundings(std::vector<std::string> pub_layout, int x, int y){
@@ -511,9 +519,14 @@ void gear_merchant_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, M
         if(ch==SDLK_RETURN){
             switch(csr_pos){
                 case 0:
-                    show_merchant_items(main_win, context, gear_merchant, User);
-                    draw_stats(main_win, context, User);
-                    draw_gear_merchant(main_win, context, csr_pos);
+                    if(!gear_merchant.store.empty()){
+                        show_merchant_items(main_win, context, gear_merchant, User);
+                        draw_stats(main_win, context, User);
+                        draw_gear_merchant(main_win, context, csr_pos);
+                    }
+                    else{
+                        clear_and_draw_dialog(main_win, context, "[Merchant] Sorry, out of stock! Please come back later.");
+                    }
                     break;
                 case 1:
                     if(!User.inv.item.empty()){
@@ -536,8 +549,85 @@ void gear_merchant_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, M
         }
     }
 }
+void draw_mysterious_trader_menu(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, unsigned int csr_pos){
+    SDL_wclear_main_win(main_win, context);
+    SDL_wclear_dialog_bar(main_win, context);
+    tcod::print(*main_win, {0,0}, "Mysterious Hut", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+    tcod::print(*main_win, {0,1}, "[Mysterious Trader] ...", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+    draw_menu_selections(main_win, context, 3, csr_pos==0, "[Exchange items for Artifact Materials]");
+    draw_menu_selections(main_win, context, 5, csr_pos==1, "[Exchange items for Ancient Cores]");
+    draw_menu_selections(main_win, context, 7, csr_pos==2, "[Exchange gears for Artifact Gears]");
+    context->present(*main_win);
+}
+void mysterious_trader_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player &User, Merchant &mysterious_trader){
+    unsigned int csr_pos=0;
+    int ch;
+    draw_mysterious_trader_menu(main_win, context, csr_pos);
+    while(true){
+        ch=SDL_getch(main_win, context);
+        if((ch==SDLK_DOWN||ch=='s')&&csr_pos<2){
+            csr_pos++;
+            draw_mysterious_trader_menu(main_win, context, csr_pos);
+        }
+        if((ch==SDLK_UP||ch=='w')&&csr_pos>0){
+            csr_pos--;
+            draw_mysterious_trader_menu(main_win, context, csr_pos);
+        }
+        if(ch=='m'){
+            show_misc_items(main_win, context, User.inv.misc);
+            draw_mysterious_trader_menu(main_win, context, csr_pos);
+        }
+        if(ch=='q'){
+            return;
+        }
+        if(ch==SDLK_RETURN){
+            switch(csr_pos){
+                case 0:
+                {
+                    unsigned long long int amount = get_ullint(main_win, context, "Amount of Artifact Materials: ");
+                    if(amount>0&&User.inv.misc.materials.legendary>=5*amount&&User.inv.misc.cores.ancient_core>=amount){
+                        User.inv.misc.materials.legendary-=(5*amount);
+                        User.inv.misc.cores.ancient_core-=amount;
+                        User.inv.misc.materials.artifact+=amount;
+                        clear_and_draw_dialog(main_win, context, "[System] Success");
+                    }
+                    else{
+                        clear_and_draw_dialog(main_win, context, "[System] Failure");
+                    }
+                    break;
+                }
+                case 1:
+                {
+                    unsigned long long int amount = get_ullint(main_win, context, "Amount of Ancient Cores: ");
+                    if(amount>0&&User.inv.misc.cores.crystallium>=amount&&User.inv.misc.cores.mysterious_shard>=amount){
+                        User.inv.misc.cores.crystallium-=amount;
+                        User.inv.misc.cores.mysterious_shard-=amount;
+                        User.inv.misc.cores.ancient_core+=amount;
+                        clear_and_draw_dialog(main_win, context, "[System] Success");
+                    }
+                    else{
+                        clear_and_draw_dialog(main_win, context, "[System] Failure");
+                    }
+                    break;
+                }
+                case 2:
+                    if(!mysterious_trader.store.empty()){
+                        mysterious_trader_items(main_win, context, User, mysterious_trader);
+                        draw_mysterious_trader_menu(main_win, context, csr_pos);
+                        draw_stats(main_win, context, User);
+                    }
+                    else{
+                        clear_and_draw_dialog(main_win, context, "[...] Return only when the black moon howls.");
+                    }
+                    break;
+            }
+        }
+    }
+}
 void bar_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player &User, NPC &npc, NoDelete &perm_config){
     Csr csr_pos{78,1};
+    refresh_gear_merchant_store(npc.gear_merchant, User.steps);
+    refresh_mysterious_merchant_store(npc.mysterious_trader, User.steps);
     std::ifstream pub_layout_file("res/bar_layout.txt");
     std::vector<std::string> pub_layout; // {50,80}
     for(int i=0; i<50; i++){
@@ -559,7 +649,8 @@ void bar_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player &Use
                 continue;
             }
             else if(target=='M'){
-                // Mysterious Trader
+                mysterious_trader_mode(main_win, context, User, npc.mysterious_trader);
+                redraw_bar(main_win, context, User, npc.gear_merchant, pub_layout, csr_pos);
             }
             else if(target=='B'){
                 bartender_mode(main_win, context, npc.bartender, User);
@@ -580,6 +671,12 @@ void bar_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player &Use
             else if(target=='S'){
                 reforge_repair_mode(main_win, context, User, perm_config);
                 redraw_bar(main_win, context, User, npc.gear_merchant, pub_layout, csr_pos);
+            }
+            else if(target=='I'){
+                // Miner Corp interface
+            }
+            else if(target=='A'){
+                // Archaeologist interface
             }
         }
         if(ch=='c'){

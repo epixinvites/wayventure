@@ -152,6 +152,13 @@ void print_trader_item_description(tcod::ConsolePtr &main_win, tcod::ContextPtr 
     print_item_description_2(main_win, context, cur_item, line);
     context->present(*main_win);
 }
+void print_mysterious_trader_item_description(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, const Item *cur_item, int line, double quality_points){
+    print_item_description_1(main_win, context, cur_item, line);
+    tcod::print(*main_win, {0,line+1}, "Quality Points: "+std::to_string(quality_points), &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+    line++;
+    print_item_description_2(main_win, context, cur_item, line);
+    context->present(*main_win);
+}
 void print_sell_item_description(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, const Item *cur_item, int line, int price){
     print_item_description_1(main_win, context, cur_item, line);
     tcod::print(*main_win, {0,line+1}, "Equipped: ", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
@@ -177,6 +184,15 @@ void draw_trader_items(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, co
     }
     print_trader_item_description(main_win, context, items_copy[page_num*30+csr_pos], 35, price, is_locked);
 }
+void draw_mysterious_trader_items(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, const std::vector<Item*> items_copy, unsigned int csr_pos, double quality_points){
+    SDL_wclear_main_win(main_win, context);
+    SDL_wclear_stats_bar(main_win, context);
+    draw_base(main_win, context, 34, items_copy.size(), 0, false, false);
+    for(int i=0, iterator=0; i<items_copy.size()&&iterator<30; i++, iterator++){
+        print_item(main_win, context, items_copy[i], iterator, csr_pos==iterator);
+    }
+    print_mysterious_trader_item_description(main_win, context, items_copy[csr_pos], 35, quality_points);
+}
 void draw_sell_items(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, const Player &User, const std::vector<Item*> items_copy, unsigned int page_num, unsigned int csr_pos, int price){
     SDL_wclear_main_win(main_win, context);
     SDL_wclear_stats_bar(main_win, context);
@@ -193,7 +209,7 @@ void store_misc_items(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Mis
     while(true){
         print_misc_item(main_win, context, User, csr_pos);
         int ch=SDL_getch(main_win, context);
-        if((ch==SDLK_DOWN||ch=='s')&&csr_pos<15){
+        if((ch==SDLK_DOWN||ch=='s')&&csr_pos<16){
             clear_and_draw_dialog(main_win, context, "[Inventory] Miscallaneous items:");
             csr_pos++;
         }
@@ -222,7 +238,7 @@ void retrieve_misc_items(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, 
     while(true){
         print_misc_item(main_win, context, chest.misc_storage, csr_pos);
         int ch=SDL_getch(main_win, context);
-        if((ch==SDLK_DOWN||ch=='s')&&csr_pos<15){
+        if((ch==SDLK_DOWN||ch=='s')&&csr_pos<16){
             clear_and_draw_dialog(main_win, context, "[Storage] Miscallaneous items:");
             csr_pos++;
         }
@@ -777,6 +793,60 @@ void trader_misc_menu(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Pla
             else{
                 clear_and_draw_dialog(main_win, context, "[System] Failure");
             }
+        }
+    }
+}
+double calculate_quality_points(const Item &cur){
+    double quality_points = rarity_value(cur.rarity)*rarity_value(cur.rarity);
+    switch(cur.type){
+        case TYPE_HELMET:
+            quality_points*=cur.hp/(40*rarity_value(cur.rarity));
+            break;
+        case TYPE_CHESTPLATE:
+            quality_points*=cur.hp/(100*rarity_value(cur.rarity));
+            break;
+        case TYPE_GREAVES:
+            quality_points*=cur.def/(50*rarity_value(cur.rarity));
+            break;
+        case TYPE_BOOTS:
+            quality_points*=cur.def/(30*rarity_value(cur.rarity));
+            break;
+        case TYPE_SHIELD:
+            quality_points*=cur.shield/(100*rarity_value(cur.rarity));
+            break;
+        case TYPE_WEAPON:
+            quality_points*=cur.attk/(200*rarity_value(cur.rarity));
+            break;
+        default:
+            break;
+    }
+    return quality_points;
+}
+void mysterious_trader_items(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player &User, Merchant &mysterious_merchant){
+    unsigned int page_num=0;
+    int csr_pos=0;
+    std::vector<Item> original_copy;
+    for(auto i:mysterious_merchant.store){
+        original_copy.push_back(i.first);
+    }
+    std::vector<Item*> items_copy;
+    init_copy(original_copy, items_copy);
+    draw_mysterious_trader_items(main_win, context, items_copy, csr_pos, calculate_quality_points(*items_copy[csr_pos]));
+    while(true){
+        int ch=SDL_getch(main_win, context);
+        if((ch=='s'||ch==SDLK_DOWN)&&((csr_pos+page_num*30)<items_copy.size()-1&&csr_pos<29)){
+            csr_pos++;
+            draw_mysterious_trader_items(main_win, context, items_copy, csr_pos, calculate_quality_points(*items_copy[csr_pos]));
+        }
+        if((ch=='w'||ch==SDLK_UP)&&csr_pos>0){
+            csr_pos--;
+            draw_mysterious_trader_items(main_win, context, items_copy, csr_pos, calculate_quality_points(*items_copy[csr_pos]));
+        }
+        if(ch=='q'){
+            return;
+        }
+        if(ch==SDLK_RETURN){
+            
         }
     }
 }

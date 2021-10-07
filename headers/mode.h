@@ -84,3 +84,4 @@ void store_misc_items(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Mis
 void retrieve_misc_items(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Miscellaneous &User, Chest &chest);
 int calculate_price(const Item cur, int relationship, bool player_sell=false);
 void trader_misc_menu(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player &User, Merchant &gear_merchant);
+void mysterious_trader_items(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player &User, Merchant &mysterious_merchant);
