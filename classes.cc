@@ -1,5 +1,5 @@
 #include "headers/classes.h"
-#include <math.h>
+#include <cmath>
 
 Item::Item(std::string name, char type, char rarity, bool is_equipped, int hp, int attk, int def, int shield, int crit_chance, int crit_dmg, unsigned int calibration, unsigned int uses, double durability):name{name}, type{type}, rarity{rarity}, is_equipped{is_equipped}, hp{hp}, attk{attk}, def{def},
                                                                                                                                                                                                              shield{shield}, crit_chance{crit_chance}, crit_dmg{crit_dmg}, calibration{calibration},

@@ -1,7 +1,7 @@
 #pragma once
 #include <string>
 #include <vector>
-#include <unordered_map>
+#include <map>
 #include "main.h"
 struct monster{
     int x, y; // x cords and y cords
@@ -30,7 +30,7 @@ struct Item{
     int hp = 0, attk = 0, def = 0, shield = 0, crit_chance = 0, crit_dmg = 0;
     unsigned int calibration = 0, uses = 0, enhancement = 0;
     double durability = 100.0;
-    Item(std::string name, char type, char rarity, bool is_equipped, int hp, int attk, int def, int shield, int crit_chance, int crit_dmg, unsigned int calibration, unsigned int uses,double durability);
+    Item(std::string name, char type, char rarity, bool is_equipped, int hp, int attk, int def, int shield, int crit_chance, int crit_dmg, unsigned int calibration, unsigned int uses, double durability);
     void initialize_item();
     void reinitialize_item();
     void calculate_calibration();
@@ -82,6 +82,7 @@ struct Miscellaneous{
 };
 struct Inventory{
     std::vector<Item> item;
+    //std::map<unsigned long long int, Item> item;
     Food food;
     Water water;
     Miscellaneous misc;

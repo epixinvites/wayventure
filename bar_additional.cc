@@ -817,7 +817,7 @@ void trader_misc_menu(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Pla
 }
 
 double calculate_quality_points(const Item &cur){
-    double quality_points=rarity_value(cur.rarity)*rarity_value(cur.rarity);
+    double quality_points=std::pow(rarity_value(cur.rarity), 4);
     quality_points+=cur.def/10;
     quality_points+=cur.crit_chance/5;
     quality_points+=cur.crit_dmg/5;
@@ -846,8 +846,9 @@ double calculate_quality_points(const Item &cur){
     return quality_points;
 }
 
-void print_inventory_with_quality_points_description(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, const Item *cur_item, int line, double quality_points){
+void print_inventory_with_quality_points_description(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, const Item *cur_item, int line){
     print_item_description_1(main_win, context, cur_item, line);
+    double quality_points = calculate_quality_points(*cur_item);
     tcod::print(*main_win, {0, line+1}, "Equipped: ", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
     if(cur_item->is_equipped){
         tcod::print(*main_win, {10, line+1}, "true", &GREEN, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
@@ -862,18 +863,114 @@ void print_inventory_with_quality_points_description(tcod::ConsolePtr &main_win,
     context->present(*main_win);
 }
 
-void print_inventory_with_quality_points(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, unsigned int csr_pos, const std::vector<Item *> &items_copy, double quality_points){
+void print_item_with_selection(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, const Item *cur_item, int line, bool is_highlighted, bool is_selected){
+    std::stringstream ss;
+    if(is_selected){
+        ss << "->";
+    }
+    switch(cur_item->type){
+        case TYPE_HELMET:
+            ss << "[Helmet] ";
+            break;
+        case TYPE_CHESTPLATE:
+            ss << "[Chestplate] ";
+            break;
+        case TYPE_GREAVES:
+            ss << "[Greaves] ";
+            break;
+        case TYPE_BOOTS:
+            ss << "[Boots] ";
+            break;
+        case TYPE_SHIELD:
+            ss << "[Shield] ";
+            break;
+        case TYPE_WEAPON:
+            ss << "[Weapon] ";
+            break;
+        default:
+            tcod::print(*main_win, {0, line+1}, "Error", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+            return;
+    }
+    ss << cur_item->name;
+    if(cur_item->calibration>0){
+        ss << " [" << cur_item->calibration << "]";
+    }
+    switch(cur_item->rarity){
+        case RARITY_LEGENDARY:
+            print_bold_with_condition(main_win, context, ss.str(), YELLOW, line+1, is_highlighted);
+            break;
+        case RARITY_ARTIFACT:
+            print_bold_with_condition(main_win, context, ss.str(), DARK_RED, line+1, is_highlighted);
+            break;
+        default:
+            break;
+    }
+}
+
+void print_inventory_with_quality_points(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, unsigned int csr_pos, unsigned int page_num, const Player &User, const std::vector<std::pair<Item*, bool>> &items_copy){
     SDL_wclear_main_win(main_win, context);
     SDL_wclear_stats_bar(main_win, context);
-    draw_base(main_win, context, 34, items_copy.size(), 0, false, false);
-    for(int i=0, iterator=0; i<items_copy.size()&&iterator<30; i++, iterator++){
-        print_item(main_win, context, items_copy[i], iterator, csr_pos==iterator);
+    draw_stats(main_win, context, User);
+    if(!items_copy.empty()){
+        draw_base(main_win, context, 34, items_copy.size(), page_num, false, false);
+        for(int i=page_num*30, iterator=0; i<items_copy.size()&&iterator<30; i++, iterator++){
+            print_item_with_selection(main_win, context, items_copy[i].first, iterator, csr_pos==iterator, items_copy[page_num*30+iterator].second);
+        }
+        print_inventory_with_quality_points_description(main_win, context, items_copy[page_num*30+csr_pos].first, 35);
     }
-    print_mysterious_trader_item_description(main_win, context, items_copy[csr_pos], 35, quality_points);
+    else{
+        draw_base(main_win, context, 34, items_copy.size(), page_num, false, false);
+        context->present(*main_win);
+    }
 }
 
 void select_inventory_for_exchange(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player &User, const Item &target){
-
+    std::vector<std::pair<Item*, bool>> items_copy;
+    unsigned int page_num=0;
+    int csr_pos=0;
+    for(int i = 0; i<User.inv.item.size(); i++){
+        if(User.inv.item[i].rarity==RARITY_LEGENDARY){
+            items_copy.push_back({&User.inv.item[i], false});
+        }
+    }
+    print_inventory_with_quality_points(main_win, context, csr_pos, page_num, User, items_copy);
+    while(true){
+        int ch=SDL_getch(main_win, context);
+        if((ch=='s'||ch==SDLK_DOWN)&&((csr_pos+page_num*30)<items_copy.size()-1&&csr_pos<29)){
+            csr_pos++;
+            print_inventory_with_quality_points(main_win, context, csr_pos, page_num, User, items_copy);
+        }
+        if((ch=='w'||ch==SDLK_UP)&&csr_pos>0){
+            csr_pos--;
+            print_inventory_with_quality_points(main_win, context, csr_pos, page_num, User, items_copy);
+        }
+        if(ch=='a'||ch==SDLK_LEFT){
+            if(page_num>0){
+                page_num--;
+                csr_pos=0;
+                print_inventory_with_quality_points(main_win, context, csr_pos, page_num, User, items_copy);
+            }
+        }
+        if(ch=='d'||ch==SDLK_RIGHT){
+            if((page_num+1)*30<items_copy.size()){
+                page_num++;
+                csr_pos=0;
+                print_inventory_with_quality_points(main_win, context, csr_pos, page_num, User, items_copy);
+            }
+        }
+        if(ch=='q'){
+            return;
+        }
+        if(ch==SDLK_RETURN){
+            if(items_copy[csr_pos+(page_num*30)].second){
+                items_copy[csr_pos+(page_num*30)].second=false;
+            }
+            else{
+                items_copy[csr_pos+(page_num*30)].second=true;
+            }
+            print_inventory_with_quality_points(main_win, context, csr_pos, page_num, User, items_copy);
+        }
+    }
 }
 
 void mysterious_trader_items(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player &User, Merchant &mysterious_merchant){
@@ -901,7 +998,13 @@ void mysterious_trader_items(tcod::ConsolePtr &main_win, tcod::ContextPtr &conte
             return;
         }
         if(ch==SDLK_RETURN){
-
+            for(int i = 0; i<User.inv.item.size(); i++){
+                if(User.inv.item[i].rarity==RARITY_LEGENDARY){
+                    select_inventory_for_exchange(main_win, context, User, mysterious_merchant.store[csr_pos].first);
+                    draw_mysterious_trader_items(main_win, context, items_copy, csr_pos, calculate_quality_points(*items_copy[csr_pos]));
+                    break;
+                }
+            }
         }
     }
 }

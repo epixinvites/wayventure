@@ -14,6 +14,7 @@
 #include <cereal/types/vector.hpp>
 #include <cereal/types/string.hpp>
 #include <cereal/types/utility.hpp>
+#include <cereal/types/map.hpp>
 
 int SDL_getch(tcod::ConsolePtr &main_win, tcod::ContextPtr &context){
     SDL_FlushEvent(SDL_KEYDOWN);
@@ -664,6 +665,9 @@ void init_dungeon(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Csr &cs
 void init(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Csr &csr_pos, Player &User, level &Current, NPC &npc, NoDelete &perm_config){
     std::vector<monster> monsters;
     init_data(User, Current, csr_pos, monsters, npc, perm_config);
+    for(int i = 0; i<61; i++){
+        User.add_item(generate_trade_items(RARITY_LEGENDARY));
+    }
     User.init();
     std::ifstream ascii_wayfarer("res/wayfarer.txt");
     if(!ascii_wayfarer){
