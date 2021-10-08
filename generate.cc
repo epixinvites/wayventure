@@ -1,4 +1,5 @@
 #include "headers/generate.h"
+
 char generate_loot_rarity(char type){
     std::random_device device;
     std::mt19937 generator(device());
@@ -50,6 +51,7 @@ char generate_loot_rarity(char type){
     }
     return '0';
 }
+
 char generate_loot_type(){
     std::random_device device;
     std::mt19937 generator(device());
@@ -75,6 +77,7 @@ char generate_loot_type(){
     }
     return '0';
 }
+
 double rarity_value(char rarity){ // increase the stats value for generated item
     if(rarity==RARITY_COMMON){
         return 1.0;
@@ -96,6 +99,7 @@ double rarity_value(char rarity){ // increase the stats value for generated item
     }
     return 0;
 }
+
 double rarity_bonus(char rarity){ // increase bonus stats chance
     if(rarity==RARITY_COMMON){
         return 1.0;
@@ -117,6 +121,7 @@ double rarity_bonus(char rarity){ // increase bonus stats chance
     }
     return 0;
 }
+
 Item generate_loot(char loot_rarity){
     char loot_type=generate_loot_type();
     std::random_device device;
@@ -125,7 +130,7 @@ Item generate_loot(char loot_rarity){
     std::uniform_int_distribution<int> bonus_stats(1, 100);
     std::string name;
     int hp=0, attk=0, def=0, shield=0, crit_chance=0, crit_dmg=0;
-    double durability = bonus_stats(generator);
+    double durability=bonus_stats(generator);
     if(loot_type==TYPE_CHESTPLATE){ // chestplate
         hp=(100+deviation(generator))*rarity_value(loot_rarity);
         if(bonus_stats(generator)<=3*rarity_bonus(loot_rarity)){
@@ -171,15 +176,18 @@ Item generate_loot(char loot_rarity){
             def=20*rarity_value(loot_rarity);
         }
     }
-    return{"Placeholder",loot_type,loot_rarity,false,hp,attk,def,shield,crit_chance,crit_dmg,0,0,durability};
+    return {"Placeholder", loot_type, loot_rarity, false, hp, attk, def, shield, crit_chance, crit_dmg, 0, 0, durability};
 }
+
 Item generate_loot_from_monster_type(char type){
     char loot_rarity=generate_loot_rarity(type);
     return generate_loot(loot_rarity);
 }
+
 Item generate_loot_from_rarity_type(char loot_rarity){
     return generate_loot(loot_rarity);
 }
+
 Item generate_trade_items(char loot_rarity){
     char loot_type=generate_loot_type();
     std::random_device device;
@@ -234,8 +242,9 @@ Item generate_trade_items(char loot_rarity){
         }
     }
     // if(item.rarity==RARITY_ARTIFACT){ WIP: 10% chance to come with special skills }
-    return{"Placeholder",loot_type,loot_rarity,false,hp,attk,def,shield,crit_chance,crit_dmg,0,0,100.0};
+    return {"Placeholder", loot_type, loot_rarity, false, hp, attk, def, shield, crit_chance, crit_dmg, 0, 0, 100.0};
 }
+
 Item craft_item(char loot_rarity, char loot_type){
     std::random_device device;
     std::mt19937 generator(device());
@@ -288,17 +297,18 @@ Item craft_item(char loot_rarity, char loot_type){
             def=20*rarity_value(loot_rarity);
         }
     }
-    return{"Placeholder",loot_type,loot_rarity,false,hp,attk,def,shield,crit_chance,crit_dmg,0,0,100.0};
+    return {"Placeholder", loot_type, loot_rarity, false, hp, attk, def, shield, crit_chance, crit_dmg, 0, 0, 100.0};
 }
+
 void reforge_item(unsigned int ancient_cores, unsigned int crystallium, Item *item){
-    char loot_rarity = item->rarity;
-    unsigned int ancient_cores_bonus = 1;
-    unsigned int crystallium_bonus = 1;
+    char loot_rarity=item->rarity;
+    unsigned int ancient_cores_bonus=1;
+    unsigned int crystallium_bonus=1;
     if(ancient_cores>0){
-        ancient_cores_bonus = log(ancient_cores+1)/log(1.013);
+        ancient_cores_bonus=log(ancient_cores+1)/log(1.013);
     }
     if(crystallium>0){
-        crystallium_bonus = log(crystallium+1)/log(1.02);
+        crystallium_bonus=log(crystallium+1)/log(1.02);
     }
     item->uses=0;
     item->enhancement=0;
@@ -364,6 +374,7 @@ void reforge_item(unsigned int ancient_cores, unsigned int crystallium, Item *it
     }
     // if(item.rarity==RARITY_ARTIFACT){ WIP: 50/50 to get special skills }
 }
+
 void generate_monsters(std::vector<monster> &monsters, level Current, Csr csr_pos){
     std::random_device device;
     std::mt19937 generator(device());
@@ -416,6 +427,7 @@ void generate_monsters(std::vector<monster> &monsters, level Current, Csr csr_po
         monsters.push_back(tmp_monster);
     }
 }
+
 monster_stats create_monster(level Current, char type){
     std::random_device device;
     std::mt19937 generator(device());
@@ -448,26 +460,29 @@ monster_stats create_monster(level Current, char type){
     }
     return monster;
 }
+
 bool return_chance(int chance){
     std::random_device device;
     std::mt19937 generator(device());
     std::uniform_int_distribution<int> probability(1, 100);
     return (chance>=probability(generator));
 }
-void generate_doors(std::vector<std::pair<int,int>> &doors, level Current){
+
+void generate_doors(std::vector<std::pair<int, int>> &doors, level Current){
     if(Current.y>1){ // {x , y}
-        doors.push_back({39,49}); // bottom door
+        doors.push_back({39, 49}); // bottom door
     }
     if(Current.y<5){
-        doors.push_back({39,0}); // top door
+        doors.push_back({39, 0}); // top door
     }
     if(Current.x>1){
-        doors.push_back({0,24}); // left door
+        doors.push_back({0, 24}); // left door
     }
     if(Current.x<5){
-        doors.push_back({79,24}); // right door
+        doors.push_back({79, 24}); // right door
     }
 }
+
 int generate_gold(char type){
     std::random_device device;
     std::mt19937 generator(device());

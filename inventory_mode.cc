@@ -8,66 +8,69 @@
 #include "headers/mode.h"
 #include "headers/draw.h"
 #include "headers/generate.h"
+
 void draw_base(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, int y, unsigned int size, unsigned int page, bool is_blacksmith_mode, bool is_inventory_modifier_mode){
     std::stringstream ss;
     SDL_wclear_dialog_bar(main_win, context);
     if(size==0){
-        ss<<"[System] Inventory Empty";
+        ss << "[System] Inventory Empty";
     }
     else if(is_blacksmith_mode){
-        ss<<"[Blacksmith] How can I help you today? "<<"("<<page+1<<"/"<<((size-1)/30)+1<<")";
+        ss << "[Blacksmith] How can I help you today? " << "(" << page+1 << "/" << ((size-1)/30)+1 << ")";
     }
     else if(is_inventory_modifier_mode){
-        ss<<"Inventory "<<"("<<page+1<<"/"<<((size-1)/30)+1<<")"<<" [Inventory Modifier Mode]";
+        ss << "Inventory " << "(" << page+1 << "/" << ((size-1)/30)+1 << ")" << " [Inventory Modifier Mode]";
     }
     else{
-        ss<<"Inventory "<<"("<<page+1<<"/"<<((size-1)/30)+1<<")";
+        ss << "Inventory " << "(" << page+1 << "/" << ((size-1)/30)+1 << ")";
     }
-    tcod::print(*main_win, {0,0}, ss.str(), &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+    tcod::print(*main_win, {0, 0}, ss.str(), &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
     for(int i=0; i<80; i++){
         TCOD_console_put_char_ex(main_win.get(), i, y+1, '-', WHITE, BLACK);
     }
 //    context->present(*main_win);
 }
+
 void print_bold_with_condition(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, std::string output, const TCOD_ColorRGB &foreground, int line, bool is_bold){
     if(is_bold){
-        tcod::print(*main_win, {0,line}, output, &BLACK, &foreground, TCOD_BKGND_SET, TCOD_LEFT);
+        tcod::print(*main_win, {0, line}, output, &BLACK, &foreground, TCOD_BKGND_SET, TCOD_LEFT);
     }
     else{
-        tcod::print(*main_win, {0,line}, output, &foreground, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+        tcod::print(*main_win, {0, line}, output, &foreground, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
     }
 }
+
 void print_item(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, const Item *cur_item, int line, bool is_selected){
     std::stringstream ss;
     if(cur_item->is_equipped){
-        ss<<"*";
+        ss << "*";
     }
     switch(cur_item->type){
         case TYPE_HELMET:
-            ss<<"[Helmet] ";
+            ss << "[Helmet] ";
             break;
         case TYPE_CHESTPLATE:
-            ss<<"[Chestplate] ";
+            ss << "[Chestplate] ";
             break;
         case TYPE_GREAVES:
-            ss<<"[Greaves] ";
+            ss << "[Greaves] ";
             break;
         case TYPE_BOOTS:
-            ss<<"[Boots] ";
+            ss << "[Boots] ";
             break;
         case TYPE_SHIELD:
-            ss<<"[Shield] ";
+            ss << "[Shield] ";
             break;
         case TYPE_WEAPON:
-            ss<<"[Weapon] ";
+            ss << "[Weapon] ";
             break;
         default:
-            tcod::print(*main_win, {0,line+1}, "Error", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+            tcod::print(*main_win, {0, line+1}, "Error", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
             return;
     }
-    ss<<cur_item->name;
+    ss << cur_item->name;
     if(cur_item->calibration>0){
-        ss<<" ["<<cur_item->calibration<<"]";
+        ss << " [" << cur_item->calibration << "]";
     }
     switch(cur_item->rarity){
         case RARITY_COMMON:
@@ -92,108 +95,110 @@ void print_item(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, const Ite
             break;
     }
 }
+
 void print_description(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, const Item *cur_item, int line){
-    tcod::print(*main_win, {0,line+1}, "Name: ", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
-    tcod::print(*main_win, {6,line+1}, cur_item->name, &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
-    tcod::print(*main_win, {0,line+2}, "Rarity: ", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+    tcod::print(*main_win, {0, line+1}, "Name: ", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+    tcod::print(*main_win, {6, line+1}, cur_item->name, &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+    tcod::print(*main_win, {0, line+2}, "Rarity: ", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
     switch(cur_item->rarity){
         case RARITY_COMMON:
-            tcod::print(*main_win, {8,line+2}, "Common", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+            tcod::print(*main_win, {8, line+2}, "Common", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
             break;
         case RARITY_UNCOMMON:
-            tcod::print(*main_win, {8,line+2}, "Uncommon", &GREEN, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+            tcod::print(*main_win, {8, line+2}, "Uncommon", &GREEN, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
             break;
         case RARITY_RARE:
-            tcod::print(*main_win, {8,line+2}, "Rare", &BLUE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+            tcod::print(*main_win, {8, line+2}, "Rare", &BLUE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
             break;
         case RARITY_EPIC:
-            tcod::print(*main_win, {8,line+2}, "Epic", &PURPLE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+            tcod::print(*main_win, {8, line+2}, "Epic", &PURPLE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
             break;
         case RARITY_LEGENDARY:
-            tcod::print(*main_win, {8,line+2}, "Legendary", &YELLOW, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+            tcod::print(*main_win, {8, line+2}, "Legendary", &YELLOW, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
             break;
         case RARITY_ARTIFACT:
-            tcod::print(*main_win, {8,line+2}, "Artifact", &DARK_RED, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+            tcod::print(*main_win, {8, line+2}, "Artifact", &DARK_RED, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
             break;
         default:
-            tcod::print(*main_win, {8,line+2}, "-ERROR-", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+            tcod::print(*main_win, {8, line+2}, "-ERROR-", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
             break;
     }
     line+=2;
-    tcod::print(*main_win, {0,line+1}, "Type: ", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+    tcod::print(*main_win, {0, line+1}, "Type: ", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
     switch(cur_item->type){
         case TYPE_HELMET:
-            tcod::print(*main_win, {6,line+1}, "Helmet", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+            tcod::print(*main_win, {6, line+1}, "Helmet", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
             break;
         case TYPE_CHESTPLATE:
-            tcod::print(*main_win, {6,line+1}, "Chestplate", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+            tcod::print(*main_win, {6, line+1}, "Chestplate", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
             break;
         case TYPE_GREAVES:
-            tcod::print(*main_win, {6,line+1}, "Greaves", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+            tcod::print(*main_win, {6, line+1}, "Greaves", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
             break;
         case TYPE_BOOTS:
-            tcod::print(*main_win, {6,line+1}, "Boots", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+            tcod::print(*main_win, {6, line+1}, "Boots", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
             break;
         case TYPE_SHIELD:
-            tcod::print(*main_win, {6,line+1}, "Shield", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+            tcod::print(*main_win, {6, line+1}, "Shield", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
             break;
         case TYPE_WEAPON:
-            tcod::print(*main_win, {6,line+1}, "Weapon", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+            tcod::print(*main_win, {6, line+1}, "Weapon", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
             break;
         default:
-            tcod::print(*main_win, {6,line+1}, "-ERROR-", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+            tcod::print(*main_win, {6, line+1}, "-ERROR-", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
             return;
     }
     line++;
-    tcod::print(*main_win, {0,line+1}, "Equipped: ", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+    tcod::print(*main_win, {0, line+1}, "Equipped: ", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
     if(cur_item->is_equipped){
-        tcod::print(*main_win, {10,line+1}, "true", &GREEN, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+        tcod::print(*main_win, {10, line+1}, "true", &GREEN, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
     }
     if(!cur_item->is_equipped){
-        tcod::print(*main_win, {10,line+1}, "false", &LIGHT_RED, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+        tcod::print(*main_win, {10, line+1}, "false", &LIGHT_RED, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
     }
     line++;
     std::stringstream ss;
-    tcod::print(*main_win, {0,line+1}, ("Durability: "+std::to_string(cur_item->durability)+"%"), &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+    tcod::print(*main_win, {0, line+1}, ("Durability: "+std::to_string(cur_item->durability)+"%"), &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
     line++;
     if(cur_item->uses>0){
-        tcod::print(*main_win, {0,line+1}, ("Uses: "+std::to_string(cur_item->uses)), &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+        tcod::print(*main_win, {0, line+1}, ("Uses: "+std::to_string(cur_item->uses)), &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
         line++;
     }
     if(cur_item->calibration>0){
-        tcod::print(*main_win, {0,line+1}, ("Calibration Level: "+std::to_string(cur_item->calibration)), &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+        tcod::print(*main_win, {0, line+1}, ("Calibration Level: "+std::to_string(cur_item->calibration)), &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
         line++;
     }
     if(cur_item->enhancement>0){
-        tcod::print(*main_win, {0,line+1}, ("Enhancement: "+std::to_string(cur_item->enhancement)), &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+        tcod::print(*main_win, {0, line+1}, ("Enhancement: "+std::to_string(cur_item->enhancement)), &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
         line++;
     }
     if(cur_item->hp>0){
-        tcod::print(*main_win, {0,line+1}, ("Health: "+std::to_string(cur_item->hp)), &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+        tcod::print(*main_win, {0, line+1}, ("Health: "+std::to_string(cur_item->hp)), &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
         line++;
     }
     if(cur_item->attk>0){
-        tcod::print(*main_win, {0,line+1}, ("Damage: "+std::to_string(cur_item->attk)), &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+        tcod::print(*main_win, {0, line+1}, ("Damage: "+std::to_string(cur_item->attk)), &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
         line++;
     }
     if(cur_item->def>0){
-        tcod::print(*main_win, {0,line+1}, ("Defence: "+std::to_string(cur_item->def)), &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+        tcod::print(*main_win, {0, line+1}, ("Defence: "+std::to_string(cur_item->def)), &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
         line++;
     }
     if(cur_item->shield>0){
-        tcod::print(*main_win, {0,line+1}, ("Shield: "+std::to_string(cur_item->shield)), &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+        tcod::print(*main_win, {0, line+1}, ("Shield: "+std::to_string(cur_item->shield)), &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
         line++;
     }
     if(cur_item->crit_chance>0){
-        tcod::print(*main_win, {0,line+1}, ("Critical Chance: "+std::to_string(cur_item->crit_chance)+"%"), &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+        tcod::print(*main_win, {0, line+1}, ("Critical Chance: "+std::to_string(cur_item->crit_chance)+"%"), &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
         line++;
     }
     if(cur_item->crit_dmg>0){
-        tcod::print(*main_win, {0,line+1}, ("Critical Damage: "+std::to_string(cur_item->crit_dmg)+"%"), &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+        tcod::print(*main_win, {0, line+1}, ("Critical Damage: "+std::to_string(cur_item->crit_dmg)+"%"), &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
         line++;
     }
     context->present(*main_win);
 }
+
 void equip_item(Player &User, Item *cur_item){
     cur_item->is_equipped=true;
     if(cur_item->type=='h'){
@@ -245,6 +250,7 @@ void equip_item(Player &User, Item *cur_item){
         User.initialize_gear(User.equip.weapon);
     }
 }
+
 bool unequip_item(Player &User, Item *cur_item){
     if(!cur_item->is_equipped){
         return true;
@@ -284,7 +290,8 @@ bool unequip_item(Player &User, Item *cur_item){
     }
     return true;
 }
-void draw_inventory(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, const Player &User, const std::vector<Item*> items_copy, unsigned int page_num, unsigned int csr_pos, bool is_blacksmith_mode, bool is_inventory_modifier_mode){
+
+void draw_inventory(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, const Player &User, const std::vector<Item *> &items_copy, unsigned int page_num, unsigned int csr_pos, bool is_blacksmith_mode, bool is_inventory_modifier_mode){
     SDL_wclear_main_win(main_win, context);
     SDL_wclear_stats_bar(main_win, context);
     draw_stats(main_win, context, User);
@@ -300,6 +307,7 @@ void draw_inventory(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, const
         context->present(*main_win);
     }
 }
+
 bool decrease_amount(unsigned long long int &original, unsigned int amount){
     if(original>=amount){
         original-=amount;
@@ -309,6 +317,7 @@ bool decrease_amount(unsigned long long int &original, unsigned int amount){
         return false;
     }
 }
+
 bool remove_misc_item(Miscellaneous &User, unsigned int csr_pos, unsigned int amount){
     if(amount==0){
         return false;
@@ -352,6 +361,7 @@ bool remove_misc_item(Miscellaneous &User, unsigned int csr_pos, unsigned int am
             return false;
     }
 }
+
 void add_misc_item(Miscellaneous &User, unsigned int csr_pos, unsigned int amount){
     switch(csr_pos){
         case 0:
@@ -409,31 +419,33 @@ void add_misc_item(Miscellaneous &User, unsigned int csr_pos, unsigned int amoun
             break;
     }
 }
+
 void print_misc_item(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Miscellaneous &User, unsigned int csr_pos){
     SDL_wclear_main_win(main_win, context);
-    tcod::print(*main_win, {0,1}, "Cores:", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+    tcod::print(*main_win, {0, 1}, "Cores:", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
     print_bold_with_condition(main_win, context, "Ancient Cores: "+std::to_string(User.cores.ancient_core), DARK_RED, 2, csr_pos==0);
     print_bold_with_condition(main_win, context, "Mysterious Shard: "+std::to_string(User.cores.crystal_core), DARK_RED, 3, csr_pos==1);
     print_bold_with_condition(main_win, context, "Crystallium: "+std::to_string(User.cores.crystallium), YELLOW, 4, csr_pos==2);
     print_bold_with_condition(main_win, context, "Crystal Cores: "+std::to_string(User.cores.crystal_core), PURPLE, 5, csr_pos==3);
-    tcod::print(*main_win, {0,7}, "Materials:", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+    tcod::print(*main_win, {0, 7}, "Materials:", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
     print_bold_with_condition(main_win, context, "Common: "+std::to_string(User.materials.common), WHITE, 8, csr_pos==4);
     print_bold_with_condition(main_win, context, "Uncommon: "+std::to_string(User.materials.uncommon), GREEN, 9, csr_pos==5);
     print_bold_with_condition(main_win, context, "Rare: "+std::to_string(User.materials.rare), BLUE, 10, csr_pos==6);
     print_bold_with_condition(main_win, context, "Epic: "+std::to_string(User.materials.epic), PURPLE, 11, csr_pos==7);
     print_bold_with_condition(main_win, context, "Legendary: "+std::to_string(User.materials.legendary), YELLOW, 12, csr_pos==8);
     print_bold_with_condition(main_win, context, "Artifact: "+std::to_string(User.materials.artifact), DARK_RED, 13, csr_pos==9);
-    tcod::print(*main_win, {0,15}, "Blueprints:", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+    tcod::print(*main_win, {0, 15}, "Blueprints:", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
     print_bold_with_condition(main_win, context, "Helmet: "+std::to_string(User.blueprint.helmet), WHITE, 16, csr_pos==10);
     print_bold_with_condition(main_win, context, "Chestplate: "+std::to_string(User.blueprint.chestplate), WHITE, 17, csr_pos==11);
     print_bold_with_condition(main_win, context, "Greaves: "+std::to_string(User.blueprint.greaves), WHITE, 18, csr_pos==12);
     print_bold_with_condition(main_win, context, "Boots: "+std::to_string(User.blueprint.boots), WHITE, 19, csr_pos==13);
     print_bold_with_condition(main_win, context, "Shield: "+std::to_string(User.blueprint.shield), WHITE, 20, csr_pos==14);
     print_bold_with_condition(main_win, context, "Weapon: "+std::to_string(User.blueprint.weapon), WHITE, 21, csr_pos==15);
-    tcod::print(*main_win, {0,23}, "Others:", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+    tcod::print(*main_win, {0, 23}, "Others:", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
     print_bold_with_condition(main_win, context, "First-Aid Kits: "+std::to_string(User.heal_amount), WHITE, 24, csr_pos==16);
     context->present(*main_win);
 }
+
 void show_misc_items(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Miscellaneous &User){
     unsigned int csr_pos=0;
     clear_and_draw_dialog(main_win, context, "Miscallaneous items:");
@@ -462,6 +474,7 @@ void show_misc_items(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Misc
         }
     }
 }
+
 bool decrease_materials(char rarity, Miscellaneous &misc, unsigned int amount){
     if(rarity=='c'&&misc.materials.common>=amount){
         misc.materials.common-=amount;
@@ -489,6 +502,7 @@ bool decrease_materials(char rarity, Miscellaneous &misc, unsigned int amount){
     }
     return false;
 }
+
 bool enhance_item(Item *cur_item, Miscellaneous &misc, unsigned int amount){
     bool require_enhance=false;
     if(decrease_materials(cur_item->rarity, misc, amount)){
@@ -498,90 +512,92 @@ bool enhance_item(Item *cur_item, Miscellaneous &misc, unsigned int amount){
     }
     return false;
 }
+
 void draw_crafting_selection(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, const Miscellaneous &misc, unsigned int csr_pos, int blueprint_selection, int material_selection){
     SDL_wclear_main_win(main_win, context);
-    tcod::print(*main_win, {0,1}, "Select a blueprint:", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+    tcod::print(*main_win, {0, 1}, "Select a blueprint:", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
     if(csr_pos==1||blueprint_selection==1){
-        tcod::print(*main_win, {0,2}, "Helmet ["+std::to_string(misc.blueprint.helmet)+"]", &BLACK, &WHITE, TCOD_BKGND_SET, TCOD_LEFT);
+        tcod::print(*main_win, {0, 2}, "Helmet ["+std::to_string(misc.blueprint.helmet)+"]", &BLACK, &WHITE, TCOD_BKGND_SET, TCOD_LEFT);
     }
     else{
-        tcod::print(*main_win, {0,2}, "Helmet ["+std::to_string(misc.blueprint.helmet)+"]", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+        tcod::print(*main_win, {0, 2}, "Helmet ["+std::to_string(misc.blueprint.helmet)+"]", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
     }
     if(csr_pos==2||blueprint_selection==2){
-        tcod::print(*main_win, {0,3}, "Chestplate ["+std::to_string(misc.blueprint.chestplate)+"]", &BLACK, &WHITE, TCOD_BKGND_SET, TCOD_LEFT);
+        tcod::print(*main_win, {0, 3}, "Chestplate ["+std::to_string(misc.blueprint.chestplate)+"]", &BLACK, &WHITE, TCOD_BKGND_SET, TCOD_LEFT);
     }
     else{
-        tcod::print(*main_win, {0,3}, "Chestplate ["+std::to_string(misc.blueprint.chestplate)+"]", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+        tcod::print(*main_win, {0, 3}, "Chestplate ["+std::to_string(misc.blueprint.chestplate)+"]", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
     }
     if(csr_pos==3||blueprint_selection==3){
-        tcod::print(*main_win, {0,4}, "Greaves ["+std::to_string(misc.blueprint.greaves)+"]", &BLACK, &WHITE, TCOD_BKGND_SET, TCOD_LEFT);
+        tcod::print(*main_win, {0, 4}, "Greaves ["+std::to_string(misc.blueprint.greaves)+"]", &BLACK, &WHITE, TCOD_BKGND_SET, TCOD_LEFT);
     }
     else{
-        tcod::print(*main_win, {0,4}, "Greaves ["+std::to_string(misc.blueprint.greaves)+"]", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+        tcod::print(*main_win, {0, 4}, "Greaves ["+std::to_string(misc.blueprint.greaves)+"]", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
     }
     if(csr_pos==4||blueprint_selection==4){
-        tcod::print(*main_win, {0,5}, "Boots ["+std::to_string(misc.blueprint.boots)+"]", &BLACK, &WHITE, TCOD_BKGND_SET, TCOD_LEFT);
+        tcod::print(*main_win, {0, 5}, "Boots ["+std::to_string(misc.blueprint.boots)+"]", &BLACK, &WHITE, TCOD_BKGND_SET, TCOD_LEFT);
     }
     else{
-        tcod::print(*main_win, {0,5}, "Boots ["+std::to_string(misc.blueprint.boots)+"]", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+        tcod::print(*main_win, {0, 5}, "Boots ["+std::to_string(misc.blueprint.boots)+"]", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
     }
     if(csr_pos==5||blueprint_selection==5){
-        tcod::print(*main_win, {0,6}, "Shield ["+std::to_string(misc.blueprint.shield)+"]", &BLACK, &WHITE, TCOD_BKGND_SET, TCOD_LEFT);
+        tcod::print(*main_win, {0, 6}, "Shield ["+std::to_string(misc.blueprint.shield)+"]", &BLACK, &WHITE, TCOD_BKGND_SET, TCOD_LEFT);
     }
     else{
-        tcod::print(*main_win, {0,6}, "Shield ["+std::to_string(misc.blueprint.shield)+"]", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+        tcod::print(*main_win, {0, 6}, "Shield ["+std::to_string(misc.blueprint.shield)+"]", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
     }
     if(csr_pos==6||blueprint_selection==6){
-        tcod::print(*main_win, {0,7}, "Weapon ["+std::to_string(misc.blueprint.weapon)+"]", &BLACK, &WHITE, TCOD_BKGND_SET, TCOD_LEFT);
+        tcod::print(*main_win, {0, 7}, "Weapon ["+std::to_string(misc.blueprint.weapon)+"]", &BLACK, &WHITE, TCOD_BKGND_SET, TCOD_LEFT);
     }
     else{
-        tcod::print(*main_win, {0,7}, "Weapon ["+std::to_string(misc.blueprint.weapon)+"]", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+        tcod::print(*main_win, {0, 7}, "Weapon ["+std::to_string(misc.blueprint.weapon)+"]", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
     }
-    tcod::print(*main_win, {0,9}, "Select the material:", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+    tcod::print(*main_win, {0, 9}, "Select the material:", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
     if(csr_pos==9||material_selection==9){
-        tcod::print(*main_win, {0,10}, "Common ["+std::to_string(misc.materials.common)+"]", &BLACK, &WHITE, TCOD_BKGND_SET, TCOD_LEFT);
+        tcod::print(*main_win, {0, 10}, "Common ["+std::to_string(misc.materials.common)+"]", &BLACK, &WHITE, TCOD_BKGND_SET, TCOD_LEFT);
     }
     else{
-        tcod::print(*main_win, {0,10}, "Common ["+std::to_string(misc.materials.common)+"]", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+        tcod::print(*main_win, {0, 10}, "Common ["+std::to_string(misc.materials.common)+"]", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
     }
     if(csr_pos==10||material_selection==10){
-        tcod::print(*main_win, {0,11}, "Uncommon ["+std::to_string(misc.materials.uncommon)+"]", &BLACK, &GREEN, TCOD_BKGND_SET, TCOD_LEFT);
+        tcod::print(*main_win, {0, 11}, "Uncommon ["+std::to_string(misc.materials.uncommon)+"]", &BLACK, &GREEN, TCOD_BKGND_SET, TCOD_LEFT);
     }
     else{
-        tcod::print(*main_win, {0,11}, "Uncommon ["+std::to_string(misc.materials.uncommon)+"]", &GREEN, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+        tcod::print(*main_win, {0, 11}, "Uncommon ["+std::to_string(misc.materials.uncommon)+"]", &GREEN, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
     }
     if(csr_pos==11||material_selection==11){
-        tcod::print(*main_win, {0,12}, "Rare ["+std::to_string(misc.materials.rare)+"]", &BLACK, &BLUE, TCOD_BKGND_SET, TCOD_LEFT);
+        tcod::print(*main_win, {0, 12}, "Rare ["+std::to_string(misc.materials.rare)+"]", &BLACK, &BLUE, TCOD_BKGND_SET, TCOD_LEFT);
     }
     else{
-        tcod::print(*main_win, {0,12}, "Rare ["+std::to_string(misc.materials.rare)+"]", &BLUE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+        tcod::print(*main_win, {0, 12}, "Rare ["+std::to_string(misc.materials.rare)+"]", &BLUE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
     }
     if(csr_pos==12||material_selection==12){
-        tcod::print(*main_win, {0,13}, "Epic ["+std::to_string(misc.materials.epic)+"]", &BLACK, &PURPLE, TCOD_BKGND_SET, TCOD_LEFT);
+        tcod::print(*main_win, {0, 13}, "Epic ["+std::to_string(misc.materials.epic)+"]", &BLACK, &PURPLE, TCOD_BKGND_SET, TCOD_LEFT);
     }
     else{
-        tcod::print(*main_win, {0,13}, "Epic ["+std::to_string(misc.materials.epic)+"]", &PURPLE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+        tcod::print(*main_win, {0, 13}, "Epic ["+std::to_string(misc.materials.epic)+"]", &PURPLE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
     }
     if(csr_pos==13||material_selection==13){
-        tcod::print(*main_win, {0,14}, "Legendary ["+std::to_string(misc.materials.legendary)+"]", &BLACK, &YELLOW, TCOD_BKGND_SET, TCOD_LEFT);
+        tcod::print(*main_win, {0, 14}, "Legendary ["+std::to_string(misc.materials.legendary)+"]", &BLACK, &YELLOW, TCOD_BKGND_SET, TCOD_LEFT);
     }
     else{
-        tcod::print(*main_win, {0,14}, "Legendary ["+std::to_string(misc.materials.legendary)+"]", &YELLOW, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+        tcod::print(*main_win, {0, 14}, "Legendary ["+std::to_string(misc.materials.legendary)+"]", &YELLOW, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
     }
     if(csr_pos==14||material_selection==14){
-        tcod::print(*main_win, {0,15}, "Artifact ["+std::to_string(misc.materials.artifact)+"]", &BLACK, &DARK_RED, TCOD_BKGND_SET, TCOD_LEFT);
+        tcod::print(*main_win, {0, 15}, "Artifact ["+std::to_string(misc.materials.artifact)+"]", &BLACK, &DARK_RED, TCOD_BKGND_SET, TCOD_LEFT);
     }
     else{
-        tcod::print(*main_win, {0,15}, "Artifact ["+std::to_string(misc.materials.artifact)+"]", &DARK_RED, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+        tcod::print(*main_win, {0, 15}, "Artifact ["+std::to_string(misc.materials.artifact)+"]", &DARK_RED, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
     }
     if(csr_pos==16){
-        tcod::print(*main_win, {0,17}, "[Done]", &BLACK, &WHITE, TCOD_BKGND_SET, TCOD_LEFT);
+        tcod::print(*main_win, {0, 17}, "[Done]", &BLACK, &WHITE, TCOD_BKGND_SET, TCOD_LEFT);
     }
     else{
-        tcod::print(*main_win, {0,17}, "[Done]", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+        tcod::print(*main_win, {0, 17}, "[Done]", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
     }
     clear_and_draw_dialog(main_win, context, "[Blacksmith] What do you want to craft today?");
 }
+
 bool check_if_sufficient_materials(Miscellaneous &misc, int material_selection, int required_material, char &rarity){
     switch(material_selection){
         case 9: // common
@@ -648,6 +664,7 @@ bool check_if_sufficient_materials(Miscellaneous &misc, int material_selection, 
             return false;
     }
 }
+
 bool check_if_craft_valid(int blueprint_selection, int material_selection, Miscellaneous &misc, char &gear_type, char &rarity){
     switch(blueprint_selection){
         case 1: // helmet
@@ -727,6 +744,7 @@ bool check_if_craft_valid(int blueprint_selection, int material_selection, Misce
     }
     return false;
 }
+
 void crafting_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player &User){
     unsigned int csr_pos=1;
     int blueprint_selection=0, material_selection=0;
@@ -784,6 +802,7 @@ void crafting_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player
         }
     }
 }
+
 void salvage_item(Player &User, Item *item){
     switch(item->rarity){
         case RARITY_COMMON:
@@ -811,8 +830,9 @@ void salvage_item(Player &User, Item *item){
     User.remove_item(item);
     User.initialize_stats();
 }
+
 void inventory_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player &User, NoDelete &perm_config){
-    std::vector<Item*> items_copy;
+    std::vector<Item *> items_copy;
     unsigned int page_num=0;
     int csr_pos=0;
     init_copy(User.inv.item, items_copy);
@@ -901,8 +921,9 @@ void inventory_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Playe
         }
     }
 }
+
 void reforge_repair_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player &User, NoDelete &perm_config){
-    std::vector<Item*> items_copy;
+    std::vector<Item *> items_copy;
     init_copy(User.inv.item, items_copy);
     if(perm_config.keep_changes_persistent){
         process_copy(User.inv.item, items_copy, perm_config);
@@ -962,7 +983,7 @@ void reforge_repair_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, 
                 const unsigned int cost=(100.0-items_copy[csr_pos+(page_num*30)]->durability)*rarity_value(items_copy[csr_pos+(page_num*30)]->rarity)*15;
                 const unsigned int material_cost=2*(1+((100-items_copy[csr_pos+(page_num*30)]->durability)/100));
                 std::stringstream ss;
-                ss<<"[System] Attempt repair? Gold:"<<cost<<" Material:"<<material_cost<<" [y/n]";
+                ss << "[System] Attempt repair? Gold:" << cost << " Material:" << material_cost << " [y/n]";
                 clear_and_draw_dialog(main_win, context, ss.str());
                 while(true){
                     ch=SDL_getch(main_win, context);

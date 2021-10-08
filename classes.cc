@@ -1,10 +1,14 @@
 #include "headers/classes.h"
 #include <math.h>
-Item::Item(std::string name, char type, char rarity, bool is_equipped, int hp, int attk, int def, int shield, int crit_chance, int crit_dmg, unsigned int calibration, unsigned int uses, double durability) : name{name}, type{type}, rarity{rarity}, is_equipped{is_equipped}, hp{hp}, attk{attk}, def{def}, shield{shield}, crit_chance{crit_chance}, crit_dmg{crit_dmg}, calibration{calibration}, uses{uses}, durability{durability}{
+
+Item::Item(std::string name, char type, char rarity, bool is_equipped, int hp, int attk, int def, int shield, int crit_chance, int crit_dmg, unsigned int calibration, unsigned int uses, double durability):name{name}, type{type}, rarity{rarity}, is_equipped{is_equipped}, hp{hp}, attk{attk}, def{def},
+                                                                                                                                                                                                             shield{shield}, crit_chance{crit_chance}, crit_dmg{crit_dmg}, calibration{calibration},
+                                                                                                                                                                                                             uses{uses}, durability{durability}{
 }
-Player::Player(int ori_hp, int attk, int def, int ori_shield, int crit_chance, int crit_dmg, unsigned long long int gold) : ori_hp{ori_hp}, attk{attk}, def{def}, ori_shield{ori_shield}, crit_chance{crit_chance}, crit_dmg{crit_dmg}, gold{gold}{
-}
-;
+
+Player::Player(int ori_hp, int attk, int def, int ori_shield, int crit_chance, int crit_dmg, unsigned long long int gold):ori_hp{ori_hp}, attk{attk}, def{def}, ori_shield{ori_shield}, crit_chance{crit_chance}, crit_dmg{crit_dmg}, gold{gold}{
+};
+
 void Player::init(){
     for(int i=0; i<inv.item.size(); i++){ // loops through every single item and finds all items that is_equipped
         inv.item[i].reinitialize_item();
@@ -31,6 +35,7 @@ void Player::init(){
     }
     initialize_stats();
 }
+
 void Player::initialize_gear(Item *gear){
     if(gear!=nullptr){
         ori_hp+=gear->hp;
@@ -43,6 +48,7 @@ void Player::initialize_gear(Item *gear){
         crit_dmg+=gear->crit_dmg;
     }
 }
+
 void Player::uninitialize_gear(Item *&gear){
     if(gear!=nullptr){
         ori_hp-=gear->hp;
@@ -55,6 +61,7 @@ void Player::uninitialize_gear(Item *&gear){
         crit_dmg-=gear->crit_dmg;
     }
 }
+
 void Player::initialize_stats(){
     initialize_gear(equip.helmet);
     initialize_gear(equip.chestplate);
@@ -63,6 +70,7 @@ void Player::initialize_stats(){
     initialize_gear(equip.shield);
     initialize_gear(equip.weapon);
 }
+
 void Player::uninitialize_stats(){
     uninitialize_gear(equip.helmet);
     uninitialize_gear(equip.chestplate);
@@ -71,6 +79,7 @@ void Player::uninitialize_stats(){
     uninitialize_gear(equip.shield);
     uninitialize_gear(equip.weapon);
 }
+
 void Item::calculate_calibration(){
     int pow=2;
     for(int i=0;; i++){
@@ -81,6 +90,7 @@ void Item::calculate_calibration(){
         pow*=2;
     }
 }
+
 double calculate_enhancement(unsigned int enhancement){
     if(enhancement>0){
         return (1+((log(enhancement+1)/log(1.1))/100.0));
@@ -89,6 +99,7 @@ double calculate_enhancement(unsigned int enhancement){
         return 1;
     }
 }
+
 void Item::reinitialize_item(){
     attk=original.attk;
     hp=original.hp;
@@ -97,13 +108,20 @@ void Item::reinitialize_item(){
     crit_chance=original.crit_chance;
     crit_dmg=original.crit_dmg;
     calculate_calibration();
-    attk*=(1.0+(calibration/20.0)); attk*=calculate_enhancement(enhancement);
-    hp*=(1.0+(calibration/20.0)); hp*=calculate_enhancement(enhancement);
-    def*=(1.0+(calibration/20.0)); def*=calculate_enhancement(enhancement);
-    shield*=(1.0+(calibration/20.0)); shield*=calculate_enhancement(enhancement);
-    crit_chance*=(1.0+(calibration/20.0)); crit_chance*=calculate_enhancement(enhancement);
-    crit_dmg*=(1.0+(calibration/20.0)); crit_dmg*=calculate_enhancement(enhancement);
+    attk*=(1.0+(calibration/20.0));
+    attk*=calculate_enhancement(enhancement);
+    hp*=(1.0+(calibration/20.0));
+    hp*=calculate_enhancement(enhancement);
+    def*=(1.0+(calibration/20.0));
+    def*=calculate_enhancement(enhancement);
+    shield*=(1.0+(calibration/20.0));
+    shield*=calculate_enhancement(enhancement);
+    crit_chance*=(1.0+(calibration/20.0));
+    crit_chance*=calculate_enhancement(enhancement);
+    crit_dmg*=(1.0+(calibration/20.0));
+    crit_dmg*=calculate_enhancement(enhancement);
 }
+
 void Item::initialize_item(){
     original.attk=attk;
     original.hp=hp;
@@ -112,6 +130,7 @@ void Item::initialize_item(){
     original.crit_chance=crit_chance;
     original.crit_dmg=crit_dmg;
 }
+
 void Player::add_item(Item input){
     inv.item.push_back(input);
     for(int i=0; i<inv.item.size(); i++){ // loops through every single item and finds all items that is_equipped
@@ -138,9 +157,10 @@ void Player::add_item(Item input){
     }
     inv.item[inv.item.size()-1].initialize_item();
 }
+
 void Player::remove_item(Item *address){
     uninitialize_stats();
-    int pos = 0;
+    int pos=0;
     for(; pos<inv.item.size(); pos++){
         if(&inv.item[pos]==address){
             break;
@@ -172,6 +192,7 @@ void Player::remove_item(Item *address){
     }
     initialize_stats();
 }
+
 void Player::eat(int *food){
     if(saturation<100){
         if(food==&inv.food.bread&&*food>0){
@@ -191,6 +212,7 @@ void Player::eat(int *food){
         saturation=100;
     }
 }
+
 void Player::drink(int *water){
     if(hydration<100){
         if(water==&inv.water.water&&*water>0){

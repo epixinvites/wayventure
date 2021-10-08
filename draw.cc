@@ -1,51 +1,56 @@
 #include "headers/draw.h"
 #include <sstream>
+
 void clear_and_draw_dialog(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, std::string dialog){
     SDL_wclear_dialog_bar(main_win, context);
-    tcod::print(*main_win, {0,0}, dialog, &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+    tcod::print(*main_win, {0, 0}, dialog, &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
     context->present(*main_win);
 }
+
 void draw_level(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, level Current){
     SDL_wclear_dialog_bar(main_win, context);
     std::stringstream ss;
-    ss<<'L'<<Current.lvl<<' '<<Current.x<<':'<<Current.y;
-    tcod::print(*main_win, {0,0}, ss.str(), &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+    ss << 'L' << Current.lvl << ' ' << Current.x << ':' << Current.y;
+    tcod::print(*main_win, {0, 0}, ss.str(), &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
 //    context->present(*main_win);
 }
+
 void draw_stats(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, const Player &User){
     SDL_wclear_stats_bar(main_win, context);
     std::stringstream ss;
-    ss<<"HP:"<<User.cur_hp<<" Attk:"<<User.attk<<" Def:"<<User.def<<" Shield:"<<User.cur_shield<<" CritChn:"<<User.crit_chance<<" CritDmg:"<<User.crit_dmg<<" Gold:"<<User.gold<<" T:"<<User.steps/10;
-    tcod::print(*main_win, {0,51}, ss.str(), &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+    ss << "HP:" << User.cur_hp << " Attk:" << User.attk << " Def:" << User.def << " Shield:" << User.cur_shield << " CritChn:" << User.crit_chance << " CritDmg:" << User.crit_dmg << " Gold:" << User.gold << " T:" << User.steps/10;
+    tcod::print(*main_win, {0, 51}, ss.str(), &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
     ss.str(std::string());
-    ss<<"Saturation ("<<User.saturation<<"/100)"<<" [";
-    for(int i = 1; i<=50; i++){
+    ss << "Saturation (" << User.saturation << "/100)" << " [";
+    for(int i=1; i<=50; i++){
         if(i*2<=User.saturation){
-            ss<<"#";
+            ss << "#";
         }
         else{
-            ss<<"-";
+            ss << "-";
         }
     }
-    ss<<"]";
-    tcod::print(*main_win, {0,52}, ss.str(), &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+    ss << "]";
+    tcod::print(*main_win, {0, 52}, ss.str(), &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
     ss.str(std::string());
-    ss<<"Hydration ("<<User.hydration<<"/100)"<<" [";
-    for(int i = 1; i<=50; i++){
+    ss << "Hydration (" << User.hydration << "/100)" << " [";
+    for(int i=1; i<=50; i++){
         if(i*2<=User.hydration){
-            ss<<"#";
+            ss << "#";
         }
         else{
-            ss<<"-";
+            ss << "-";
         }
     }
-    ss<<"]";
-    tcod::print(*main_win, {0,53}, ss.str(), &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+    ss << "]";
+    tcod::print(*main_win, {0, 53}, ss.str(), &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
 //    context->present(*main_win);
 }
+
 void draw_player(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, int x, int y){
     TCOD_console_put_char_ex(main_win.get(), x, y+1, '@', CYAN, BLACK);
 }
+
 void draw_monster(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, const std::vector<monster> &monsters){
     for(int i=0; i<monsters.size(); i++){
         if(monsters[i].type=='b'){ // boss
@@ -62,6 +67,7 @@ void draw_monster(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, const s
         }
     }
 }
+
 void draw_border(std::unique_ptr<TCOD_Console, tcod::ConsoleDeleter> &main_win, std::unique_ptr<TCOD_Context, tcod::ContextDeleter> &context){
     for(int i=0; i<80; i++){ // vertical
         TCOD_console_put_char_ex(main_win.get(), i, 1, '#', WHITE, BLACK);
@@ -72,6 +78,7 @@ void draw_border(std::unique_ptr<TCOD_Console, tcod::ConsoleDeleter> &main_win, 
         TCOD_console_put_char_ex(main_win.get(), 79, i, '#', WHITE, BLACK);
     }
 }
+
 void draw_doors(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, level Current){
     if(Current.y>1){
         TCOD_console_put_char_ex(main_win.get(), 39, 50, '+', BLACK, WHITE);
@@ -95,6 +102,7 @@ void draw_doors(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, level Cur
         TCOD_console_put_char_ex(main_win.get(), 39, 25, '>', WHITE, BLACK);
     }
 }
+
 void redraw_everything(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Csr csr_pos, const Player &User, level Current, const std::vector<monster> &monsters){
     TCOD_console_clear(main_win.get());
     draw_level(main_win, context, Current);

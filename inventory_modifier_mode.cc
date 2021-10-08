@@ -1,19 +1,22 @@
 #include "headers/main.h"
 #include "headers/classes.h"
 #include "headers/mode.h"
+
 void reset_inv_params(NoDelete &perm_config){
-    perm_config.default_show_type_type = DEFAULT_SHOW_SELECTION;
-    perm_config.default_show_rarity_type = DEFAULT_SHOW_SELECTION;
-    perm_config.default_sort_rarity_method = DEFAULT_SHOW_SELECTION;
-    perm_config.only_show_equipped = false;
+    perm_config.default_show_type_type=DEFAULT_SHOW_SELECTION;
+    perm_config.default_show_rarity_type=DEFAULT_SHOW_SELECTION;
+    perm_config.default_sort_rarity_method=DEFAULT_SHOW_SELECTION;
+    perm_config.only_show_equipped=false;
 }
-void init_copy(std::vector<Item> &original, std::vector<Item*> &items_copy){
+
+void init_copy(std::vector<Item> &original, std::vector<Item *> &items_copy){
     items_copy.clear();
-    for(int i = 0; i<original.size(); i++){
+    for(int i=0; i<original.size(); i++){
         items_copy.push_back(&original[i]);
     }
 }
-void process_copy(std::vector<Item> &original, std::vector<Item*> &items_copy, NoDelete &perm_config){
+
+void process_copy(std::vector<Item> &original, std::vector<Item *> &items_copy, NoDelete &perm_config){
     init_copy(original, items_copy);
     if(perm_config.only_show_equipped){ // Only show Equipped
         items_copy.erase(std::remove_if(items_copy.begin(), items_copy.end(), [](const Item *v){return v->is_equipped==false;}), items_copy.end());
@@ -35,57 +38,62 @@ void process_copy(std::vector<Item> &original, std::vector<Item*> &items_copy, N
         process_copy(original, items_copy, perm_config);
     }
 }
+
 void print_item(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, bool curr_pos_matches_condition, bool curr_config_matches_condition, int line, std::string output, bool is_valid=true){
     if(!is_valid){
-        tcod::print(*main_win, {0,line}, "["+output+"]", &GRAY, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+        tcod::print(*main_win, {0, line}, "["+output+"]", &GRAY, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
         return;
     }
     if(curr_pos_matches_condition){
         if(curr_config_matches_condition){
-            tcod::print(*main_win, {0,line}, "->["+output+"]", &BLACK, &WHITE, TCOD_BKGND_SET, TCOD_LEFT);
+            tcod::print(*main_win, {0, line}, "->["+output+"]", &BLACK, &WHITE, TCOD_BKGND_SET, TCOD_LEFT);
         }
         else{
-            tcod::print(*main_win, {0,line}, "["+output+"]", &BLACK, &WHITE, TCOD_BKGND_SET, TCOD_LEFT);
+            tcod::print(*main_win, {0, line}, "["+output+"]", &BLACK, &WHITE, TCOD_BKGND_SET, TCOD_LEFT);
         }
     }
     else{
         if(curr_config_matches_condition){
-            tcod::print(*main_win, {0,line}, "->["+output+"]", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+            tcod::print(*main_win, {0, line}, "->["+output+"]", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
         }
         else{
-            tcod::print(*main_win, {0,line}, "["+output+"]", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+            tcod::print(*main_win, {0, line}, "["+output+"]", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
         }
     }
 }
-bool check_if_rarity_valid(const std::vector<Item*> items_copy, char check){
-    for(int i = 0; i<items_copy.size(); i++){
+
+bool check_if_rarity_valid(const std::vector<Item *> &items_copy, char check){
+    for(int i=0; i<items_copy.size(); i++){
         if(items_copy[i]->rarity==check){
             return true;
         }
     }
     return false;
 }
-bool check_if_type_valid(const std::vector<Item*> items_copy, char check){
-    for(int i = 0; i<items_copy.size(); i++){
+
+bool check_if_type_valid(const std::vector<Item *> &items_copy, char check){
+    for(int i=0; i<items_copy.size(); i++){
         if(items_copy[i]->type==check){
             return true;
         }
     }
     return false;
 }
-bool check_if_equip_valid(const std::vector<Item*> items_copy){
-    for(int i = 0; i<items_copy.size(); i++){
+
+bool check_if_equip_valid(const std::vector<Item *> &items_copy){
+    for(int i=0; i<items_copy.size(); i++){
         if(items_copy[i]->is_equipped){
             return true;
         }
     }
     return false;
 }
-void draw_inventory_modifier_selection(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, const std::vector<Item*> items_copy, const NoDelete &perm_config, unsigned int csr_pos){
+
+void draw_inventory_modifier_selection(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, const std::vector<Item *> &items_copy, const NoDelete &perm_config, unsigned int csr_pos){
     SDL_wclear_main_win(main_win, context);
     SDL_wclear_dialog_bar(main_win, context);
-    tcod::print(*main_win, {0,0}, "Inventory Modifier Selection", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
-    tcod::print(*main_win, {0,1}, "Show only [Rarity]:", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+    tcod::print(*main_win, {0, 0}, "Inventory Modifier Selection", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+    tcod::print(*main_win, {0, 1}, "Show only [Rarity]:", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
     print_item(main_win, context, csr_pos==0, perm_config.default_show_rarity_type==DEFAULT_SHOW_SELECTION, 2, "All");
     print_item(main_win, context, csr_pos==1, perm_config.default_show_rarity_type==RARITY_COMMON, 3, "Common", check_if_rarity_valid(items_copy, RARITY_COMMON));
     print_item(main_win, context, csr_pos==2, perm_config.default_show_rarity_type==RARITY_UNCOMMON, 4, "Uncommon", check_if_rarity_valid(items_copy, RARITY_UNCOMMON));
@@ -93,7 +101,7 @@ void draw_inventory_modifier_selection(tcod::ConsolePtr &main_win, tcod::Context
     print_item(main_win, context, csr_pos==4, perm_config.default_show_rarity_type==RARITY_EPIC, 6, "Epic", check_if_rarity_valid(items_copy, RARITY_EPIC));
     print_item(main_win, context, csr_pos==5, perm_config.default_show_rarity_type==RARITY_LEGENDARY, 7, "Legendary", check_if_rarity_valid(items_copy, RARITY_LEGENDARY));
     print_item(main_win, context, csr_pos==6, perm_config.default_show_rarity_type==RARITY_ARTIFACT, 8, "Artifact", check_if_rarity_valid(items_copy, RARITY_ARTIFACT));
-    tcod::print(*main_win, {0,10}, "Show only [Type]:", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+    tcod::print(*main_win, {0, 10}, "Show only [Type]:", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
     print_item(main_win, context, csr_pos==7, perm_config.default_show_type_type==DEFAULT_SHOW_SELECTION, 11, "All");
     print_item(main_win, context, csr_pos==8, perm_config.default_show_type_type==TYPE_HELMET, 12, "Helmet", check_if_type_valid(items_copy, TYPE_HELMET));
     print_item(main_win, context, csr_pos==9, perm_config.default_show_type_type==TYPE_CHESTPLATE, 13, "Chestplate", check_if_type_valid(items_copy, TYPE_CHESTPLATE));
@@ -101,10 +109,10 @@ void draw_inventory_modifier_selection(tcod::ConsolePtr &main_win, tcod::Context
     print_item(main_win, context, csr_pos==11, perm_config.default_show_type_type==TYPE_BOOTS, 15, "Boots", check_if_type_valid(items_copy, TYPE_BOOTS));
     print_item(main_win, context, csr_pos==12, perm_config.default_show_type_type==TYPE_SHIELD, 16, "Shield", check_if_type_valid(items_copy, TYPE_SHIELD));
     print_item(main_win, context, csr_pos==13, perm_config.default_show_type_type==TYPE_WEAPON, 17, "Weapon", check_if_type_valid(items_copy, TYPE_WEAPON));
-    tcod::print(*main_win, {0,19}, "Show only [Equipped]:", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+    tcod::print(*main_win, {0, 19}, "Show only [Equipped]:", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
     print_item(main_win, context, csr_pos==14, !perm_config.only_show_equipped, 20, "All");
     print_item(main_win, context, csr_pos==15, perm_config.only_show_equipped, 21, "Equipped Only", check_if_equip_valid(items_copy));
-    tcod::print(*main_win, {0,23}, "Sort by [Rarity]:", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+    tcod::print(*main_win, {0, 23}, "Sort by [Rarity]:", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
     print_item(main_win, context, csr_pos==16, perm_config.default_sort_rarity_method==DEFAULT_SHOW_SELECTION, 24, "None");
     print_item(main_win, context, csr_pos==17, perm_config.default_sort_rarity_method==SORT_TYPE_RARITY_ASCENDING, 25, "Ascending");
     print_item(main_win, context, csr_pos==18, perm_config.default_sort_rarity_method==SORT_TYPE_RARITY_DESCENDING, 26, "Descending");
@@ -114,7 +122,8 @@ void draw_inventory_modifier_selection(tcod::ConsolePtr &main_win, tcod::Context
     print_item(main_win, context, csr_pos==22, false, 34, "Done");
     context->present(*main_win);
 }
-void change_config(NoDelete &perm_config, unsigned int csr_pos, const std::vector<Item*> items_copy){
+
+void change_config(NoDelete &perm_config, unsigned int csr_pos, const std::vector<Item *> &items_copy){
     switch(csr_pos){
         case 0:
             perm_config.default_show_rarity_type=DEFAULT_SHOW_SELECTION;
@@ -193,7 +202,8 @@ void change_config(NoDelete &perm_config, unsigned int csr_pos, const std::vecto
             break;
     }
 }
-bool check_if_csr_move_valid(const unsigned int &csr_pos, const std::vector<Item*> items_copy){
+
+bool check_if_csr_move_valid(const unsigned int &csr_pos, const std::vector<Item *> &items_copy){
     switch(csr_pos){
         case 1:
             if(check_if_rarity_valid(items_copy, RARITY_COMMON)){
@@ -265,20 +275,23 @@ bool check_if_csr_move_valid(const unsigned int &csr_pos, const std::vector<Item
     }
     return false;
 }
-void repeat_down_until_valid_move(unsigned int &csr_pos, const std::vector<Item*> items_copy){
+
+void repeat_down_until_valid_move(unsigned int &csr_pos, const std::vector<Item *> &items_copy){
     csr_pos++;
     if(!check_if_csr_move_valid(csr_pos, items_copy)){
         repeat_down_until_valid_move(csr_pos, items_copy);
     }
 }
-void repeat_up_until_valid_move(unsigned int &csr_pos, const std::vector<Item*> items_copy){
+
+void repeat_up_until_valid_move(unsigned int &csr_pos, const std::vector<Item *> &items_copy){
     csr_pos--;
     if(!check_if_csr_move_valid(csr_pos, items_copy)){
         repeat_up_until_valid_move(csr_pos, items_copy);
     }
 }
-void inventory_modifier_selection(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, NoDelete &perm_config, std::vector<Item> original_copy, std::vector<Item*> items_copy){
-    unsigned int csr_pos = 0;
+
+void inventory_modifier_selection(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, NoDelete &perm_config, std::vector<Item> original_copy, std::vector<Item *> &items_copy){
+    unsigned int csr_pos=0;
     int ch;
     while(true){
         draw_inventory_modifier_selection(main_win, context, items_copy, perm_config, csr_pos);
