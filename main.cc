@@ -14,7 +14,6 @@
 #include <cereal/types/vector.hpp>
 #include <cereal/types/string.hpp>
 #include <cereal/types/utility.hpp>
-#include <cereal/types/map.hpp>
 
 int SDL_getch(tcod::ConsolePtr &main_win, tcod::ContextPtr &context){
     SDL_FlushEvent(SDL_KEYDOWN);
@@ -347,12 +346,11 @@ bool player_battle(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player
         }
         if(ch=='2'){
             if(User.inv.misc.heal_amount>0&&User.cur_hp!=User.ori_hp){
-                User.inv.misc.heal_amount;
+                User.inv.misc.heal_amount--;
                 User.cur_hp=User.ori_hp;
             }
         }
     }
-    return false;
 }
 
 std::pair<bool, bool> attack_monster(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, std::vector<monster> &monsters, Csr csr_pos, Player &User, level Current){

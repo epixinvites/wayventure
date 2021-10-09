@@ -131,7 +131,31 @@ void Item::initialize_item(){
     original.crit_dmg=crit_dmg;
 }
 
+unsigned long long int Inventory::get_inventory_largest_id(){
+    unsigned long long int largest_id = 0;
+    for(const auto &i:item){
+        if(i.id>largest_id){
+            largest_id=i.id;
+        }
+    }
+    return largest_id;
+}
+
+Item* Inventory::get_pointer_to_item_with_id(unsigned long long int id){
+    for(auto &i : item){
+        if(i.id==id){
+            return &i;
+        }
+    }
+    return nullptr;
+}
+
+void Player::delete_item_with_id(unsigned long long int id){
+    remove_item(inv.get_pointer_to_item_with_id(id));
+}
+
 void Player::add_item(Item input){
+    input.id = inv.get_inventory_largest_id()+1;
     inv.item.push_back(input);
     for(int i=0; i<inv.item.size(); i++){ // loops through every single item and finds all items that is_equipped
         if(inv.item[i].is_equipped){

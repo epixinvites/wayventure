@@ -848,7 +848,7 @@ double calculate_quality_points(const Item &cur){
 
 void print_inventory_with_quality_points_description(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, const Item *cur_item, int line){
     print_item_description_1(main_win, context, cur_item, line);
-    double quality_points = calculate_quality_points(*cur_item);
+    double quality_points=calculate_quality_points(*cur_item);
     tcod::print(*main_win, {0, line+1}, "Equipped: ", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
     if(cur_item->is_equipped){
         tcod::print(*main_win, {10, line+1}, "true", &GREEN, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
@@ -907,68 +907,92 @@ void print_item_with_selection(tcod::ConsolePtr &main_win, tcod::ContextPtr &con
     }
 }
 
-void print_inventory_with_quality_points(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, unsigned int csr_pos, unsigned int page_num, const Player &User, const std::vector<std::pair<Item*, bool>> &items_copy){
+void draw_base_with_quality_points(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, int y, unsigned int size, unsigned int page, const int &target_quality, const int &total_quality){
+    std::stringstream ss;
+    SDL_wclear_dialog_bar(main_win, context);
+    ss << "Inventory " << "(" << page+1 << "/" << ((size-1)/30)+1 << ")" << " Selected Total Quality: [" << total_quality << "/" << target_quality << "]";
+    tcod::print(*main_win, {0, 0}, ss.str(), &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+    for(int i=0; i<80; i++){
+        TCOD_console_put_char_ex(main_win.get(), i, y+1, '-', WHITE, BLACK);
+    }
+//    context->present(*main_win);
+}
+
+void print_inventory_with_quality_points(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, unsigned int csr_pos, unsigned int page_num, const Player &User, const std::vector<std::pair<Item *, bool>> &items_copy, const int &target_quality, const int &total_quality){
     SDL_wclear_main_win(main_win, context);
     SDL_wclear_stats_bar(main_win, context);
     draw_stats(main_win, context, User);
-    if(!items_copy.empty()){
-        draw_base(main_win, context, 34, items_copy.size(), page_num, false, false);
-        for(int i=page_num*30, iterator=0; i<items_copy.size()&&iterator<30; i++, iterator++){
-            print_item_with_selection(main_win, context, items_copy[i].first, iterator, csr_pos==iterator, items_copy[page_num*30+iterator].second);
-        }
-        print_inventory_with_quality_points_description(main_win, context, items_copy[page_num*30+csr_pos].first, 35);
+    draw_base_with_quality_points(main_win, context, 34, items_copy.size(), page_num, target_quality, total_quality);
+    for(int i=page_num*30, iterator=0; i<items_copy.size()&&iterator<30; i++, iterator++){
+        print_item_with_selection(main_win, context, items_copy[i].first, iterator, csr_pos==iterator, items_copy[page_num*30+iterator].second);
     }
-    else{
-        draw_base(main_win, context, 34, items_copy.size(), page_num, false, false);
-        context->present(*main_win);
-    }
+    print_inventory_with_quality_points_description(main_win, context, items_copy[page_num*30+csr_pos].first, 35);
 }
 
-void select_inventory_for_exchange(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player &User, const Item &target){
-    std::vector<std::pair<Item*, bool>> items_copy;
+int select_inventory_for_exchange(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player &User, const Item *target){
+    std::vector<unsigned long long int> selected_for_trade;
+    std::vector<std::pair<Item *, bool>> selected_items;
     unsigned int page_num=0;
     int csr_pos=0;
-    for(int i = 0; i<User.inv.item.size(); i++){
+    int total_quality=0;
+    for(int i=0; i<User.inv.item.size(); i++){
         if(User.inv.item[i].rarity==RARITY_LEGENDARY){
-            items_copy.push_back({&User.inv.item[i], false});
+            selected_items.push_back({&User.inv.item[i], false});
         }
     }
-    print_inventory_with_quality_points(main_win, context, csr_pos, page_num, User, items_copy);
+    print_inventory_with_quality_points(main_win, context, csr_pos, page_num, User, selected_items, calculate_quality_points(*target), total_quality);
     while(true){
         int ch=SDL_getch(main_win, context);
-        if((ch=='s'||ch==SDLK_DOWN)&&((csr_pos+page_num*30)<items_copy.size()-1&&csr_pos<29)){
+        if((ch=='s'||ch==SDLK_DOWN)&&((csr_pos+page_num*30)<selected_items.size()-1&&csr_pos<29)){
             csr_pos++;
-            print_inventory_with_quality_points(main_win, context, csr_pos, page_num, User, items_copy);
+            print_inventory_with_quality_points(main_win, context, csr_pos, page_num, User, selected_items, calculate_quality_points(*target), total_quality);
         }
         if((ch=='w'||ch==SDLK_UP)&&csr_pos>0){
             csr_pos--;
-            print_inventory_with_quality_points(main_win, context, csr_pos, page_num, User, items_copy);
+            print_inventory_with_quality_points(main_win, context, csr_pos, page_num, User, selected_items, calculate_quality_points(*target), total_quality);
         }
         if(ch=='a'||ch==SDLK_LEFT){
             if(page_num>0){
                 page_num--;
                 csr_pos=0;
-                print_inventory_with_quality_points(main_win, context, csr_pos, page_num, User, items_copy);
+                print_inventory_with_quality_points(main_win, context, csr_pos, page_num, User, selected_items, calculate_quality_points(*target), total_quality);
             }
         }
         if(ch=='d'||ch==SDLK_RIGHT){
-            if((page_num+1)*30<items_copy.size()){
+            if((page_num+1)*30<selected_items.size()){
                 page_num++;
                 csr_pos=0;
-                print_inventory_with_quality_points(main_win, context, csr_pos, page_num, User, items_copy);
+                print_inventory_with_quality_points(main_win, context, csr_pos, page_num, User, selected_items, calculate_quality_points(*target), total_quality);
             }
         }
         if(ch=='q'){
-            return;
+            return 0;
         }
         if(ch==SDLK_RETURN){
-            if(items_copy[csr_pos+(page_num*30)].second){
-                items_copy[csr_pos+(page_num*30)].second=false;
+            if(selected_items[csr_pos+(page_num*30)].second){
+                selected_items[csr_pos+(page_num*30)].second=false;
+                total_quality-=(int)(calculate_quality_points(*selected_items[csr_pos+(page_num*30)].first));
+                selected_for_trade.erase(std::remove(selected_for_trade.begin(), selected_for_trade.end(), selected_items[csr_pos+(page_num*30)].first->id), selected_for_trade.end());
             }
             else{
-                items_copy[csr_pos+(page_num*30)].second=true;
+                selected_items[csr_pos+(page_num*30)].second=true;
+                total_quality+=(int)(calculate_quality_points(*selected_items[csr_pos+(page_num*30)].first));
+                selected_for_trade.push_back(selected_items[csr_pos+(page_num*30)].first->id);
             }
-            print_inventory_with_quality_points(main_win, context, csr_pos, page_num, User, items_copy);
+            print_inventory_with_quality_points(main_win, context, csr_pos, page_num, User, selected_items, calculate_quality_points(*target), total_quality);
+        }
+        if(ch=='B'&&!selected_for_trade.empty()){
+            if(total_quality>=calculate_quality_points(*target)){
+                for(int i = 0; i<selected_for_trade.size(); i++){
+                    User.delete_item_with_id(selected_for_trade[i]);
+                }
+                selected_items.clear();
+                selected_for_trade.clear();
+                return 2;
+            }
+            else{
+                return 1;
+            }
         }
     }
 }
@@ -976,7 +1000,6 @@ void select_inventory_for_exchange(tcod::ConsolePtr &main_win, tcod::ContextPtr 
 void mysterious_trader_items(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player &User, Merchant &mysterious_merchant){
     unsigned int page_num=0;
     int csr_pos=0;
-    std::vector<Item *> selected_for_trade;
     std::vector<Item> original_copy;
     for(auto i: mysterious_merchant.store){
         original_copy.push_back(i.first);
@@ -998,10 +1021,32 @@ void mysterious_trader_items(tcod::ConsolePtr &main_win, tcod::ContextPtr &conte
             return;
         }
         if(ch==SDLK_RETURN){
-            for(int i = 0; i<User.inv.item.size(); i++){
+            for(int i=0; i<User.inv.item.size(); i++){
                 if(User.inv.item[i].rarity==RARITY_LEGENDARY){
-                    select_inventory_for_exchange(main_win, context, User, mysterious_merchant.store[csr_pos].first);
-                    draw_mysterious_trader_items(main_win, context, items_copy, csr_pos, calculate_quality_points(*items_copy[csr_pos]));
+                    int status = select_inventory_for_exchange(main_win, context, User, &mysterious_merchant.store[csr_pos].first);
+                    if(status==1){
+                        draw_mysterious_trader_items(main_win, context, items_copy, csr_pos, calculate_quality_points(*items_copy[csr_pos]));
+                        clear_and_draw_dialog(main_win, context, "[Trader] ...*Stares*");
+                    }
+                    else if(status==2){
+                        User.add_item(mysterious_merchant.store[csr_pos].first);
+                        mysterious_merchant.store.erase(mysterious_merchant.store.begin()+csr_pos);
+                        if(mysterious_merchant.store.empty()){
+                            return;
+                        }
+                        original_copy.clear();
+                        items_copy.clear();
+                        for(auto i: mysterious_merchant.store){
+                            original_copy.push_back(i.first);
+                        }
+                        init_copy(original_copy, items_copy);
+                        csr_pos=0;
+                        draw_mysterious_trader_items(main_win, context, items_copy, csr_pos, calculate_quality_points(*items_copy[csr_pos]));
+                        clear_and_draw_dialog(main_win, context, "[Trader] Let fate intertwine our paths once more...");
+                    }
+                    else{
+                        draw_mysterious_trader_items(main_win, context, items_copy, csr_pos, calculate_quality_points(*items_copy[csr_pos]));
+                    }
                     break;
                 }
             }

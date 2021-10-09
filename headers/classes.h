@@ -22,6 +22,7 @@ struct Item{
     };
     Item() = default;
     Original original;
+    unsigned long long int id = 0;
     std::string name; // Depreciated, change your username via `main.h` instead
     char type, rarity;
     // type: 'h' helmet, 'c' chestplate, 'g' greaves, 'b' boots, 's' shield, 'w' weapon
@@ -82,10 +83,11 @@ struct Miscellaneous{
 };
 struct Inventory{
     std::vector<Item> item;
-    //std::map<unsigned long long int, Item> item;
     Food food;
     Water water;
     Miscellaneous misc;
+    unsigned long long int get_inventory_largest_id();
+    Item* get_pointer_to_item_with_id(unsigned long long int id);
     template<class Archive>void serialize(Archive &archive){archive(food,water,item,misc);}
 };
 struct Equipped{
@@ -114,9 +116,9 @@ public:
     void uninitialize_gear(Item *&gear);
     void initialize_stats();
     void uninitialize_stats();
+    void delete_item_with_id(unsigned long long int id);
     void add_item(Item input);
     void remove_item(Item *address);
-    void recover_original_stats();
     template<class Archive>void serialize(Archive &archive){archive(steps,saturation,hydration,gold,cur_hp,cur_shield,inv);}
 };
 struct level{
