@@ -7,7 +7,7 @@
 
 int calculate_price(const Item cur, int relationship, bool player_sell){
     int price=100*rarity_value(cur.rarity)*rarity_value(cur.rarity);
-    if(cur.def>0&&cur.type!=TYPE_GREAVES){
+    if(cur.def>0&&cur.type!=Type::GREAVES){
         price*=1.5+(cur.def/100.0);
     }
     else{
@@ -20,22 +20,22 @@ int calculate_price(const Item cur, int relationship, bool player_sell){
         price*=1.5+(cur.crit_chance/25.0);
     }
     switch(cur.type){
-        case TYPE_HELMET:
+        case Type::HELMET:
             price*=cur.hp/(40*rarity_value(cur.rarity))*2;
             break;
-        case TYPE_CHESTPLATE:
+        case Type::CHESTPLATE:
             price*=cur.hp/(100*rarity_value(cur.rarity))*2;
             break;
-        case TYPE_GREAVES:
+        case Type::GREAVES:
             price*=cur.def/(50*rarity_value(cur.rarity))*2;
             break;
-        case TYPE_BOOTS:
+        case Type::BOOTS:
             price*=cur.def/(30*rarity_value(cur.rarity))*2;
             break;
-        case TYPE_SHIELD:
+        case Type::SHIELD:
             price*=cur.shield/(100*rarity_value(cur.rarity))*2;
             break;
-        case TYPE_WEAPON:
+        case Type::WEAPON:
             price*=cur.attk/(200*rarity_value(cur.rarity))*4;
             break;
         default:
@@ -53,22 +53,22 @@ void print_item_description_1(tcod::ConsolePtr &main_win, tcod::ContextPtr &cont
     tcod::print(*main_win, {6, line+1}, cur_item->name, &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
     tcod::print(*main_win, {0, line+2}, "Rarity: ", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
     switch(cur_item->rarity){
-        case RARITY_COMMON:
+        case Rarity::COMMON:
             tcod::print(*main_win, {8, line+2}, "Common", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
             break;
-        case RARITY_UNCOMMON:
+        case Rarity::UNCOMMON:
             tcod::print(*main_win, {8, line+2}, "Uncommon", &GREEN, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
             break;
-        case RARITY_RARE:
+        case Rarity::RARE:
             tcod::print(*main_win, {8, line+2}, "Rare", &BLUE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
             break;
-        case RARITY_EPIC:
+        case Rarity::EPIC:
             tcod::print(*main_win, {8, line+2}, "Epic", &PURPLE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
             break;
-        case RARITY_LEGENDARY:
+        case Rarity::LEGENDARY:
             tcod::print(*main_win, {8, line+2}, "Legendary", &YELLOW, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
             break;
-        case RARITY_ARTIFACT:
+        case Rarity::ARTIFACT:
             tcod::print(*main_win, {8, line+2}, "Artifact", &DARK_RED, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
             break;
         default:
@@ -78,22 +78,22 @@ void print_item_description_1(tcod::ConsolePtr &main_win, tcod::ContextPtr &cont
     line+=2;
     tcod::print(*main_win, {0, line+1}, "Type: ", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
     switch(cur_item->type){
-        case TYPE_HELMET:
+        case Type::HELMET:
             tcod::print(*main_win, {6, line+1}, "Helmet", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
             break;
-        case TYPE_CHESTPLATE:
+        case Type::CHESTPLATE:
             tcod::print(*main_win, {6, line+1}, "Chestplate", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
             break;
-        case TYPE_GREAVES:
+        case Type::GREAVES:
             tcod::print(*main_win, {6, line+1}, "Greaves", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
             break;
-        case TYPE_BOOTS:
+        case Type::BOOTS:
             tcod::print(*main_win, {6, line+1}, "Boots", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
             break;
-        case TYPE_SHIELD:
+        case Type::SHIELD:
             tcod::print(*main_win, {6, line+1}, "Shield", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
             break;
-        case TYPE_WEAPON:
+        case Type::WEAPON:
             tcod::print(*main_win, {6, line+1}, "Weapon", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
             break;
         default:
@@ -518,7 +518,7 @@ void sell_items_to_merchant(tcod::ConsolePtr &main_win, tcod::ContextPtr &contex
                 draw_sell_items(main_win, context, User, items_copy, page_num, csr_pos, calculate_price(*items_copy[csr_pos+page_num*30], gear_merchant.relation, true));
             }
         }
-        if(ch=='S'){
+        if(ch=='S'&&items_copy[csr_pos+page_num*30]->rarity!=Rarity::ARTIFACT){
             clear_and_draw_dialog(main_win, context, "Sell item? [y/n]");
             while(true){
                 ch=SDL_getch(main_win, context);
@@ -822,22 +822,22 @@ double calculate_quality_points(const Item &cur){
     quality_points+=cur.crit_chance/5;
     quality_points+=cur.crit_dmg/5;
     switch(cur.type){
-        case TYPE_HELMET:
+        case Type::HELMET:
             quality_points*=cur.hp/(40*rarity_value(cur.rarity));
             break;
-        case TYPE_CHESTPLATE:
+        case Type::CHESTPLATE:
             quality_points*=cur.hp/(100*rarity_value(cur.rarity));
             break;
-        case TYPE_GREAVES:
+        case Type::GREAVES:
             quality_points*=cur.def/(50*rarity_value(cur.rarity));
             break;
-        case TYPE_BOOTS:
+        case Type::BOOTS:
             quality_points*=cur.def/(30*rarity_value(cur.rarity));
             break;
-        case TYPE_SHIELD:
+        case Type::SHIELD:
             quality_points*=cur.shield/(100*rarity_value(cur.rarity));
             break;
-        case TYPE_WEAPON:
+        case Type::WEAPON:
             quality_points*=cur.attk/(200*rarity_value(cur.rarity));
             break;
         default:
@@ -869,22 +869,22 @@ void print_item_with_selection(tcod::ConsolePtr &main_win, tcod::ContextPtr &con
         ss << "->";
     }
     switch(cur_item->type){
-        case TYPE_HELMET:
+        case Type::HELMET:
             ss << "[Helmet] ";
             break;
-        case TYPE_CHESTPLATE:
+        case Type::CHESTPLATE:
             ss << "[Chestplate] ";
             break;
-        case TYPE_GREAVES:
+        case Type::GREAVES:
             ss << "[Greaves] ";
             break;
-        case TYPE_BOOTS:
+        case Type::BOOTS:
             ss << "[Boots] ";
             break;
-        case TYPE_SHIELD:
+        case Type::SHIELD:
             ss << "[Shield] ";
             break;
-        case TYPE_WEAPON:
+        case Type::WEAPON:
             ss << "[Weapon] ";
             break;
         default:
@@ -895,16 +895,7 @@ void print_item_with_selection(tcod::ConsolePtr &main_win, tcod::ContextPtr &con
     if(cur_item->calibration>0){
         ss << " [" << cur_item->calibration << "]";
     }
-    switch(cur_item->rarity){
-        case RARITY_LEGENDARY:
-            print_bold_with_condition(main_win, context, ss.str(), YELLOW, line+1, is_highlighted);
-            break;
-        case RARITY_ARTIFACT:
-            print_bold_with_condition(main_win, context, ss.str(), DARK_RED, line+1, is_highlighted);
-            break;
-        default:
-            break;
-    }
+    print_bold_with_condition(main_win, context, ss.str(), YELLOW, line+1, is_highlighted);
 }
 
 void draw_base_with_quality_points(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, int y, unsigned int size, unsigned int page, const int &target_quality, const int &total_quality){
@@ -936,7 +927,7 @@ int select_inventory_for_exchange(tcod::ConsolePtr &main_win, tcod::ContextPtr &
     int csr_pos=0;
     int total_quality=0;
     for(int i=0; i<User.inv.item.size(); i++){
-        if(User.inv.item[i].rarity==RARITY_LEGENDARY){
+        if(User.inv.item[i].rarity==Rarity::LEGENDARY){
             selected_items.push_back({&User.inv.item[i], false});
         }
     }
@@ -1022,7 +1013,7 @@ void mysterious_trader_items(tcod::ConsolePtr &main_win, tcod::ContextPtr &conte
         }
         if(ch==SDLK_RETURN){
             for(int i=0; i<User.inv.item.size(); i++){
-                if(User.inv.item[i].rarity==RARITY_LEGENDARY){
+                if(User.inv.item[i].rarity==Rarity::LEGENDARY){
                     int status = select_inventory_for_exchange(main_win, context, User, &mysterious_merchant.store[csr_pos].first);
                     if(status==1){
                         draw_mysterious_trader_items(main_win, context, items_copy, csr_pos, calculate_quality_points(*items_copy[csr_pos]));

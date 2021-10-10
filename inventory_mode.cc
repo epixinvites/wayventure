@@ -46,22 +46,22 @@ void print_item(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, const Ite
         ss << "*";
     }
     switch(cur_item->type){
-        case TYPE_HELMET:
+        case Type::HELMET:
             ss << "[Helmet] ";
             break;
-        case TYPE_CHESTPLATE:
+        case Type::CHESTPLATE:
             ss << "[Chestplate] ";
             break;
-        case TYPE_GREAVES:
+        case Type::GREAVES:
             ss << "[Greaves] ";
             break;
-        case TYPE_BOOTS:
+        case Type::BOOTS:
             ss << "[Boots] ";
             break;
-        case TYPE_SHIELD:
+        case Type::SHIELD:
             ss << "[Shield] ";
             break;
-        case TYPE_WEAPON:
+        case Type::WEAPON:
             ss << "[Weapon] ";
             break;
         default:
@@ -73,22 +73,22 @@ void print_item(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, const Ite
         ss << " [" << cur_item->calibration << "]";
     }
     switch(cur_item->rarity){
-        case RARITY_COMMON:
+        case Rarity::COMMON:
             print_bold_with_condition(main_win, context, ss.str(), WHITE, line+1, is_selected);
             break;
-        case RARITY_UNCOMMON:
+        case Rarity::UNCOMMON:
             print_bold_with_condition(main_win, context, ss.str(), GREEN, line+1, is_selected);
             break;
-        case RARITY_RARE:
+        case Rarity::RARE:
             print_bold_with_condition(main_win, context, ss.str(), BLUE, line+1, is_selected);
             break;
-        case RARITY_EPIC:
+        case Rarity::EPIC:
             print_bold_with_condition(main_win, context, ss.str(), PURPLE, line+1, is_selected);
             break;
-        case RARITY_LEGENDARY:
+        case Rarity::LEGENDARY:
             print_bold_with_condition(main_win, context, ss.str(), YELLOW, line+1, is_selected);
             break;
-        case RARITY_ARTIFACT:
+        case Rarity::ARTIFACT:
             print_bold_with_condition(main_win, context, ss.str(), DARK_RED, line+1, is_selected);
             break;
         default:
@@ -101,22 +101,22 @@ void print_description(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, co
     tcod::print(*main_win, {6, line+1}, cur_item->name, &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
     tcod::print(*main_win, {0, line+2}, "Rarity: ", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
     switch(cur_item->rarity){
-        case RARITY_COMMON:
+        case Rarity::COMMON:
             tcod::print(*main_win, {8, line+2}, "Common", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
             break;
-        case RARITY_UNCOMMON:
+        case Rarity::UNCOMMON:
             tcod::print(*main_win, {8, line+2}, "Uncommon", &GREEN, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
             break;
-        case RARITY_RARE:
+        case Rarity::RARE:
             tcod::print(*main_win, {8, line+2}, "Rare", &BLUE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
             break;
-        case RARITY_EPIC:
+        case Rarity::EPIC:
             tcod::print(*main_win, {8, line+2}, "Epic", &PURPLE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
             break;
-        case RARITY_LEGENDARY:
+        case Rarity::LEGENDARY:
             tcod::print(*main_win, {8, line+2}, "Legendary", &YELLOW, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
             break;
-        case RARITY_ARTIFACT:
+        case Rarity::ARTIFACT:
             tcod::print(*main_win, {8, line+2}, "Artifact", &DARK_RED, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
             break;
         default:
@@ -126,22 +126,22 @@ void print_description(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, co
     line+=2;
     tcod::print(*main_win, {0, line+1}, "Type: ", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
     switch(cur_item->type){
-        case TYPE_HELMET:
+        case Type::HELMET:
             tcod::print(*main_win, {6, line+1}, "Helmet", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
             break;
-        case TYPE_CHESTPLATE:
+        case Type::CHESTPLATE:
             tcod::print(*main_win, {6, line+1}, "Chestplate", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
             break;
-        case TYPE_GREAVES:
+        case Type::GREAVES:
             tcod::print(*main_win, {6, line+1}, "Greaves", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
             break;
-        case TYPE_BOOTS:
+        case Type::BOOTS:
             tcod::print(*main_win, {6, line+1}, "Boots", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
             break;
-        case TYPE_SHIELD:
+        case Type::SHIELD:
             tcod::print(*main_win, {6, line+1}, "Shield", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
             break;
-        case TYPE_WEAPON:
+        case Type::WEAPON:
             tcod::print(*main_win, {6, line+1}, "Weapon", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
             break;
         default:
@@ -201,7 +201,7 @@ void print_description(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, co
 
 void equip_item(Player &User, Item *cur_item){
     cur_item->is_equipped=true;
-    if(cur_item->type=='h'){
+    if(cur_item->type==Type::HELMET){
         if(User.equip.helmet!=nullptr){
             User.uninitialize_gear(User.equip.helmet);
             User.equip.helmet->is_equipped=false;
@@ -209,7 +209,7 @@ void equip_item(Player &User, Item *cur_item){
         User.equip.helmet=cur_item;
         User.initialize_gear(User.equip.helmet);
     }
-    if(cur_item->type=='c'){
+    if(cur_item->type==Type::CHESTPLATE){
         if(User.equip.chestplate!=nullptr){
             User.uninitialize_gear(User.equip.chestplate);
             User.equip.chestplate->is_equipped=false;
@@ -217,7 +217,7 @@ void equip_item(Player &User, Item *cur_item){
         User.equip.chestplate=cur_item;
         User.initialize_gear(User.equip.chestplate);
     }
-    if(cur_item->type=='g'){
+    if(cur_item->type==Type::GREAVES){
         if(User.equip.greaves!=nullptr){
             User.uninitialize_gear(User.equip.greaves);
             User.equip.greaves->is_equipped=false;
@@ -225,7 +225,7 @@ void equip_item(Player &User, Item *cur_item){
         User.equip.greaves=cur_item;
         User.initialize_gear(User.equip.greaves);
     }
-    if(cur_item->type=='b'){
+    if(cur_item->type==Type::BOOTS){
         if(User.equip.boots!=nullptr){
             User.uninitialize_gear(User.equip.boots);
             User.equip.boots->is_equipped=false;
@@ -233,7 +233,7 @@ void equip_item(Player &User, Item *cur_item){
         User.equip.boots=cur_item;
         User.initialize_gear(User.equip.boots);
     }
-    if(cur_item->type=='s'){
+    if(cur_item->type==Type::SHIELD){
         if(User.equip.shield!=nullptr){
             User.uninitialize_gear(User.equip.shield);
             User.equip.shield->is_equipped=false;
@@ -241,7 +241,7 @@ void equip_item(Player &User, Item *cur_item){
         User.equip.shield=cur_item;
         User.initialize_gear(User.equip.shield);
     }
-    if(cur_item->type=='w'){
+    if(cur_item->type==Type::WEAPON){
         if(User.equip.weapon!=nullptr){
             User.uninitialize_gear(User.equip.weapon);
             User.equip.weapon->is_equipped=false;
@@ -258,32 +258,32 @@ bool unequip_item(Player &User, Item *cur_item){
     if(User.cur_hp<=cur_item->hp){
         return false;
     }
-    if(cur_item->type=='h'&&User.cur_hp>cur_item->hp){
+    if(cur_item->type==Type::HELMET&&User.cur_hp>cur_item->hp){
         User.uninitialize_gear(User.equip.helmet);
         User.equip.helmet=nullptr;
         cur_item->is_equipped=false;
     }
-    if(cur_item->type=='c'&&User.cur_hp>cur_item->hp){
+    if(cur_item->type==Type::CHESTPLATE&&User.cur_hp>cur_item->hp){
         User.uninitialize_gear(User.equip.chestplate);
         User.equip.chestplate=nullptr;
         cur_item->is_equipped=false;
     }
-    if(cur_item->type=='g'){
+    if(cur_item->type==Type::GREAVES){
         User.uninitialize_gear(User.equip.greaves);
         User.equip.greaves=nullptr;
         cur_item->is_equipped=false;
     }
-    if(cur_item->type=='b'){
+    if(cur_item->type==Type::BOOTS){
         User.uninitialize_gear(User.equip.boots);
         User.equip.boots=nullptr;
         cur_item->is_equipped=false;
     }
-    if(cur_item->type=='s'){
+    if(cur_item->type==Type::SHIELD){
         User.uninitialize_gear(User.equip.shield);
         User.equip.shield=nullptr;
         cur_item->is_equipped=false;
     }
-    if(cur_item->type=='w'){
+    if(cur_item->type==Type::WEAPON){
         User.uninitialize_gear(User.equip.weapon);
         User.equip.weapon=nullptr;
         cur_item->is_equipped=false;
@@ -475,28 +475,28 @@ void show_misc_items(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Misc
     }
 }
 
-bool decrease_materials(char rarity, Miscellaneous &misc, unsigned int amount){
-    if(rarity=='c'&&misc.materials.common>=amount){
+bool decrease_materials(Rarity rarity, Miscellaneous &misc, unsigned int amount){
+    if(rarity==Rarity::COMMON&&misc.materials.common>=amount){
         misc.materials.common-=amount;
         return true;
     }
-    else if(rarity=='u'&&misc.materials.uncommon>=amount){
+    else if(rarity==Rarity::UNCOMMON&&misc.materials.uncommon>=amount){
         misc.materials.uncommon-=amount;
         return true;
     }
-    else if(rarity=='r'&&misc.materials.rare>=amount){
+    else if(rarity==Rarity::RARE&&misc.materials.rare>=amount){
         misc.materials.rare-=amount;
         return true;
     }
-    else if(rarity=='e'&&misc.materials.epic>=amount){
+    else if(rarity==Rarity::EPIC&&misc.materials.epic>=amount){
         misc.materials.epic-=amount;
         return true;
     }
-    else if(rarity=='l'&&misc.materials.legendary>=amount){
+    else if(rarity==Rarity::LEGENDARY&&misc.materials.legendary>=amount){
         misc.materials.legendary-=amount;
         return true;
     }
-    else if(rarity=='a'&&misc.materials.artifact>=amount){
+    else if(rarity==Rarity::ARTIFACT&&misc.materials.artifact>=amount){
         misc.materials.artifact-=amount;
         return true;
     }
@@ -598,12 +598,12 @@ void draw_crafting_selection(tcod::ConsolePtr &main_win, tcod::ContextPtr &conte
     clear_and_draw_dialog(main_win, context, "[Blacksmith] What do you want to craft today?");
 }
 
-bool check_if_sufficient_materials(Miscellaneous &misc, int material_selection, int required_material, char &rarity){
+bool check_if_sufficient_materials(Miscellaneous &misc, int material_selection, int required_material, Rarity &rarity){
     switch(material_selection){
         case 9: // common
             if(misc.materials.common>=required_material){
                 misc.materials.common-=required_material;
-                rarity=RARITY_COMMON;
+                rarity=Rarity::COMMON;
                 return true;
             }
             else{
@@ -613,7 +613,7 @@ bool check_if_sufficient_materials(Miscellaneous &misc, int material_selection, 
         case 10: // uncommon
             if(misc.materials.uncommon>=required_material){
                 misc.materials.uncommon-=required_material;
-                rarity=RARITY_UNCOMMON;
+                rarity=Rarity::UNCOMMON;
                 return true;
             }
             else{
@@ -623,7 +623,7 @@ bool check_if_sufficient_materials(Miscellaneous &misc, int material_selection, 
         case 11: // rare
             if(misc.materials.rare>=required_material){
                 misc.materials.rare-=required_material;
-                rarity=RARITY_RARE;
+                rarity=Rarity::RARE;
                 return true;
             }
             else{
@@ -633,7 +633,7 @@ bool check_if_sufficient_materials(Miscellaneous &misc, int material_selection, 
         case 12: // epic
             if(misc.materials.epic>=required_material){
                 misc.materials.epic-=required_material;
-                rarity=RARITY_EPIC;
+                rarity=Rarity::EPIC;
                 return true;
             }
             else{
@@ -643,7 +643,7 @@ bool check_if_sufficient_materials(Miscellaneous &misc, int material_selection, 
         case 13: // legendary
             if(misc.materials.legendary>=required_material){
                 misc.materials.legendary-=required_material;
-                rarity=RARITY_LEGENDARY;
+                rarity=Rarity::LEGENDARY;
                 return true;
             }
             else{
@@ -653,7 +653,7 @@ bool check_if_sufficient_materials(Miscellaneous &misc, int material_selection, 
         case 14: // artifact
             if(misc.materials.artifact>=required_material){
                 misc.materials.artifact-=required_material;
-                rarity=RARITY_ARTIFACT;
+                rarity=Rarity::ARTIFACT;
                 return true;
             }
             else{
@@ -665,13 +665,13 @@ bool check_if_sufficient_materials(Miscellaneous &misc, int material_selection, 
     }
 }
 
-bool check_if_craft_valid(int blueprint_selection, int material_selection, Miscellaneous &misc, char &gear_type, char &rarity){
+bool check_if_craft_valid(int blueprint_selection, int material_selection, Miscellaneous &misc, Type &gear_type, Rarity &rarity){
     switch(blueprint_selection){
         case 1: // helmet
             if(misc.blueprint.helmet>0){
                 if(check_if_sufficient_materials(misc, material_selection, 3, rarity)){
                     misc.blueprint.helmet--;
-                    gear_type=TYPE_HELMET;
+                    gear_type=Type::HELMET;
                     return true;
                 }
             }
@@ -683,7 +683,7 @@ bool check_if_craft_valid(int blueprint_selection, int material_selection, Misce
             if(misc.blueprint.chestplate>0){
                 if(check_if_sufficient_materials(misc, material_selection, 5, rarity)){
                     misc.blueprint.chestplate--;
-                    gear_type=TYPE_CHESTPLATE;
+                    gear_type=Type::CHESTPLATE;
                     return true;
                 }
             }
@@ -695,7 +695,7 @@ bool check_if_craft_valid(int blueprint_selection, int material_selection, Misce
             if(misc.blueprint.greaves>0){
                 if(check_if_sufficient_materials(misc, material_selection, 3, rarity)){
                     misc.blueprint.greaves--;
-                    gear_type=TYPE_GREAVES;
+                    gear_type=Type::GREAVES;
                     return true;
                 }
             }
@@ -707,7 +707,7 @@ bool check_if_craft_valid(int blueprint_selection, int material_selection, Misce
             if(misc.blueprint.boots>0){
                 if(check_if_sufficient_materials(misc, material_selection, 2, rarity)){
                     misc.blueprint.boots--;
-                    gear_type=TYPE_BOOTS;
+                    gear_type=Type::BOOTS;
                     return true;
                 }
             }
@@ -719,7 +719,7 @@ bool check_if_craft_valid(int blueprint_selection, int material_selection, Misce
             if(misc.blueprint.shield>0){
                 if(check_if_sufficient_materials(misc, material_selection, 4, rarity)){
                     misc.blueprint.shield--;
-                    gear_type=TYPE_SHIELD;
+                    gear_type=Type::SHIELD;
                     return true;
                 }
             }
@@ -731,7 +731,7 @@ bool check_if_craft_valid(int blueprint_selection, int material_selection, Misce
             if(misc.blueprint.weapon>0){
                 if(check_if_sufficient_materials(misc, material_selection, 6, rarity)){
                     misc.blueprint.weapon--;
-                    gear_type=TYPE_WEAPON;
+                    gear_type=Type::WEAPON;
                     return true;
                 }
             }
@@ -790,7 +790,8 @@ void crafting_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player
                 material_selection=csr_pos;
             }
             if(csr_pos==16&&blueprint_selection!=0&&material_selection!=0){
-                char gear_type, rarity;
+                Type gear_type;
+                Rarity rarity;
                 if(check_if_craft_valid(blueprint_selection, material_selection, User.inv.misc, gear_type, rarity)){
                     User.add_item(craft_item(rarity, gear_type));
                     return;
@@ -805,22 +806,22 @@ void crafting_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player
 
 void salvage_item(Player &User, Item *item){
     switch(item->rarity){
-        case RARITY_COMMON:
+        case Rarity::COMMON:
             User.inv.misc.materials.common+=((item->enhancement/2.0)+1.0)*(item->durability/50.0);
             break;
-        case RARITY_UNCOMMON:
+        case Rarity::UNCOMMON:
             User.inv.misc.materials.uncommon+=((item->enhancement/2.0)+1.0)*(item->durability/50.0);
             break;
-        case RARITY_RARE:
+        case Rarity::RARE:
             User.inv.misc.materials.rare+=((item->enhancement/2.0)+1.0)*(item->durability/50.0);
             break;
-        case RARITY_EPIC:
+        case Rarity::EPIC:
             User.inv.misc.materials.epic+=((item->enhancement/2.0)+1.0)*(item->durability/50.0);
             break;
-        case RARITY_LEGENDARY:
+        case Rarity::LEGENDARY:
             User.inv.misc.materials.legendary+=((item->enhancement/2.0)+1.0)*(item->durability/50.0);
             break;
-        case RARITY_ARTIFACT:
+        case Rarity::ARTIFACT:
             User.inv.misc.materials.artifact+=((item->enhancement/2.0)+1.0)*(item->durability/50.0);
             break;
         default:

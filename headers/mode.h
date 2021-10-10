@@ -3,13 +3,13 @@
 #include "classes.h"
 #include "main.h"
 struct SortAscending{
-    std::unordered_map<char,int> priority{
-        {RARITY_ARTIFACT,0},
-        {RARITY_LEGENDARY,1},
-        {RARITY_EPIC,2},
-        {RARITY_RARE,3},
-        {RARITY_UNCOMMON,4},
-        {RARITY_COMMON,5}
+    std::unordered_map<Rarity,int> priority{
+        {Rarity::ARTIFACT,0},
+        {Rarity::LEGENDARY,1},
+        {Rarity::EPIC,2},
+        {Rarity::RARE,3},
+        {Rarity::UNCOMMON,4},
+        {Rarity::COMMON,5}
     };
     bool operator()(const Item *i, const Item *j){
         int priority_i=priority[i->rarity];
@@ -23,13 +23,13 @@ struct SortAscending{
     }
 }const sort_ascending;
 struct SortDescending{
-    std::unordered_map<char,int> priority{
-        {RARITY_ARTIFACT,0},
-        {RARITY_LEGENDARY,1},
-        {RARITY_EPIC,2},
-        {RARITY_RARE,3},
-        {RARITY_UNCOMMON,4},
-        {RARITY_COMMON,5}
+    std::unordered_map<Rarity,int> priority{
+        {Rarity::ARTIFACT,0},
+        {Rarity::LEGENDARY,1},
+        {Rarity::EPIC,2},
+        {Rarity::RARE,3},
+        {Rarity::UNCOMMON,4},
+        {Rarity::COMMON,5}
     };
     bool operator()(const Item *i, const Item *j){
         int priority_i=priority[i->rarity];

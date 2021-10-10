@@ -53,13 +53,13 @@ void draw_player(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, int x, i
 
 void draw_monster(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, const std::vector<monster> &monsters){
     for(int i=0; i<monsters.size(); i++){
-        if(monsters[i].type=='b'){ // boss
+        if(monsters[i].type==Dungeon::ROOM_BOSS){ // boss
             TCOD_console_put_char_ex(main_win.get(), monsters[i].x, monsters[i].y+1, 'X', WHITE, BLACK);
         }
-        else if(monsters[i].type=='x'){ // level boss
+        else if(monsters[i].type==Dungeon::LEVEL_BOSS){ // level boss
             TCOD_console_put_char_ex(main_win.get(), monsters[i].x, monsters[i].y+1, 'X', BLACK, YELLOW);
         }
-        else if(monsters[i].type=='f'){ // final boss
+        else if(monsters[i].type==Dungeon::FINAL_BOSS){ // final boss
             TCOD_console_put_char_ex(main_win.get(), monsters[i].x, monsters[i].y+1, 'X', BLACK, PURPLE);
         }
         else{

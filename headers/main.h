@@ -4,7 +4,7 @@
 const auto modkeys=KMOD_CTRL|KMOD_SHIFT|KMOD_ALT;
 const std::string TILESET_FILE="res/alphabet.png";
 const tcod::TilesetPtr tileset=tcod::load_tilesheet(TILESET_FILE, {16,16}, tcod::CHARMAP_CP437);
-const std::string save_file_version="1.0"; // DO NOT MODIFY
+const std::string save_file_version="1.1"; // DO NOT MODIFY
 const std::string username="Wayfarrer"; // Please don't put weird characters and keep the length under 30 characters. The program will grumble if you don't follow my instructions.
 
 // Tweak these colors if your eyes go ouch. You can play around with the colors and rebuild the program when you're ready.
@@ -24,24 +24,36 @@ static constexpr TCOD_ColorRGB MAGENTA{255,0,255}; // NPC (exclusive)
 // Don't touch any of these. For god's sake.
 const std::string empty_line="                                                                                ";
 
-constexpr char RARITY_COMMON='c';
-constexpr char RARITY_UNCOMMON='u';
-constexpr char RARITY_RARE='r';
-constexpr char RARITY_EPIC='e';
-constexpr char RARITY_LEGENDARY='l';
-constexpr char RARITY_ARTIFACT='a';
+enum class Rarity{
+    NONE,
+    ALL,
+    COMMON,
+    UNCOMMON,
+    RARE,
+    EPIC,
+    LEGENDARY,
+    ARTIFACT,
+};
 
-constexpr char TYPE_HELMET='h';
-constexpr char TYPE_CHESTPLATE='c';
-constexpr char TYPE_GREAVES='g';
-constexpr char TYPE_BOOTS='b';
-constexpr char TYPE_SHIELD='s';
-constexpr char TYPE_WEAPON='w';
+enum class Type{
+    NONE,
+    ALL,
+    HELMET,
+    CHESTPLATE,
+    GREAVES,
+    BOOTS,
+    SHIELD,
+    WEAPON
+};
 
-constexpr char DUNGEON_ENEMY='e';
-constexpr char DUNGEON_ROOM_BOSS='b';
-constexpr char DUNGEON_LEVEL_BOSS='x';
-constexpr char DUNGEON_FINAL_BOSS='f';
+enum class Dungeon{
+    NONE,
+    ENEMY,
+    ROOM_BOSS,
+    LEVEL_BOSS,
+    MINI_BOSS,
+    FINAL_BOSS
+};
 
 constexpr char DEFAULT_SHOW_SELECTION='!';
 constexpr char SORT_TYPE_RARITY_ASCENDING='a';

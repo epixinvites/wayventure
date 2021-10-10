@@ -19,19 +19,19 @@ void refresh_gear_merchant_store(Merchant &gear_merchant, unsigned long long int
         for(int i=0; i<20-store_size; i++){
             int item=item_type(generator);
             if(item<20){
-                gear_merchant.store.push_back({generate_trade_items(RARITY_COMMON), false});
+                gear_merchant.store.push_back({generate_trade_items(Rarity::COMMON), false});
             }
             else if(item<40){
-                gear_merchant.store.push_back({generate_trade_items(RARITY_UNCOMMON), false});
+                gear_merchant.store.push_back({generate_trade_items(Rarity::UNCOMMON), false});
             }
             else if(item<70){
-                gear_merchant.store.push_back({generate_trade_items(RARITY_RARE), false});
+                gear_merchant.store.push_back({generate_trade_items(Rarity::RARE), false});
             }
             else if(item<90){
-                gear_merchant.store.push_back({generate_trade_items(RARITY_EPIC), false});
+                gear_merchant.store.push_back({generate_trade_items(Rarity::EPIC), false});
             }
             else{
-                gear_merchant.store.push_back({generate_trade_items(RARITY_LEGENDARY), false});
+                gear_merchant.store.push_back({generate_trade_items(Rarity::LEGENDARY), false});
             }
         }
         std::sort(gear_merchant.store.begin(), gear_merchant.store.end(), sort_ascending);
@@ -45,26 +45,26 @@ void refresh_mysterious_merchant_store(Merchant &mysterious_trader, long long in
             mysterious_trader.store.clear();
         }
         for(int i=0; i<5; i++){
-            mysterious_trader.store.push_back({generate_trade_items(RARITY_ARTIFACT), false});
+            mysterious_trader.store.push_back({generate_trade_items(Rarity::ARTIFACT), false});
         }
     }
 }
 
 void draw_gear_merchant_store(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Item &cur, int x, int y){
     switch(cur.rarity){
-        case RARITY_COMMON:
+        case Rarity::COMMON:
             TCOD_console_put_char_ex(main_win.get(), x, y, '/', WHITE, BLACK);
             break;
-        case RARITY_UNCOMMON:
+        case Rarity::UNCOMMON:
             TCOD_console_put_char_ex(main_win.get(), x, y, '/', GREEN, BLACK);
             break;
-        case RARITY_RARE:
+        case Rarity::RARE:
             TCOD_console_put_char_ex(main_win.get(), x, y, '/', BLUE, BLACK);
             break;
-        case RARITY_EPIC:
+        case Rarity::EPIC:
             TCOD_console_put_char_ex(main_win.get(), x, y, '/', PURPLE, BLACK);
             break;
-        case RARITY_LEGENDARY:
+        case Rarity::LEGENDARY:
             TCOD_console_put_char_ex(main_win.get(), x, y, '/', YELLOW, BLACK);
             break;
     }

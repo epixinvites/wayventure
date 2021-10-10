@@ -3,8 +3,8 @@
 #include "headers/mode.h"
 
 void reset_inv_params(NoDelete &perm_config){
-    perm_config.default_show_type_type=DEFAULT_SHOW_SELECTION;
-    perm_config.default_show_rarity_type=DEFAULT_SHOW_SELECTION;
+    perm_config.default_show_type_type=Type::ALL;
+    perm_config.default_show_rarity_type=Rarity::ALL;
     perm_config.default_sort_rarity_method=DEFAULT_SHOW_SELECTION;
     perm_config.only_show_equipped=false;
 }
@@ -21,10 +21,10 @@ void process_copy(std::vector<Item> &original, std::vector<Item *> &items_copy, 
     if(perm_config.only_show_equipped){ // Only show Equipped
         items_copy.erase(std::remove_if(items_copy.begin(), items_copy.end(), [](const Item *v){return v->is_equipped==false;}), items_copy.end());
     }
-    if(perm_config.default_show_rarity_type!=DEFAULT_SHOW_SELECTION){ // Only show certain rarity
+    if(perm_config.default_show_rarity_type!=Rarity::ALL){ // Only show certain rarity
         items_copy.erase(std::remove_if(items_copy.begin(), items_copy.end(), [perm_config](const Item *v){return v->rarity!=perm_config.default_show_rarity_type;}), items_copy.end());
     }
-    if(perm_config.default_show_type_type!=DEFAULT_SHOW_SELECTION){ // Only show certain types
+    if(perm_config.default_show_type_type!=Type::ALL){ // Only show certain types
         items_copy.erase(std::remove_if(items_copy.begin(), items_copy.end(), [perm_config](const Item *v){return v->type!=perm_config.default_show_type_type;}), items_copy.end());
     }
     if(perm_config.default_sort_rarity_method==SORT_TYPE_RARITY_ASCENDING){ // Sort by rarity ascending
@@ -62,7 +62,7 @@ void print_item(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, bool curr
     }
 }
 
-bool check_if_rarity_valid(const std::vector<Item *> &items_copy, char check){
+bool check_if_rarity_valid(const std::vector<Item *> &items_copy, Rarity check){
     for(int i=0; i<items_copy.size(); i++){
         if(items_copy[i]->rarity==check){
             return true;
@@ -71,7 +71,7 @@ bool check_if_rarity_valid(const std::vector<Item *> &items_copy, char check){
     return false;
 }
 
-bool check_if_type_valid(const std::vector<Item *> &items_copy, char check){
+bool check_if_type_valid(const std::vector<Item *> &items_copy, Type check){
     for(int i=0; i<items_copy.size(); i++){
         if(items_copy[i]->type==check){
             return true;
@@ -94,21 +94,21 @@ void draw_inventory_modifier_selection(tcod::ConsolePtr &main_win, tcod::Context
     SDL_wclear_dialog_bar(main_win, context);
     tcod::print(*main_win, {0, 0}, "Inventory Modifier Selection", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
     tcod::print(*main_win, {0, 1}, "Show only [Rarity]:", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
-    print_item(main_win, context, csr_pos==0, perm_config.default_show_rarity_type==DEFAULT_SHOW_SELECTION, 2, "All");
-    print_item(main_win, context, csr_pos==1, perm_config.default_show_rarity_type==RARITY_COMMON, 3, "Common", check_if_rarity_valid(items_copy, RARITY_COMMON));
-    print_item(main_win, context, csr_pos==2, perm_config.default_show_rarity_type==RARITY_UNCOMMON, 4, "Uncommon", check_if_rarity_valid(items_copy, RARITY_UNCOMMON));
-    print_item(main_win, context, csr_pos==3, perm_config.default_show_rarity_type==RARITY_RARE, 5, "Rare", check_if_rarity_valid(items_copy, RARITY_RARE));
-    print_item(main_win, context, csr_pos==4, perm_config.default_show_rarity_type==RARITY_EPIC, 6, "Epic", check_if_rarity_valid(items_copy, RARITY_EPIC));
-    print_item(main_win, context, csr_pos==5, perm_config.default_show_rarity_type==RARITY_LEGENDARY, 7, "Legendary", check_if_rarity_valid(items_copy, RARITY_LEGENDARY));
-    print_item(main_win, context, csr_pos==6, perm_config.default_show_rarity_type==RARITY_ARTIFACT, 8, "Artifact", check_if_rarity_valid(items_copy, RARITY_ARTIFACT));
+    print_item(main_win, context, csr_pos==0, perm_config.default_show_rarity_type==Rarity::ALL, 2, "All");
+    print_item(main_win, context, csr_pos==1, perm_config.default_show_rarity_type==Rarity::COMMON, 3, "Common", check_if_rarity_valid(items_copy, Rarity::COMMON));
+    print_item(main_win, context, csr_pos==2, perm_config.default_show_rarity_type==Rarity::UNCOMMON, 4, "Uncommon", check_if_rarity_valid(items_copy, Rarity::UNCOMMON));
+    print_item(main_win, context, csr_pos==3, perm_config.default_show_rarity_type==Rarity::RARE, 5, "Rare", check_if_rarity_valid(items_copy, Rarity::RARE));
+    print_item(main_win, context, csr_pos==4, perm_config.default_show_rarity_type==Rarity::EPIC, 6, "Epic", check_if_rarity_valid(items_copy, Rarity::EPIC));
+    print_item(main_win, context, csr_pos==5, perm_config.default_show_rarity_type==Rarity::LEGENDARY, 7, "Legendary", check_if_rarity_valid(items_copy, Rarity::LEGENDARY));
+    print_item(main_win, context, csr_pos==6, perm_config.default_show_rarity_type==Rarity::ARTIFACT, 8, "Artifact", check_if_rarity_valid(items_copy, Rarity::ARTIFACT));
     tcod::print(*main_win, {0, 10}, "Show only [Type]:", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
-    print_item(main_win, context, csr_pos==7, perm_config.default_show_type_type==DEFAULT_SHOW_SELECTION, 11, "All");
-    print_item(main_win, context, csr_pos==8, perm_config.default_show_type_type==TYPE_HELMET, 12, "Helmet", check_if_type_valid(items_copy, TYPE_HELMET));
-    print_item(main_win, context, csr_pos==9, perm_config.default_show_type_type==TYPE_CHESTPLATE, 13, "Chestplate", check_if_type_valid(items_copy, TYPE_CHESTPLATE));
-    print_item(main_win, context, csr_pos==10, perm_config.default_show_type_type==TYPE_GREAVES, 14, "Greaves", check_if_type_valid(items_copy, TYPE_GREAVES));
-    print_item(main_win, context, csr_pos==11, perm_config.default_show_type_type==TYPE_BOOTS, 15, "Boots", check_if_type_valid(items_copy, TYPE_BOOTS));
-    print_item(main_win, context, csr_pos==12, perm_config.default_show_type_type==TYPE_SHIELD, 16, "Shield", check_if_type_valid(items_copy, TYPE_SHIELD));
-    print_item(main_win, context, csr_pos==13, perm_config.default_show_type_type==TYPE_WEAPON, 17, "Weapon", check_if_type_valid(items_copy, TYPE_WEAPON));
+    print_item(main_win, context, csr_pos==7, perm_config.default_show_type_type==Type::ALL, 11, "All");
+    print_item(main_win, context, csr_pos==8, perm_config.default_show_type_type==Type::HELMET, 12, "Helmet", check_if_type_valid(items_copy, Type::HELMET));
+    print_item(main_win, context, csr_pos==9, perm_config.default_show_type_type==Type::CHESTPLATE, 13, "Chestplate", check_if_type_valid(items_copy, Type::CHESTPLATE));
+    print_item(main_win, context, csr_pos==10, perm_config.default_show_type_type==Type::GREAVES, 14, "Greaves", check_if_type_valid(items_copy, Type::GREAVES));
+    print_item(main_win, context, csr_pos==11, perm_config.default_show_type_type==Type::BOOTS, 15, "Boots", check_if_type_valid(items_copy, Type::BOOTS));
+    print_item(main_win, context, csr_pos==12, perm_config.default_show_type_type==Type::SHIELD, 16, "Shield", check_if_type_valid(items_copy, Type::SHIELD));
+    print_item(main_win, context, csr_pos==13, perm_config.default_show_type_type==Type::WEAPON, 17, "Weapon", check_if_type_valid(items_copy, Type::WEAPON));
     tcod::print(*main_win, {0, 19}, "Show only [Equipped]:", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
     print_item(main_win, context, csr_pos==14, !perm_config.only_show_equipped, 20, "All");
     print_item(main_win, context, csr_pos==15, perm_config.only_show_equipped, 21, "Equipped Only", check_if_equip_valid(items_copy));
@@ -126,46 +126,46 @@ void draw_inventory_modifier_selection(tcod::ConsolePtr &main_win, tcod::Context
 void change_config(NoDelete &perm_config, unsigned int csr_pos, const std::vector<Item *> &items_copy){
     switch(csr_pos){
         case 0:
-            perm_config.default_show_rarity_type=DEFAULT_SHOW_SELECTION;
+            perm_config.default_show_rarity_type=Rarity::ALL;
             break;
         case 1:
-            perm_config.default_show_rarity_type=RARITY_COMMON;
+            perm_config.default_show_rarity_type=Rarity::COMMON;
             break;
         case 2:
-            perm_config.default_show_rarity_type=RARITY_UNCOMMON;
+            perm_config.default_show_rarity_type=Rarity::UNCOMMON;
             break;
         case 3:
-            perm_config.default_show_rarity_type=RARITY_RARE;
+            perm_config.default_show_rarity_type=Rarity::RARE;
             break;
         case 4:
-            perm_config.default_show_rarity_type=RARITY_EPIC;
+            perm_config.default_show_rarity_type=Rarity::EPIC;
             break;
         case 5:
-            perm_config.default_show_rarity_type=RARITY_LEGENDARY;
+            perm_config.default_show_rarity_type=Rarity::LEGENDARY;
             break;
         case 6:
-            perm_config.default_show_rarity_type=RARITY_ARTIFACT;
+            perm_config.default_show_rarity_type=Rarity::ARTIFACT;
             break;
         case 7:
-            perm_config.default_show_type_type=DEFAULT_SHOW_SELECTION;
+            perm_config.default_show_type_type=Type::ALL;
             break;
         case 8:
-            perm_config.default_show_type_type=TYPE_HELMET;
+            perm_config.default_show_type_type=Type::HELMET;
             break;
         case 9:
-            perm_config.default_show_type_type=TYPE_CHESTPLATE;
+            perm_config.default_show_type_type=Type::CHESTPLATE;
             break;
         case 10:
-            perm_config.default_show_type_type=TYPE_GREAVES;
+            perm_config.default_show_type_type=Type::GREAVES;
             break;
         case 11:
-            perm_config.default_show_type_type=TYPE_BOOTS;
+            perm_config.default_show_type_type=Type::BOOTS;
             break;
         case 12:
-            perm_config.default_show_type_type=TYPE_SHIELD;
+            perm_config.default_show_type_type=Type::SHIELD;
             break;
         case 13:
-            perm_config.default_show_type_type=TYPE_WEAPON;
+            perm_config.default_show_type_type=Type::WEAPON;
             break;
         case 14:
             perm_config.only_show_equipped=false;
@@ -206,62 +206,62 @@ void change_config(NoDelete &perm_config, unsigned int csr_pos, const std::vecto
 bool check_if_csr_move_valid(const unsigned int &csr_pos, const std::vector<Item *> &items_copy){
     switch(csr_pos){
         case 1:
-            if(check_if_rarity_valid(items_copy, RARITY_COMMON)){
+            if(check_if_rarity_valid(items_copy, Rarity::COMMON)){
                 return true;
             }
             break;
         case 2:
-            if(check_if_rarity_valid(items_copy, RARITY_UNCOMMON)){
+            if(check_if_rarity_valid(items_copy, Rarity::UNCOMMON)){
                 return true;
             }
             break;
         case 3:
-            if(check_if_rarity_valid(items_copy, RARITY_RARE)){
+            if(check_if_rarity_valid(items_copy, Rarity::RARE)){
                 return true;
             }
             break;
         case 4:
-            if(check_if_rarity_valid(items_copy, RARITY_EPIC)){
+            if(check_if_rarity_valid(items_copy, Rarity::EPIC)){
                 return true;
             }
             break;
         case 5:
-            if(check_if_rarity_valid(items_copy, RARITY_LEGENDARY)){
+            if(check_if_rarity_valid(items_copy, Rarity::LEGENDARY)){
                 return true;
             }
             break;
         case 6:
-            if(check_if_rarity_valid(items_copy, RARITY_ARTIFACT)){
+            if(check_if_rarity_valid(items_copy, Rarity::ARTIFACT)){
                 return true;
             }
             break;
         case 8:
-            if(check_if_type_valid(items_copy, TYPE_HELMET)){
+            if(check_if_type_valid(items_copy, Type::HELMET)){
                 return true;
             }
             break;
         case 9:
-            if(check_if_type_valid(items_copy, TYPE_CHESTPLATE)){
+            if(check_if_type_valid(items_copy, Type::CHESTPLATE)){
                 return true;
             }
             break;
         case 10:
-            if(check_if_type_valid(items_copy, TYPE_GREAVES)){
+            if(check_if_type_valid(items_copy, Type::GREAVES)){
                 return true;
             }
             break;
         case 11:
-            if(check_if_type_valid(items_copy, TYPE_BOOTS)){
+            if(check_if_type_valid(items_copy, Type::BOOTS)){
                 return true;
             }
             break;
         case 12:
-            if(check_if_type_valid(items_copy, TYPE_SHIELD)){
+            if(check_if_type_valid(items_copy, Type::SHIELD)){
                 return true;
             }
             break;
         case 13:
-            if(check_if_type_valid(items_copy, TYPE_WEAPON)){
+            if(check_if_type_valid(items_copy, Type::WEAPON)){
                 return true;
             }
             break;

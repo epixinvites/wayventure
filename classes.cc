@@ -1,7 +1,7 @@
 #include "headers/classes.h"
 #include <cmath>
 
-Item::Item(std::string name, char type, char rarity, bool is_equipped, int hp, int attk, int def, int shield, int crit_chance, int crit_dmg, unsigned int calibration, unsigned int uses, double durability):name{name}, type{type}, rarity{rarity}, is_equipped{is_equipped}, hp{hp}, attk{attk}, def{def},
+Item::Item(std::string name, Type type, Rarity rarity, bool is_equipped, int hp, int attk, int def, int shield, int crit_chance, int crit_dmg, unsigned int calibration, unsigned int uses, double durability):name{name}, type{type}, rarity{rarity}, is_equipped{is_equipped}, hp{hp}, attk{attk}, def{def},
                                                                                                                                                                                                              shield{shield}, crit_chance{crit_chance}, crit_dmg{crit_dmg}, calibration{calibration},
                                                                                                                                                                                                              uses{uses}, durability{durability}{
 }
@@ -13,22 +13,22 @@ void Player::init(){
     for(int i=0; i<inv.item.size(); i++){ // loops through every single item and finds all items that is_equipped
         inv.item[i].reinitialize_item();
         if(inv.item[i].is_equipped){
-            if(inv.item[i].type=='h'){
+            if(inv.item[i].type==Type::HELMET){
                 equip.helmet=&inv.item[i];
             }
-            if(inv.item[i].type=='c'){
+            if(inv.item[i].type==Type::CHESTPLATE){
                 equip.chestplate=&inv.item[i];
             }
-            if(inv.item[i].type=='g'){
+            if(inv.item[i].type==Type::GREAVES){
                 equip.greaves=&inv.item[i];
             }
-            if(inv.item[i].type=='b'){
+            if(inv.item[i].type==Type::BOOTS){
                 equip.boots=&inv.item[i];
             }
-            if(inv.item[i].type=='s'){
+            if(inv.item[i].type==Type::SHIELD){
                 equip.shield=&inv.item[i];
             }
-            if(inv.item[i].type=='w'){
+            if(inv.item[i].type==Type::WEAPON){
                 equip.weapon=&inv.item[i];
             }
         }
@@ -159,22 +159,22 @@ void Player::add_item(Item input){
     inv.item.push_back(input);
     for(int i=0; i<inv.item.size(); i++){ // loops through every single item and finds all items that is_equipped
         if(inv.item[i].is_equipped){
-            if(inv.item[i].type=='h'){
+            if(inv.item[i].type==Type::HELMET){
                 equip.helmet=&inv.item[i];
             }
-            if(inv.item[i].type=='c'){
+            if(inv.item[i].type==Type::CHESTPLATE){
                 equip.chestplate=&inv.item[i];
             }
-            if(inv.item[i].type=='g'){
+            if(inv.item[i].type==Type::GREAVES){
                 equip.greaves=&inv.item[i];
             }
-            if(inv.item[i].type=='b'){
+            if(inv.item[i].type==Type::BOOTS){
                 equip.boots=&inv.item[i];
             }
-            if(inv.item[i].type=='s'){
+            if(inv.item[i].type==Type::SHIELD){
                 equip.shield=&inv.item[i];
             }
-            if(inv.item[i].type=='w'){
+            if(inv.item[i].type==Type::WEAPON){
                 equip.weapon=&inv.item[i];
             }
         }
@@ -194,22 +194,22 @@ void Player::remove_item(Item *address){
 //    equip=Equipped();
     for(int i=0; i<inv.item.size(); i++){ // loops through every single item and finds all items that is_equipped
         if(inv.item[i].is_equipped){
-            if(inv.item[i].type=='h'){
+            if(inv.item[i].type==Type::HELMET){
                 equip.helmet=&inv.item[i];
             }
-            if(inv.item[i].type=='c'){
+            if(inv.item[i].type==Type::CHESTPLATE){
                 equip.chestplate=&inv.item[i];
             }
-            if(inv.item[i].type=='g'){
+            if(inv.item[i].type==Type::GREAVES){
                 equip.greaves=&inv.item[i];
             }
-            if(inv.item[i].type=='b'){
+            if(inv.item[i].type==Type::BOOTS){
                 equip.boots=&inv.item[i];
             }
-            if(inv.item[i].type=='s'){
+            if(inv.item[i].type==Type::SHIELD){
                 equip.shield=&inv.item[i];
             }
-            if(inv.item[i].type=='w'){
+            if(inv.item[i].type==Type::WEAPON){
                 equip.weapon=&inv.item[i];
             }
         }

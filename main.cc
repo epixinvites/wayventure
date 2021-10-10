@@ -208,13 +208,13 @@ bool check_surroundings(std::vector<monster> monsters, int x, int y){
     return false;
 }
 
-std::pair<int, char> check_monster_pos(std::vector<monster> monsters, int x, int y){
+std::pair<int, Dungeon> check_monster_pos(std::vector<monster> monsters, int x, int y){
     for(int i=0; i<monsters.size(); i++){
         if(x==monsters[i].x&&y==monsters[i].y){
             return {i, monsters[i].type};
         }
     }
-    return {-1, '0'};
+    return {-1, Dungeon::NONE};
 }
 
 void char_move(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, int ch, Csr &csr_pos, std::vector<monster> monsters, Player &User, NPC &npc, level Current){
@@ -304,7 +304,7 @@ std::pair<std::string, std::string> calculate_damage(Player &User, monster_stats
     return {first.str(), second.str()};
 }
 
-bool player_battle(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player &User, level Current, char monster_type){
+bool player_battle(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player &User, level Current, Dungeon monster_type){
     monster_stats monster=create_monster(Current, monster_type);
     std::pair<std::string, std::string> log;
     while(true){
@@ -355,26 +355,26 @@ bool player_battle(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player
 
 std::pair<bool, bool> attack_monster(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, std::vector<monster> &monsters, Csr csr_pos, Player &User, level Current){
     std::pair<bool, bool> attack_status{false, false}; // .first = if surroundings have monsters, .second is_alive
-    std::pair<int, char> pos;
+    std::pair<int, Dungeon> pos;
     if(check_surroundings(monsters, csr_pos.first-1, csr_pos.second)){
         attack_status.first=true;
         pos=check_monster_pos(monsters, csr_pos.first-1, csr_pos.second);
         attack_status.second=player_battle(main_win, context, User, Current, pos.second);
         monsters.erase(monsters.begin()+pos.first);
     }
-    if(check_surroundings(monsters, csr_pos.first+1, csr_pos.second)){
+    else if(check_surroundings(monsters, csr_pos.first+1, csr_pos.second)){
         attack_status.first=true;
         pos=check_monster_pos(monsters, csr_pos.first+1, csr_pos.second);
         attack_status.second=player_battle(main_win, context, User, Current, pos.second);
         monsters.erase(monsters.begin()+pos.first);
     }
-    if(check_surroundings(monsters, csr_pos.first, csr_pos.second-1)){
+    else if(check_surroundings(monsters, csr_pos.first, csr_pos.second-1)){
         attack_status.first=true;
         pos=check_monster_pos(monsters, csr_pos.first, csr_pos.second-1);
         attack_status.second=player_battle(main_win, context, User, Current, pos.second);
         monsters.erase(monsters.begin()+pos.first);
     }
-    if(check_surroundings(monsters, csr_pos.first, csr_pos.second+1)){
+    else if(check_surroundings(monsters, csr_pos.first, csr_pos.second+1)){
         attack_status.first=true;
         pos=check_monster_pos(monsters, csr_pos.first, csr_pos.second+1);
         attack_status.second=player_battle(main_win, context, User, Current, pos.second);
@@ -664,7 +664,7 @@ void init(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Csr &csr_pos, P
     std::vector<monster> monsters;
     init_data(User, Current, csr_pos, monsters, npc, perm_config);
     for(int i = 0; i<61; i++){
-        User.add_item(generate_trade_items(RARITY_LEGENDARY));
+        User.add_item(generate_trade_items(Rarity::LEGENDARY));
     }
     User.init();
     std::ifstream ascii_wayfarer("res/wayfarer.txt");

@@ -5,7 +5,7 @@
 #include "main.h"
 struct monster{
     int x, y; // x cords and y cords
-    char type; // 'e' for enemy, 'b' for boss
+    Dungeon type; // 'e' for enemy, 'b' for boss
     template<class Archive>void serialize(Archive &archive){archive(x,y,type);}
 };
 struct Csr{
@@ -24,14 +24,15 @@ struct Item{
     Original original;
     unsigned long long int id = 0;
     std::string name; // Depreciated, change your username via `main.h` instead
-    char type, rarity;
+    Type type;
+    Rarity rarity;
     // type: 'h' helmet, 'c' chestplate, 'g' greaves, 'b' boots, 's' shield, 'w' weapon
     // rarity: 'c' common, 'u' uncommon, 'r' rare, 'e' epic, 'l' legendary, 'a' artifact
     bool is_equipped;
     int hp = 0, attk = 0, def = 0, shield = 0, crit_chance = 0, crit_dmg = 0;
     unsigned int calibration = 0, uses = 0, enhancement = 0;
     double durability = 100.0;
-    Item(std::string name, char type, char rarity, bool is_equipped, int hp, int attk, int def, int shield, int crit_chance, int crit_dmg, unsigned int calibration, unsigned int uses, double durability);
+    Item(std::string name, Type type, Rarity rarity, bool is_equipped, int hp, int attk, int def, int shield, int crit_chance, int crit_dmg, unsigned int calibration, unsigned int uses, double durability);
     void initialize_item();
     void reinitialize_item();
     void calculate_calibration();
@@ -176,8 +177,8 @@ struct NoDelete{
     // Stats? Maybe how many enemies killed, bosses killed and so on
     // Titles unlocked
     // Player EXP/Levels/System Control Authority
-    char default_show_type_type = DEFAULT_SHOW_SELECTION;
-    char default_show_rarity_type = DEFAULT_SHOW_SELECTION;
+    Type default_show_type_type = Type::ALL;
+    Rarity default_show_rarity_type = Rarity::ALL;
     char default_sort_rarity_method = DEFAULT_SHOW_SELECTION;
     bool show_current_item_compared_to_equipped = false;
     bool only_show_equipped = false;

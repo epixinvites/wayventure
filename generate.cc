@@ -1,129 +1,140 @@
 #include "headers/generate.h"
 
-char generate_loot_rarity(char type){
+Rarity generate_loot_rarity(Dungeon type){
     std::random_device device;
     std::mt19937 generator(device());
     std::uniform_int_distribution<int> loot_type(1, 1000);
     int loot=loot_type(generator);
-    if(type==DUNGEON_ENEMY){
+    if(type==Dungeon::ENEMY){
         if(loot<500){
-            return RARITY_COMMON;
+            return Rarity::COMMON;
         }
         if(loot>=500&&loot<950){
-            return RARITY_UNCOMMON;
+            return Rarity::UNCOMMON;
         }
         if(loot>=950){
-            return RARITY_RARE;
+            return Rarity::RARE;
         }
     }
-    else if(type==DUNGEON_ROOM_BOSS){
+    else if(type==Dungeon::ROOM_BOSS){
         if(loot<500){
-            return RARITY_UNCOMMON;
+            return Rarity::UNCOMMON;
         }
         if(loot>=500&&loot<800){
-            return RARITY_RARE;
+            return Rarity::RARE;
         }
         if(loot>=800){
-            return RARITY_EPIC;
+            return Rarity::EPIC;
         }
         if(loot>=999){
-            return RARITY_LEGENDARY;
+            return Rarity::LEGENDARY;
         }
     }
-    else if(type==DUNGEON_LEVEL_BOSS){
+    else if(type==Dungeon::LEVEL_BOSS){
         if(loot<400){
-            return RARITY_RARE;
+            return Rarity::RARE;
         }
         if(loot>=400&&loot<950){
-            return RARITY_EPIC;
+            return Rarity::EPIC;
         }
         if(loot>=950){
-            return RARITY_LEGENDARY;
+            return Rarity::LEGENDARY;
         }
     }
-    else if(type==DUNGEON_FINAL_BOSS){
+    else if(type==Dungeon::MINI_BOSS){
+        if(loot<200){
+            return Rarity::EPIC;
+        }
+        if(loot<1000){
+            return Rarity::LEGENDARY;
+        }
+        if(loot>=1000){
+            return Rarity::ARTIFACT;
+        }
+    }
+    else if(type==Dungeon::FINAL_BOSS){
         if(loot<990){
-            return RARITY_LEGENDARY;
+            return Rarity::LEGENDARY;
         }
         if(loot>=990){
-            return RARITY_ARTIFACT;
+            return Rarity::ARTIFACT;
         }
     }
-    return '0';
+    return Rarity::NONE;
 }
 
-char generate_loot_type(){
+Type generate_loot_type(){
     std::random_device device;
     std::mt19937 generator(device());
     std::uniform_int_distribution<int> loot_type(1, 100);
     int loot=loot_type(generator);
     if(loot<=20){
-        return TYPE_CHESTPLATE; // chestplate
+        return Type::CHESTPLATE; // chestplate
     }
     else if(loot<=40){
-        return TYPE_HELMET; // helmet
+        return Type::HELMET; // helmet
     }
     else if(loot<=60){
-        return TYPE_GREAVES; // greaves
+        return Type::GREAVES; // greaves
     }
     else if(loot<=80){
-        return TYPE_WEAPON; // weapon
+        return Type::WEAPON; // weapon
     }
     else if(loot<=90){
-        return TYPE_BOOTS; // boots
+        return Type::BOOTS; // boots
     }
     else if(loot<=100){
-        return TYPE_SHIELD; // shield
+        return Type::SHIELD; // shield
     }
-    return '0';
+    return Type::NONE;
 }
 
-double rarity_value(char rarity){ // increase the stats value for generated item
-    if(rarity==RARITY_COMMON){
+double rarity_value(Rarity rarity){ // increase the stats value for generated item
+    if(rarity==Rarity::COMMON){
         return 1.0;
     }
-    if(rarity==RARITY_UNCOMMON){
+    if(rarity==Rarity::UNCOMMON){
         return 1.5;
     }
-    if(rarity==RARITY_RARE){
+    if(rarity==Rarity::RARE){
         return 2.0;
     }
-    if(rarity==RARITY_EPIC){
+    if(rarity==Rarity::EPIC){
         return 3.0;
     }
-    if(rarity==RARITY_LEGENDARY){
+    if(rarity==Rarity::LEGENDARY){
         return 5.0;
     }
-    if(rarity==RARITY_ARTIFACT){
+    if(rarity==Rarity::ARTIFACT){
         return 10.0;
     }
     return 0;
 }
 
-double rarity_bonus(char rarity){ // increase bonus stats chance
-    if(rarity==RARITY_COMMON){
+double rarity_bonus(Rarity rarity){ // increase bonus stats chance
+    if(rarity==Rarity::COMMON){
         return 1.0;
     }
-    if(rarity==RARITY_UNCOMMON){
+    if(rarity==Rarity::UNCOMMON){
         return 1.0;
     }
-    if(rarity==RARITY_RARE){
+    if(rarity==Rarity::RARE){
         return 1.0;
     }
-    if(rarity==RARITY_EPIC){
+    if(rarity==Rarity::EPIC){
         return 2.0;
     }
-    if(rarity==RARITY_LEGENDARY){
+    if(rarity==Rarity::LEGENDARY){
         return 2.5;
     }
-    if(rarity==RARITY_ARTIFACT){
+    if(rarity==Rarity::ARTIFACT){
         return 4.0;
     }
     return 0;
 }
 
-Item generate_loot(char loot_rarity){
-    char loot_type=generate_loot_type();
+Item generate_loot(Rarity loot_rarity){
+    Type loot_type=generate_loot_type();
     std::random_device device;
     std::mt19937 generator(device());
     std::uniform_int_distribution<int> deviation(-25, 25);
@@ -131,7 +142,7 @@ Item generate_loot(char loot_rarity){
     std::string name;
     int hp=0, attk=0, def=0, shield=0, crit_chance=0, crit_dmg=0;
     double durability=bonus_stats(generator);
-    if(loot_type==TYPE_CHESTPLATE){ // chestplate
+    if(loot_type==Type::CHESTPLATE){ // chestplate
         hp=(100+deviation(generator))*rarity_value(loot_rarity);
         if(bonus_stats(generator)<=3*rarity_bonus(loot_rarity)){
             def=15*rarity_value(loot_rarity);
@@ -140,7 +151,7 @@ Item generate_loot(char loot_rarity){
             crit_dmg=2*rarity_value(loot_rarity);
         }
     }
-    if(loot_type==TYPE_HELMET){ // helmet
+    if(loot_type==Type::HELMET){ // helmet
         hp=(40+deviation(generator))*rarity_value(loot_rarity);
         if(bonus_stats(generator)<=(6*rarity_bonus(loot_rarity))){
             def=5*rarity_value(loot_rarity);
@@ -149,19 +160,19 @@ Item generate_loot(char loot_rarity){
             shield=20*rarity_value(loot_rarity);
         }
     }
-    if(loot_type==TYPE_GREAVES){ // greaves
+    if(loot_type==Type::GREAVES){ // greaves
         def=(50+deviation(generator))*rarity_value(loot_rarity);
         if(bonus_stats(generator)<=(5*rarity_bonus(loot_rarity))){
             shield=15*rarity_value(loot_rarity);
         }
     }
-    if(loot_type==TYPE_BOOTS){ // boots
+    if(loot_type==Type::BOOTS){ // boots
         def=(30+deviation(generator))*rarity_value(loot_rarity);
         if(bonus_stats(generator)<=(10*rarity_bonus(loot_rarity))){
             crit_chance=5*rarity_value(loot_rarity);
         }
     }
-    if(loot_type==TYPE_WEAPON){ // weapon
+    if(loot_type==Type::WEAPON){ // weapon
         attk=(200+deviation(generator))*rarity_value(loot_rarity);
         if(bonus_stats(generator)<=(5*rarity_bonus(loot_rarity))){
             crit_dmg=10*rarity_value(loot_rarity);
@@ -170,7 +181,7 @@ Item generate_loot(char loot_rarity){
             crit_chance=5*rarity_value(loot_rarity);
         }
     }
-    if(loot_type==TYPE_SHIELD){ // shield
+    if(loot_type==Type::SHIELD){ // shield
         shield=(100+deviation(generator))*rarity_value(loot_rarity);
         if(bonus_stats(generator)<=(10*rarity_bonus(loot_rarity))){
             def=20*rarity_value(loot_rarity);
@@ -179,24 +190,24 @@ Item generate_loot(char loot_rarity){
     return {"Placeholder", loot_type, loot_rarity, false, hp, attk, def, shield, crit_chance, crit_dmg, 0, 0, durability};
 }
 
-Item generate_loot_from_monster_type(char type){
-    char loot_rarity=generate_loot_rarity(type);
+Item generate_loot_from_monster_type(Dungeon type){
+    Rarity loot_rarity=generate_loot_rarity(type);
     return generate_loot(loot_rarity);
 }
 
-Item generate_loot_from_rarity_type(char loot_rarity){
+Item generate_loot_from_rarity_type(Rarity loot_rarity){
     return generate_loot(loot_rarity);
 }
 
-Item generate_trade_items(char loot_rarity){
-    char loot_type=generate_loot_type();
+Item generate_trade_items(Rarity loot_rarity){
+    Type loot_type=generate_loot_type();
     std::random_device device;
     std::mt19937 generator(device());
     std::uniform_int_distribution<int> deviation(-25, 25);
     std::uniform_int_distribution<int> bonus_stats(1, 100);
     std::string name;
     int hp=0, attk=0, def=0, shield=0, crit_chance=0, crit_dmg=0;
-    if(loot_type==TYPE_CHESTPLATE){ // chestplate
+    if(loot_type==Type::CHESTPLATE){ // chestplate
         hp=(100+deviation(generator))*rarity_value(loot_rarity);
         if(bonus_stats(generator)<=6*rarity_bonus(loot_rarity)){
             def=15*rarity_value(loot_rarity);
@@ -205,7 +216,7 @@ Item generate_trade_items(char loot_rarity){
             crit_dmg=2*rarity_value(loot_rarity);
         }
     }
-    if(loot_type==TYPE_HELMET){ // helmet
+    if(loot_type==Type::HELMET){ // helmet
         hp=(40+deviation(generator))*rarity_value(loot_rarity);
         if(bonus_stats(generator)<=(10*rarity_bonus(loot_rarity))){
             def=5*rarity_value(loot_rarity);
@@ -214,19 +225,19 @@ Item generate_trade_items(char loot_rarity){
             shield=20*rarity_value(loot_rarity);
         }
     }
-    if(loot_type==TYPE_GREAVES){ // greaves
+    if(loot_type==Type::GREAVES){ // greaves
         def=(50+deviation(generator))*rarity_value(loot_rarity);
         if(bonus_stats(generator)<=(10*rarity_bonus(loot_rarity))){
             shield=15*rarity_value(loot_rarity);
         }
     }
-    if(loot_type==TYPE_BOOTS){ // boots
+    if(loot_type==Type::BOOTS){ // boots
         def=(30+deviation(generator))*rarity_value(loot_rarity);
         if(bonus_stats(generator)<=(15*rarity_bonus(loot_rarity))){
             crit_chance=5*rarity_value(loot_rarity);
         }
     }
-    if(loot_type==TYPE_WEAPON){ // weapon
+    if(loot_type==Type::WEAPON){ // weapon
         attk=(200+deviation(generator))*rarity_value(loot_rarity);
         if(bonus_stats(generator)<=(10*rarity_bonus(loot_rarity))){
             crit_dmg=10*rarity_value(loot_rarity);
@@ -235,7 +246,7 @@ Item generate_trade_items(char loot_rarity){
             crit_chance=5*rarity_value(loot_rarity);
         }
     }
-    if(loot_type==TYPE_SHIELD){ // shield
+    if(loot_type==Type::SHIELD){ // shield
         shield=(100+deviation(generator))*rarity_value(loot_rarity);
         if(bonus_stats(generator)<=(15*rarity_bonus(loot_rarity))){
             def=20*rarity_value(loot_rarity);
@@ -245,14 +256,14 @@ Item generate_trade_items(char loot_rarity){
     return {"Placeholder", loot_type, loot_rarity, false, hp, attk, def, shield, crit_chance, crit_dmg, 0, 0, 100.0};
 }
 
-Item craft_item(char loot_rarity, char loot_type){
+Item craft_item(Rarity loot_rarity, Type loot_type){
     std::random_device device;
     std::mt19937 generator(device());
     std::uniform_int_distribution<int> deviation(-25, 25);
     std::uniform_int_distribution<int> bonus_stats(1, 100);
     std::string name;
     int hp=0, attk=0, def=0, shield=0, crit_chance=0, crit_dmg=0;
-    if(loot_type==TYPE_CHESTPLATE){ // chestplate
+    if(loot_type==Type::CHESTPLATE){ // chestplate
         hp=(100+deviation(generator))*rarity_value(loot_rarity);
         if(bonus_stats(generator)<=5*rarity_bonus(loot_rarity)){
             def=15*rarity_value(loot_rarity);
@@ -261,7 +272,7 @@ Item craft_item(char loot_rarity, char loot_type){
             crit_dmg=2*rarity_value(loot_rarity);
         }
     }
-    if(loot_type==TYPE_HELMET){ // helmet
+    if(loot_type==Type::HELMET){ // helmet
         hp=(40+deviation(generator))*rarity_value(loot_rarity);
         if(bonus_stats(generator)<=(6*rarity_bonus(loot_rarity))){
             def=5*rarity_value(loot_rarity);
@@ -270,19 +281,19 @@ Item craft_item(char loot_rarity, char loot_type){
             shield=20*rarity_value(loot_rarity);
         }
     }
-    if(loot_type==TYPE_GREAVES){ // greaves
+    if(loot_type==Type::GREAVES){ // greaves
         def=(50+deviation(generator))*rarity_value(loot_rarity);
         if(bonus_stats(generator)<=(5*rarity_bonus(loot_rarity))){
             shield=15*rarity_value(loot_rarity);
         }
     }
-    if(loot_type==TYPE_BOOTS){ // boots
+    if(loot_type==Type::BOOTS){ // boots
         def=(30+deviation(generator))*rarity_value(loot_rarity);
         if(bonus_stats(generator)<=(10*rarity_bonus(loot_rarity))){
             crit_chance=5*rarity_value(loot_rarity);
         }
     }
-    if(loot_type==TYPE_WEAPON){ // weapon
+    if(loot_type==Type::WEAPON){ // weapon
         attk=(200+deviation(generator))*rarity_value(loot_rarity);
         if(bonus_stats(generator)<=(5*rarity_bonus(loot_rarity))){
             crit_dmg=10*rarity_value(loot_rarity);
@@ -291,7 +302,7 @@ Item craft_item(char loot_rarity, char loot_type){
             crit_chance=5*rarity_value(loot_rarity);
         }
     }
-    if(loot_type==TYPE_SHIELD){ // shield
+    if(loot_type==Type::SHIELD){ // shield
         shield=(100+deviation(generator))*rarity_value(loot_rarity);
         if(bonus_stats(generator)<=(10*rarity_bonus(loot_rarity))){
             def=20*rarity_value(loot_rarity);
@@ -301,7 +312,7 @@ Item craft_item(char loot_rarity, char loot_type){
 }
 
 void reforge_item(unsigned int ancient_cores, unsigned int crystallium, Item *item){
-    char loot_rarity=item->rarity;
+    Rarity loot_rarity=item->rarity;
     unsigned int ancient_cores_bonus=1;
     unsigned int crystallium_bonus=1;
     if(ancient_cores>0){
@@ -313,12 +324,12 @@ void reforge_item(unsigned int ancient_cores, unsigned int crystallium, Item *it
     item->uses=0;
     item->enhancement=0;
     item->durability=100;
-    char loot_type=item->type;
+    Type loot_type=item->type;
     std::random_device device;
     std::mt19937 generator(device());
     std::uniform_int_distribution<int> deviation(-25, 25);
     std::uniform_int_distribution<int> bonus_stats(1, 100);
-    if(loot_type==TYPE_CHESTPLATE){ // chestplate
+    if(loot_type==Type::CHESTPLATE){ // chestplate
         item->original.hp=(100+deviation(generator))*rarity_value(loot_rarity);
         if(bonus_stats(generator)<=1*rarity_bonus(loot_rarity)*ancient_cores_bonus){
             item->original.def=15*rarity_value(loot_rarity);
@@ -327,7 +338,7 @@ void reforge_item(unsigned int ancient_cores, unsigned int crystallium, Item *it
             item->original.crit_dmg=10*rarity_value(loot_rarity);
         }
     }
-    if(loot_type==TYPE_HELMET){ // helmet
+    if(loot_type==Type::HELMET){ // helmet
         item->original.hp=(40+deviation(generator))*rarity_value(loot_rarity);
         if(bonus_stats(generator)<=1*rarity_bonus(loot_rarity)*ancient_cores_bonus){
             item->original.def=5*rarity_value(loot_rarity);
@@ -339,7 +350,7 @@ void reforge_item(unsigned int ancient_cores, unsigned int crystallium, Item *it
             item->original.shield=20*rarity_value(loot_rarity);
         }
     }
-    if(loot_type==TYPE_GREAVES){ // greaves
+    if(loot_type==Type::GREAVES){ // greaves
         item->original.def=(50+deviation(generator))*rarity_value(loot_rarity);
         if(bonus_stats(generator)<=1*rarity_bonus(loot_rarity)*ancient_cores_bonus){
             item->original.def+=20*rarity_value(loot_rarity);
@@ -348,7 +359,7 @@ void reforge_item(unsigned int ancient_cores, unsigned int crystallium, Item *it
             item->original.shield=15*rarity_value(loot_rarity);
         }
     }
-    if(loot_type==TYPE_BOOTS){ // boots
+    if(loot_type==Type::BOOTS){ // boots
         item->original.def=(30+deviation(generator))*rarity_value(loot_rarity);
         if(bonus_stats(generator)<=1*rarity_bonus(loot_rarity)*ancient_cores_bonus){
             item->original.def+=10*rarity_value(loot_rarity);
@@ -357,7 +368,7 @@ void reforge_item(unsigned int ancient_cores, unsigned int crystallium, Item *it
             item->original.crit_chance=5*rarity_value(loot_rarity);
         }
     }
-    if(loot_type==TYPE_WEAPON){ // weapon
+    if(loot_type==Type::WEAPON){ // weapon
         item->original.attk=(200+deviation(generator))*rarity_value(loot_rarity);
         if(bonus_stats(generator)<=1*rarity_bonus(loot_rarity)*crystallium_bonus){
             item->original.crit_dmg=30*rarity_value(loot_rarity);
@@ -366,7 +377,7 @@ void reforge_item(unsigned int ancient_cores, unsigned int crystallium, Item *it
             item->original.crit_chance=2*rarity_value(loot_rarity);
         }
     }
-    if(loot_type==TYPE_SHIELD){ // shield
+    if(loot_type==Type::SHIELD){ // shield
         item->original.shield=(100+deviation(generator))*rarity_value(loot_rarity);
         if(bonus_stats(generator)<=10*rarity_bonus(loot_rarity)*ancient_cores_bonus){
             item->original.def=20*rarity_value(loot_rarity);
@@ -407,10 +418,10 @@ void generate_monsters(std::vector<monster> &monsters, level Current, Csr csr_po
             continue;
         }
         if(monster_type(generator)==30){
-            tmp_monster.type=DUNGEON_ROOM_BOSS;
+            tmp_monster.type=Dungeon::ROOM_BOSS;
         }
         else{
-            tmp_monster.type=DUNGEON_ENEMY;
+            tmp_monster.type=Dungeon::ENEMY;
         }
         monsters.push_back(tmp_monster);
     }
@@ -419,16 +430,16 @@ void generate_monsters(std::vector<monster> &monsters, level Current, Csr csr_po
         tmp_monster.x=39;
         tmp_monster.y=24;
         if(Current.lvl<5){
-            tmp_monster.type=DUNGEON_LEVEL_BOSS;
+            tmp_monster.type=Dungeon::LEVEL_BOSS;
         }
         if(Current.lvl==5){
-            tmp_monster.type=DUNGEON_FINAL_BOSS;
+            tmp_monster.type=Dungeon::FINAL_BOSS;
         }
         monsters.push_back(tmp_monster);
     }
 }
 
-monster_stats create_monster(level Current, char type){
+monster_stats create_monster(level Current, Dungeon type){
     std::random_device device;
     std::mt19937 generator(device());
     std::uniform_int_distribution<int> diff_generator(-20, 20);
@@ -440,20 +451,20 @@ monster_stats create_monster(level Current, char type){
     if(diff_generator(generator)>10){
         monster.def=5*(lvl+(x/5.0));
     }
-    if(type==DUNGEON_ENEMY){
+    if(type==Dungeon::ENEMY){
         return monster;
     }
-    else if(type==DUNGEON_ROOM_BOSS){
+    else if(type==Dungeon::ROOM_BOSS){
         monster.hp*=10;
         monster.attk*=3;
         return monster;
     }
-    else if(type==DUNGEON_LEVEL_BOSS){
+    else if(type==Dungeon::LEVEL_BOSS){
         monster.hp*=15;
         monster.attk*=4;
         return monster;
     }
-    else if(type==DUNGEON_FINAL_BOSS){
+    else if(type==Dungeon::FINAL_BOSS){
         monster.hp*=50;
         monster.attk*=7;
         return monster;
@@ -483,20 +494,20 @@ void generate_doors(std::vector<std::pair<int, int>> &doors, level Current){
     }
 }
 
-int generate_gold(char type){
+int generate_gold(Dungeon type){
     std::random_device device;
     std::mt19937 generator(device());
     std::uniform_int_distribution<int> gold(0, 10);
-    if(type==DUNGEON_ENEMY){
+    if(type==Dungeon::ENEMY){
         return (gold(generator));
     }
-    if(type==DUNGEON_ROOM_BOSS){
+    if(type==Dungeon::ROOM_BOSS){
         return (gold(generator)*gold(generator));
     }
-    if(type==DUNGEON_LEVEL_BOSS){
+    if(type==Dungeon::LEVEL_BOSS){
         return (gold(generator)*30);
     }
-    if(type==DUNGEON_FINAL_BOSS){
+    if(type==Dungeon::FINAL_BOSS){
         return (gold(generator)*100);
     }
     return 0;
