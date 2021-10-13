@@ -1,6 +1,6 @@
 # Welcome to Wayventure's development branch!
 
-### Join our Discord family [here](https://discord.gg/uDg7Dmf6Sx)!
+### Join our Discord family [here](https://discord.gg/5TZ7MZDyWm)!
 
 ![wayventure.gif](wayventure.gif)  
 *Sorry for the low framerate, I had to compress the GIF*
