@@ -2,6 +2,7 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <chrono>
 #include "main.h"
 struct monster{
     int x, y; // x cords and y cords
@@ -163,6 +164,39 @@ struct Merchant{
     std::vector<std::pair<Item, bool>>store;
     template<class Archive>void serialize(Archive &archive){archive(relation,initial_refresh,store);}
 };
+struct Raw_Loot{
+    unsigned long long int mysterious_piece = 0;
+    unsigned long long int mysterious_artifact = 0;
+    template<class Archive>void serialize(Archive &archive){archive(mysterious_piece, mysterious_artifact);}
+};
+struct Miner{
+    struct Job_Details{
+        bool has_active_job = false;
+        std::chrono::time_point<std::chrono::steady_clock> job_start;
+        int number_of_miners = 0;
+        double loot_multiplier = 1;
+        template<class Archive>void serialize(Archive &archive){archive(has_active_job,job_start,number_of_miners,loot_multiplier);}
+    };
+    int relation = 0;
+    int skill_level = 0;
+    Raw_Loot loot;
+    Job_Details job;
+    template<class Archive>void serialize(Archive &archive){archive(relation,skill_level,loot,job);}
+};
+struct Archaeologist{
+    struct Job_Details{
+        bool has_active_job = false;
+        std::chrono::time_point<std::chrono::steady_clock> job_start;
+        int number_of_archaeologists = 0;
+        double rarity_multiplier = 0;
+        template<class Archive>void serialize(Archive &archive){archive(has_active_job,job_start,number_of_archaeologists,rarity_multiplier);}
+    };
+    int relation = 0;
+    int skill_level = 0;
+    Raw_Loot loot;
+    Job_Details job;
+    template<class Archive>void serialize(Archive &archive){archive(relation,skill_level,loot,job);}
+};
 struct NPC{
     Bartender bartender;
     Farmer farmer;
@@ -170,7 +204,9 @@ struct NPC{
     Chest chest;
     Merchant gear_merchant;
     Merchant mysterious_trader;
-    template<class Archive>void serialize(Archive &archive){archive(bartender,farmer,bank,chest,gear_merchant,mysterious_trader);}
+    Miner miner;
+    Archaeologist archaeologist;
+    template<class Archive>void serialize(Archive &archive){archive(bartender,farmer,bank,chest,gear_merchant,mysterious_trader,miner,archaeologist);}
 };
 struct NoDelete{
     // Configurations

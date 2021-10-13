@@ -299,10 +299,10 @@ void inventory_modifier_selection(tcod::ConsolePtr &main_win, tcod::ContextPtr &
         if((ch=='s'||ch==SDLK_DOWN)&&csr_pos<22){
             repeat_down_until_valid_move(csr_pos, items_copy);
         }
-        if((ch=='w'||ch==SDLK_UP)&&csr_pos>0){
+        else if((ch=='w'||ch==SDLK_UP)&&csr_pos>0){
             repeat_up_until_valid_move(csr_pos, items_copy);
         }
-        if(ch==SDLK_RETURN){
+        else if(ch==SDLK_RETURN){
             if(csr_pos==21){
                 reset_inv_params(perm_config);
                 process_copy(original_copy, items_copy, perm_config);
@@ -312,7 +312,7 @@ void inventory_modifier_selection(tcod::ConsolePtr &main_win, tcod::ContextPtr &
             }
             change_config(perm_config, csr_pos, items_copy);
         }
-        if(ch=='q'){
+        else if(ch=='q'){
             return;
         }
     }

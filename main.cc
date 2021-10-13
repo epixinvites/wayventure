@@ -14,6 +14,7 @@
 #include <cereal/types/vector.hpp>
 #include <cereal/types/string.hpp>
 #include <cereal/types/utility.hpp>
+#include <cereal/types/chrono.hpp>
 
 int SDL_getch(tcod::ConsolePtr &main_win, tcod::ContextPtr &context){
     SDL_FlushEvent(SDL_KEYDOWN);
@@ -74,6 +75,20 @@ std::pair<int, int> SDL_getch_ex(tcod::ConsolePtr &main_win, tcod::ContextPtr &c
     return {0, 0};
 }
 
+bool SDL_getch_y_or_n(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, std::string dialogue){
+    clear_and_draw_dialog(main_win, context, dialogue);
+    int ch=SDL_getch(main_win, context);
+    while(!(ch>0&&ch<128)){
+        ch=SDL_getch(main_win, context);
+    }
+    if(ch=='y'){
+        return true;
+    }
+    else{
+        return false;
+    }
+}
+
 void SDL_wclear_dialog_bar(tcod::ConsolePtr &main_win, tcod::ContextPtr &context){
     tcod::print(*main_win, {0, 0}, empty_line, &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
 //    context->present(*main_win);
@@ -104,12 +119,12 @@ std::string get_string(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, st
         if(ch==SDLK_RETURN&&input.length()>0){ // KEY_ENTER
             return input;
         }
-        if(ch==SDLK_BACKSPACE){ // KEY_BACKSPACE
+        else if(ch==SDLK_BACKSPACE){ // KEY_BACKSPACE
             if(input.length()>0){
                 input.pop_back();
             }
         }
-        if(ch==SDLK_ESCAPE){ // KEY_ESC
+        else if(ch==SDLK_ESCAPE){ // KEY_ESC
             return original;
         }
         else if((ch>0&&ch<128)&&input.length()<30&&(isdigit(ch)||isalpha(ch)||isblank(ch))){
@@ -130,12 +145,12 @@ unsigned int get_int(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, std:
         if(ch==SDLK_RETURN&&input.length()>0){ // KEY_ENTER
             return std::stoi(input);
         }
-        if(ch==SDLK_BACKSPACE){ // KEY_BACKSPACE
+        else if(ch==SDLK_BACKSPACE){ // KEY_BACKSPACE
             if(input.length()>0){
                 input.pop_back();
             }
         }
-        if(ch==SDLK_ESCAPE||ch=='q'){ // KEY_ESC
+        else if(ch==SDLK_ESCAPE||ch=='q'){ // KEY_ESC
             return 0;
         }
         else if((ch>0&&ch<128)&&input.length()<8&&isdigit(ch)){
@@ -156,12 +171,12 @@ long long int get_llint(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, s
         if(ch==SDLK_RETURN&&input.length()>0){ // KEY_ENTER
             return std::stoll(input);
         }
-        if(ch==SDLK_BACKSPACE){ // KEY_BACKSPACE
+        else if(ch==SDLK_BACKSPACE){ // KEY_BACKSPACE
             if(input.length()>0){
                 input.pop_back();
             }
         }
-        if(ch==SDLK_ESCAPE||ch=='q'){ // KEY_ESC
+        else if(ch==SDLK_ESCAPE||ch=='q'){ // KEY_ESC
             return 0;
         }
         else if((ch>0&&ch<128)&&input.length()<18&&isdigit(ch)){
@@ -182,12 +197,12 @@ unsigned long long int get_ullint(tcod::ConsolePtr &main_win, tcod::ContextPtr &
         if(ch==SDLK_RETURN&&input.length()>0){ // KEY_ENTER
             return std::stoull(input);
         }
-        if(ch==SDLK_BACKSPACE){ // KEY_BACKSPACE
+        else if(ch==SDLK_BACKSPACE){ // KEY_BACKSPACE
             if(input.length()>0){
                 input.pop_back();
             }
         }
-        if(ch==SDLK_ESCAPE||ch=='q'){ // KEY_ESC
+        else if(ch==SDLK_ESCAPE||ch=='q'){ // KEY_ESC
             return 0;
         }
         else if((ch>0&&ch<128)&&input.length()<19&&isdigit(ch)){
@@ -220,18 +235,22 @@ std::pair<int, Dungeon> check_monster_pos(std::vector<monster> monsters, int x, 
 void char_move(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, int ch, Csr &csr_pos, std::vector<monster> monsters, Player &User, NPC &npc, level Current){
     bool require_move=false;
     if((ch=='a'||ch==SDLK_LEFT)&&csr_pos.first>1&&!check_surroundings(monsters, csr_pos.first-1, csr_pos.second)){
+        TCOD_console_put_char_ex(main_win.get(), csr_pos.first, csr_pos.second+1, ' ', WHITE, BLACK);
         csr_pos.first--;
         require_move=true;
     }
-    if((ch=='d'||ch==SDLK_RIGHT)&&csr_pos.first<78&&!check_surroundings(monsters, csr_pos.first+1, csr_pos.second)){
+    else if((ch=='d'||ch==SDLK_RIGHT)&&csr_pos.first<78&&!check_surroundings(monsters, csr_pos.first+1, csr_pos.second)){
+        TCOD_console_put_char_ex(main_win.get(), csr_pos.first, csr_pos.second+1, ' ', WHITE, BLACK);
         csr_pos.first++;
         require_move=true;
     }
-    if((ch=='w'||ch==SDLK_UP)&&csr_pos.second>1&&!check_surroundings(monsters, csr_pos.first, csr_pos.second-1)){
+    else if((ch=='w'||ch==SDLK_UP)&&csr_pos.second>1&&!check_surroundings(monsters, csr_pos.first, csr_pos.second-1)){
+        TCOD_console_put_char_ex(main_win.get(), csr_pos.first, csr_pos.second+1, ' ', WHITE, BLACK);
         csr_pos.second--;
         require_move=true;
     }
-    if((ch=='s'||ch==SDLK_DOWN)&&csr_pos.second<48&&!check_surroundings(monsters, csr_pos.first, csr_pos.second+1)){
+    else if((ch=='s'||ch==SDLK_DOWN)&&csr_pos.second<48&&!check_surroundings(monsters, csr_pos.first, csr_pos.second+1)){
+        TCOD_console_put_char_ex(main_win.get(), csr_pos.first, csr_pos.second+1, ' ', WHITE, BLACK);
         csr_pos.second++;
         require_move=true;
     }
@@ -247,6 +266,10 @@ void char_move(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, int ch, Cs
             npc.bank.interest_next_applied+=50000;
             npc.bank.saved_gold*=npc.bank.storage_interest;
         }
+        draw_doors(main_win, context, Current);
+        draw_player(main_win, context, csr_pos.first, csr_pos.second);
+        draw_stats(main_win, context, User);
+        context->present(*main_win);
     }
 }
 
@@ -307,6 +330,7 @@ std::pair<std::string, std::string> calculate_damage(Player &User, monster_stats
 bool player_battle(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player &User, level Current, Dungeon monster_type){
     monster_stats monster=create_monster(Current, monster_type);
     std::pair<std::string, std::string> log;
+    int ch;
     while(true){
         SDL_wclear_main_win(main_win, context);
         draw_border(main_win, context);
@@ -320,7 +344,7 @@ bool player_battle(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player
         tcod::print(*main_win, {39, 25}, log.first, &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_CENTER);
         tcod::print(*main_win, {39, 26}, log.second, &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_CENTER);
         context->present(*main_win);
-        int ch=SDL_getch(main_win, context);
+        ch=SDL_getch(main_win, context);
         if(ch=='1'){
             log=calculate_damage(User, monster);
             if(User.cur_hp<=0){
@@ -331,8 +355,9 @@ bool player_battle(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player
                 Item loot=generate_loot_from_monster_type(monster_type);
                 SDL_wclear_main_win(main_win, context);
                 tcod::print(*main_win, {0, 1}, "Press any key to keep and [r] to trash", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
-                print_description(main_win, context, &loot, 1);
                 draw_stats(main_win, context, User);
+                print_description(main_win, context, &loot, 1);
+
                 ch=SDL_getch(main_win, context);
                 while(!(ch>0&&ch<128)){
                     ch=SDL_getch(main_win, context);
@@ -344,7 +369,7 @@ bool player_battle(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player
                 return true;
             }
         }
-        if(ch=='2'){
+        else if(ch=='2'){
             if(User.inv.misc.heal_amount>0&&User.cur_hp!=User.ori_hp){
                 User.inv.misc.heal_amount--;
                 User.cur_hp=User.ori_hp;
@@ -464,26 +489,27 @@ void print_food(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player &U
 }
 
 void eat_drink_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player &User){
+    int ch;
     while(true){
         print_food(main_win, context, User);
         draw_stats(main_win, context, User);
-        int ch=SDL_getch(main_win, context);
+        ch=SDL_getch(main_win, context);
         if(ch=='1'&&User.inv.food.bread>0){
             User.eat(&User.inv.food.bread);
         }
-        if(ch=='2'&&User.inv.food.waffle>0){
+        else if(ch=='2'&&User.inv.food.waffle>0){
             User.eat(&User.inv.food.waffle);
         }
-        if(ch=='3'&&User.inv.food.energy_bar>0){
+        else if(ch=='3'&&User.inv.food.energy_bar>0){
             User.eat(&User.inv.food.energy_bar);
         }
-        if(ch=='4'&&User.inv.water.water>0){
+        else if(ch=='4'&&User.inv.water.water>0){
             User.drink(&User.inv.water.water);
         }
-        if(ch=='5'&&User.inv.water.sparkling_juice>0){
+        else if(ch=='5'&&User.inv.water.sparkling_juice>0){
             User.drink(&User.inv.water.sparkling_juice);
         }
-        if(ch=='q'){
+        else if(ch=='q'){
             return;
         }
     }
@@ -566,17 +592,17 @@ void init_dungeon(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Csr &cs
     }
     generate_doors(doors, Current);
     redraw_everything(main_win, context, csr_pos, User, Current, monsters);
+    int ch;
     while(true){
-        int ch=SDL_getch(main_win, context);
+        ch=SDL_getch(main_win, context);
         if(ch=='w'||ch=='a'||ch=='s'||ch=='d'||ch==SDLK_LEFT||ch==SDLK_RIGHT||ch==SDLK_DOWN||ch==SDLK_UP){
             char_move(main_win, context, ch, csr_pos, monsters, User, npc, Current);
-            redraw_everything(main_win, context, csr_pos, User, Current, monsters);
         }
-        if(ch=='z'){
+        else if(ch=='z'){
             move_door(doors, monsters, Current, csr_pos);
             redraw_everything(main_win, context, csr_pos, User, Current, monsters);
         }
-        if(ch=='x'){
+        else if(ch=='x'){
             std::pair<bool, bool> attack_status=attack_monster(main_win, context, monsters, csr_pos, User, Current);
             if(attack_status.first&&!attack_status.second){ // If dead return to main menu
                 end_program(1);
@@ -584,12 +610,12 @@ void init_dungeon(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Csr &cs
                 save_data(User, Current, csr_pos, monsters, npc, perm_config);
                 return;
             }
-            if(attack_status.first&&attack_status.second){ // If win redraw dungeon and move on
+            else if(attack_status.first&&attack_status.second){ // If win redraw dungeon and move on
                 User.cur_shield=User.ori_shield;
                 redraw_everything(main_win, context, csr_pos, User, Current, monsters);
             }
         }
-        if(ch=='c'){
+        else if(ch=='c'){
             if(move_staircase(Current, csr_pos)){
                 generate_doors(doors, Current);
             }
@@ -598,7 +624,7 @@ void init_dungeon(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Csr &cs
             }
             redraw_everything(main_win, context, csr_pos, User, Current, monsters);
         }
-        if(ch=='i'){
+        else if(ch=='i'){
             if(!User.inv.item.empty()){
                 inventory_mode(main_win, context, User, perm_config);
                 redraw_everything(main_win, context, csr_pos, User, Current, monsters);
@@ -607,11 +633,11 @@ void init_dungeon(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Csr &cs
                 clear_and_draw_dialog(main_win, context, "[System] Error: Inventory Empty");
             }
         }
-        if(ch=='e'){
+        else if(ch=='e'){
             eat_drink_mode(main_win, context, User);
             redraw_everything(main_win, context, csr_pos, User, Current, monsters);
         }
-        if(ch=='.'){
+        else if(ch=='.'){
             if(User.cur_hp<User.ori_hp){
                 User.saturation-=1;
                 User.cur_hp+=(User.ori_hp*0.015);
@@ -621,24 +647,17 @@ void init_dungeon(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Csr &cs
             }
             redraw_everything(main_win, context, csr_pos, User, Current, monsters);
         }
-        if(ch=='S'){
+        else if(ch=='S'){
             save_data(User, Current, csr_pos, monsters, npc, perm_config);
             redraw_everything(main_win, context, csr_pos, User, Current, monsters);
             clear_and_draw_dialog(main_win, context, "Data saved successfully!");
         }
-        if(ch=='H'){
+        else if(ch=='H'){
             help_mode(main_win, context, "dungeon_mode");
             redraw_everything(main_win, context, csr_pos, User, Current, monsters);
         }
-        if(ch=='q'){
-            clear_and_draw_dialog(main_win, context, "Do you really wish to quit? [y] to quit, any other key to abort.");
-            while(true){
-                ch=SDL_getch(main_win, context);
-                if(ch>0&&ch<128){
-                    break;
-                }
-            }
-            if(ch=='y'){
+        else if(ch=='q'){
+            if(SDL_getch_y_or_n(main_win, context, "Do you really wish to quit? [y] to quit, any other key to abort.")){
                 end_program(0);
                 save_data(User, Current, csr_pos, monsters, npc, perm_config);
                 return;

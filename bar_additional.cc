@@ -216,18 +216,19 @@ void draw_sell_items(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, cons
 void store_misc_items(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Miscellaneous &User, Chest &chest){
     unsigned int csr_pos=0;
     clear_and_draw_dialog(main_win, context, "[Inventory] Miscallaneous items:");
+    int ch;
     while(true){
         print_misc_item(main_win, context, User, csr_pos);
-        int ch=SDL_getch(main_win, context);
+        ch=SDL_getch(main_win, context);
         if((ch==SDLK_DOWN||ch=='s')&&csr_pos<16){
             clear_and_draw_dialog(main_win, context, "[Inventory] Miscallaneous items:");
             csr_pos++;
         }
-        if((ch==SDLK_UP||ch=='w')&&csr_pos>0){
+        else if((ch==SDLK_UP||ch=='w')&&csr_pos>0){
             clear_and_draw_dialog(main_win, context, "[Inventory] Miscallaneous items:");
             csr_pos--;
         }
-        if(ch=='S'){
+        else if(ch=='S'){
             unsigned int quantity=get_int(main_win, context, "([ESC] to cancel) Quantity to be stored: ");
             if(remove_misc_item(User, csr_pos, quantity)){
                 add_misc_item(chest.misc_storage, csr_pos, quantity);
@@ -237,7 +238,7 @@ void store_misc_items(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Mis
                 clear_and_draw_dialog(main_win, context, "[System] Invalid amount");
             }
         }
-        if(ch=='q'){
+        else if(ch=='q'){
             return;
         }
     }
@@ -246,18 +247,19 @@ void store_misc_items(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Mis
 void retrieve_misc_items(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Miscellaneous &User, Chest &chest){
     unsigned int csr_pos=0;
     clear_and_draw_dialog(main_win, context, "[Storage] Miscallaneous items:");
+    int ch;
     while(true){
         print_misc_item(main_win, context, chest.misc_storage, csr_pos);
-        int ch=SDL_getch(main_win, context);
+        ch=SDL_getch(main_win, context);
         if((ch==SDLK_DOWN||ch=='s')&&csr_pos<16){
             clear_and_draw_dialog(main_win, context, "[Storage] Miscallaneous items:");
             csr_pos++;
         }
-        if((ch==SDLK_UP||ch=='w')&&csr_pos>0){
+        else if((ch==SDLK_UP||ch=='w')&&csr_pos>0){
             clear_and_draw_dialog(main_win, context, "[Storage] Miscallaneous items:");
             csr_pos--;
         }
-        if(ch=='R'){
+        else if(ch=='R'){
             unsigned int quantity=get_int(main_win, context, "([ESC] to cancel) Quantity to be retrieved: ");
             if(remove_misc_item(chest.misc_storage, csr_pos, quantity)){
                 add_misc_item(User, csr_pos, quantity);
@@ -267,7 +269,7 @@ void retrieve_misc_items(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, 
                 clear_and_draw_dialog(main_win, context, "[System] Invalid amount");
             }
         }
-        if(ch=='q'){
+        else if(ch=='q'){
             return;
         }
     }
@@ -280,31 +282,28 @@ void inventory_storage(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Pl
     bool is_modifier_called=false;
     init_copy(User.inv.item, items_copy);
     draw_inventory(main_win, context, User, items_copy, page_num, csr_pos);
+    int ch;
     while(true){
-        int ch=SDL_getch(main_win, context);
+        ch=SDL_getch(main_win, context);
         if((ch=='s'||ch==SDLK_DOWN)&&((csr_pos+page_num*30)<items_copy.size()-1&&csr_pos<29)){
             csr_pos++;
             draw_inventory(main_win, context, User, items_copy, page_num, csr_pos);
         }
-        if((ch=='w'||ch==SDLK_UP)&&csr_pos>0){
+        else if((ch=='w'||ch==SDLK_UP)&&csr_pos>0){
             csr_pos--;
             draw_inventory(main_win, context, User, items_copy, page_num, csr_pos);
         }
-        if(ch=='a'||ch==SDLK_LEFT){
-            if(page_num>0){
-                page_num--;
-                csr_pos=0;
-                draw_inventory(main_win, context, User, items_copy, page_num, csr_pos);
-            }
+        else if((ch=='a'||ch==SDLK_LEFT)&&page_num>0){
+            page_num--;
+            csr_pos=0;
+            draw_inventory(main_win, context, User, items_copy, page_num, csr_pos);
         }
-        if(ch=='d'||ch==SDLK_RIGHT){
-            if((page_num+1)*30<items_copy.size()){
-                page_num++;
-                csr_pos=0;
-                draw_inventory(main_win, context, User, items_copy, page_num, csr_pos);
-            }
+        else if((ch=='d'||ch==SDLK_RIGHT)&&((page_num+1)*30<items_copy.size())){
+            page_num++;
+            csr_pos=0;
+            draw_inventory(main_win, context, User, items_copy, page_num, csr_pos);
         }
-        if(ch=='S'){
+        else if(ch=='S'){
             if(unequip_item(User, items_copy[csr_pos+page_num*30])){
                 chest.gear_storage.insert(chest.gear_storage.begin(), *items_copy[csr_pos+page_num*30]);
                 User.remove_item(items_copy[csr_pos+page_num*30]);
@@ -329,10 +328,10 @@ void inventory_storage(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Pl
                 clear_and_draw_dialog(main_win, context, "[System] Error Storing Item");
             }
         }
-        if(ch=='q'){
+        else if(ch=='q'){
             return;
         }
-        if(ch=='-'){ // Inventory Modifier
+        else if(ch=='-'){ // Inventory Modifier
             is_modifier_called=true;
             inventory_modifier_selection(main_win, context, perm_config, User.inv.item, items_copy);
             process_copy(User.inv.item, items_copy, perm_config);
@@ -348,31 +347,28 @@ void inventory_retrieve(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, P
     bool is_modifier_called=false;
     init_copy(chest.gear_storage, items_copy);
     draw_inventory(main_win, context, User, items_copy, page_num, csr_pos);
+    int ch;
     while(true){
-        int ch=SDL_getch(main_win, context);
+        ch=SDL_getch(main_win, context);
         if((ch=='s'||ch==SDLK_DOWN)&&((csr_pos+page_num*30)<items_copy.size()-1&&csr_pos<29)){
             csr_pos++;
             draw_inventory(main_win, context, User, items_copy, page_num, csr_pos);
         }
-        if((ch=='w'||ch==SDLK_UP)&&csr_pos>0){
+        else if((ch=='w'||ch==SDLK_UP)&&csr_pos>0){
             csr_pos--;
             draw_inventory(main_win, context, User, items_copy, page_num, csr_pos);
         }
-        if(ch=='a'||ch==SDLK_LEFT){
-            if(page_num>0){
-                page_num--;
-                csr_pos=0;
-                draw_inventory(main_win, context, User, items_copy, page_num, csr_pos);
-            }
+        else if((ch=='a'||ch==SDLK_LEFT)&&(page_num>0)){
+            page_num--;
+            csr_pos=0;
+            draw_inventory(main_win, context, User, items_copy, page_num, csr_pos);
         }
-        if(ch=='d'||ch==SDLK_RIGHT){
-            if((page_num+1)*30<items_copy.size()){
-                page_num++;
-                csr_pos=0;
-                draw_inventory(main_win, context, User, items_copy, page_num, csr_pos);
-            }
+        else if((ch=='d'||ch==SDLK_RIGHT)&&((page_num+1)*30<items_copy.size())){
+            page_num++;
+            csr_pos=0;
+            draw_inventory(main_win, context, User, items_copy, page_num, csr_pos);
         }
-        if(ch=='R'){
+        else if(ch=='R'){
             User.add_item(*items_copy[csr_pos+page_num*30]);
             chest.gear_storage.erase(chest.gear_storage.begin()+(csr_pos+page_num*30));
             if(chest.gear_storage.empty()){
@@ -392,10 +388,10 @@ void inventory_retrieve(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, P
             }
             draw_inventory(main_win, context, User, items_copy, page_num, csr_pos);
         }
-        if(ch=='q'){
+        else if(ch=='q'){
             return;
         }
-        if(ch=='-'){ // Inventory Modifier
+        else if(ch=='-'){ // Inventory Modifier
             is_modifier_called=true;
             inventory_modifier_selection(main_win, context, perm_config, chest.gear_storage, items_copy);
             process_copy(chest.gear_storage, items_copy, perm_config);
@@ -413,23 +409,21 @@ void show_merchant_items(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, 
     }
     std::vector<Item *> items_copy;
     init_copy(original_copy, items_copy);
+    int ch;
     draw_trader_items(main_win, context, User, items_copy, page_num, csr_pos, calculate_price(original_copy[csr_pos+page_num*30], gear_merchant.relation));
     while(true){
-        int ch=SDL_getch(main_win, context);
-        if(ch=='q'){
-            return;
-        }
+        ch=SDL_getch(main_win, context);
         if((ch=='s'||ch==SDLK_DOWN)&&((csr_pos+page_num*30)<items_copy.size()-1&&csr_pos<29)){
             csr_pos++;
             tcod::print(*main_win, {0, 39}, empty_line, &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
             draw_trader_items(main_win, context, User, items_copy, page_num, csr_pos, calculate_price(original_copy[csr_pos+page_num*30], gear_merchant.relation), gear_merchant.store[csr_pos+page_num*30].second);
         }
-        if((ch=='w'||ch==SDLK_UP)&&csr_pos>0){
+        else if((ch=='w'||ch==SDLK_UP)&&csr_pos>0){
             csr_pos--;
             tcod::print(*main_win, {0, 39}, empty_line, &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
             draw_trader_items(main_win, context, User, items_copy, page_num, csr_pos, calculate_price(original_copy[csr_pos+page_num*30], gear_merchant.relation), gear_merchant.store[csr_pos+page_num*30].second);
         }
-        if(ch=='L'){
+        else if(ch=='L'){
             if(!gear_merchant.store[csr_pos+page_num*30].second){
                 gear_merchant.store[csr_pos+page_num*30].second=true;
                 draw_trader_items(main_win, context, User, items_copy, page_num, csr_pos, calculate_price(original_copy[csr_pos+page_num*30], gear_merchant.relation), gear_merchant.store[csr_pos+page_num*30].second);
@@ -441,15 +435,8 @@ void show_merchant_items(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, 
                 clear_and_draw_dialog(main_win, context, "Item Unlocked!");
             }
         }
-        if(ch=='B'){
-            clear_and_draw_dialog(main_win, context, "Confirm purchase of item? [y/n]");
-            while(true){
-                ch=SDL_getch(main_win, context);
-                if(ch>0&&ch<128){
-                    break;
-                }
-            }
-            if(ch=='y'){
+        else if(ch=='B'){
+            if(SDL_getch_y_or_n(main_win, context, "Confirm purchase of item? [y/n]")){
                 unsigned int amount=calculate_price(original_copy[csr_pos+page_num*30], gear_merchant.relation);
                 if(amount<=User.gold){
                     User.gold-=amount;
@@ -481,6 +468,9 @@ void show_merchant_items(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, 
                 clear_and_draw_dialog(main_win, context, "[System] Transaction aborted");
             }
         }
+        else if(ch=='q'){
+            return;
+        }
     }
 }
 
@@ -493,40 +483,30 @@ void sell_items_to_merchant(tcod::ConsolePtr &main_win, tcod::ContextPtr &contex
     if(perm_config.keep_changes_persistent){
         process_copy(User.inv.item, items_copy, perm_config);
     }
+    int ch;
     draw_sell_items(main_win, context, User, items_copy, page_num, csr_pos, calculate_price(User.inv.item[csr_pos+page_num*30], gear_merchant.relation, true));
     while(true){
-        int ch=SDL_getch(main_win, context);
+        ch=SDL_getch(main_win, context);
         if((ch=='s'||ch==SDLK_DOWN)&&((csr_pos+page_num*30)<items_copy.size()-1&&csr_pos<29)){
             csr_pos++;
             draw_sell_items(main_win, context, User, items_copy, page_num, csr_pos, calculate_price(*items_copy[csr_pos+page_num*30], gear_merchant.relation, true));
         }
-        if((ch=='w'||ch==SDLK_UP)&&csr_pos>0){
+        else if((ch=='w'||ch==SDLK_UP)&&csr_pos>0){
             csr_pos--;
             draw_sell_items(main_win, context, User, items_copy, page_num, csr_pos, calculate_price(*items_copy[csr_pos+page_num*30], gear_merchant.relation, true));
         }
-        if(ch=='a'||ch==SDLK_LEFT){
-            if(page_num>0){
-                page_num--;
-                csr_pos=0;
-                draw_sell_items(main_win, context, User, items_copy, page_num, csr_pos, calculate_price(*items_copy[csr_pos+page_num*30], gear_merchant.relation, true));
-            }
+        else if((ch=='a'||ch==SDLK_LEFT)&&page_num>0){
+            page_num--;
+            csr_pos=0;
+            draw_sell_items(main_win, context, User, items_copy, page_num, csr_pos, calculate_price(*items_copy[csr_pos+page_num*30], gear_merchant.relation, true));
         }
-        if(ch=='d'||ch==SDLK_RIGHT){
-            if((page_num+1)*30<items_copy.size()){
-                page_num++;
-                csr_pos=0;
-                draw_sell_items(main_win, context, User, items_copy, page_num, csr_pos, calculate_price(*items_copy[csr_pos+page_num*30], gear_merchant.relation, true));
-            }
+        else if((ch=='d'||ch==SDLK_RIGHT)&&((page_num+1)*30<items_copy.size())){
+            page_num++;
+            csr_pos=0;
+            draw_sell_items(main_win, context, User, items_copy, page_num, csr_pos, calculate_price(*items_copy[csr_pos+page_num*30], gear_merchant.relation, true));
         }
-        if(ch=='S'&&items_copy[csr_pos+page_num*30]->rarity!=Rarity::ARTIFACT){
-            clear_and_draw_dialog(main_win, context, "Sell item? [y/n]");
-            while(true){
-                ch=SDL_getch(main_win, context);
-                if(ch>0&&ch<128){
-                    break;
-                }
-            }
-            if(ch=='y'&&unequip_item(User, items_copy[csr_pos+page_num*30])){
+        else if(ch=='S'&&items_copy[csr_pos+page_num*30]->rarity!=Rarity::ARTIFACT){
+            if(SDL_getch_y_or_n(main_win, context, "Sell item? [y/n]")&&unequip_item(User, items_copy[csr_pos+page_num*30])){
                 User.gold+=calculate_price(*items_copy[csr_pos+page_num*30], gear_merchant.relation, true);
                 User.remove_item(items_copy[csr_pos+page_num*30]);
                 if(User.inv.item.empty()){
@@ -548,10 +528,10 @@ void sell_items_to_merchant(tcod::ConsolePtr &main_win, tcod::ContextPtr &contex
                 draw_sell_items(main_win, context, User, items_copy, page_num, csr_pos, calculate_price(*items_copy[csr_pos+page_num*30], gear_merchant.relation, true));
             }
         }
-        if(ch=='q'){
+        else if(ch=='q'){
             return;
         }
-        if(ch=='-'){ // Inventory Modifier
+        else if(ch=='-'){ // Inventory Modifier
             is_modifier_active=true;
             inventory_modifier_selection(main_win, context, perm_config, User.inv.item, items_copy);
             process_copy(User.inv.item, items_copy, perm_config);
@@ -792,18 +772,18 @@ void trader_misc_menu(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Pla
             csr_pos--;
             print_trader_misc_menu(main_win, context, csr_pos);
         }
-        if((ch=='s'||ch==SDLK_DOWN)&&csr_pos<17){
+        else if((ch=='s'||ch==SDLK_DOWN)&&csr_pos<17){
             csr_pos++;
             print_trader_misc_menu(main_win, context, csr_pos);
         }
-        if(ch=='q'){
+        else if(ch=='q'){
             return;
         }
-        if(ch=='m'){
+        else if(ch=='m'){
             show_misc_items(main_win, context, User.inv.misc);
             print_trader_misc_menu(main_win, context, csr_pos);
         }
-        if(ch==SDLK_RETURN){
+        else if(ch==SDLK_RETURN){
             if(trader_process_payment(main_win, context, User, gear_merchant, csr_pos)){
                 print_trader_misc_menu(main_win, context, csr_pos);
                 draw_stats(main_win, context, User);
@@ -931,35 +911,32 @@ int select_inventory_for_exchange(tcod::ConsolePtr &main_win, tcod::ContextPtr &
             selected_items.push_back({&User.inv.item[i], false});
         }
     }
+    int ch;
     print_inventory_with_quality_points(main_win, context, csr_pos, page_num, User, selected_items, calculate_quality_points(*target), total_quality);
     while(true){
-        int ch=SDL_getch(main_win, context);
+        ch=SDL_getch(main_win, context);
         if((ch=='s'||ch==SDLK_DOWN)&&((csr_pos+page_num*30)<selected_items.size()-1&&csr_pos<29)){
             csr_pos++;
             print_inventory_with_quality_points(main_win, context, csr_pos, page_num, User, selected_items, calculate_quality_points(*target), total_quality);
         }
-        if((ch=='w'||ch==SDLK_UP)&&csr_pos>0){
+        else if((ch=='w'||ch==SDLK_UP)&&csr_pos>0){
             csr_pos--;
             print_inventory_with_quality_points(main_win, context, csr_pos, page_num, User, selected_items, calculate_quality_points(*target), total_quality);
         }
-        if(ch=='a'||ch==SDLK_LEFT){
-            if(page_num>0){
-                page_num--;
-                csr_pos=0;
-                print_inventory_with_quality_points(main_win, context, csr_pos, page_num, User, selected_items, calculate_quality_points(*target), total_quality);
-            }
+        else if((ch=='a'||ch==SDLK_LEFT)&&page_num>0){
+            page_num--;
+            csr_pos=0;
+            print_inventory_with_quality_points(main_win, context, csr_pos, page_num, User, selected_items, calculate_quality_points(*target), total_quality);
         }
-        if(ch=='d'||ch==SDLK_RIGHT){
-            if((page_num+1)*30<selected_items.size()){
-                page_num++;
-                csr_pos=0;
-                print_inventory_with_quality_points(main_win, context, csr_pos, page_num, User, selected_items, calculate_quality_points(*target), total_quality);
-            }
+        else if((ch=='d'||ch==SDLK_RIGHT)&&((page_num+1)*30<selected_items.size())){
+            page_num++;
+            csr_pos=0;
+            print_inventory_with_quality_points(main_win, context, csr_pos, page_num, User, selected_items, calculate_quality_points(*target), total_quality);
         }
-        if(ch=='q'){
+        else if(ch=='q'){
             return 0;
         }
-        if(ch==SDLK_RETURN){
+        else if(ch==SDLK_RETURN){
             if(selected_items[csr_pos+(page_num*30)].second){
                 selected_items[csr_pos+(page_num*30)].second=false;
                 total_quality-=(int)(calculate_quality_points(*selected_items[csr_pos+(page_num*30)].first));
@@ -972,7 +949,7 @@ int select_inventory_for_exchange(tcod::ConsolePtr &main_win, tcod::ContextPtr &
             }
             print_inventory_with_quality_points(main_win, context, csr_pos, page_num, User, selected_items, calculate_quality_points(*target), total_quality);
         }
-        if(ch=='B'&&!selected_for_trade.empty()){
+        else if(ch=='B'&&!selected_for_trade.empty()){
             if(total_quality>=calculate_quality_points(*target)){
                 for(int i = 0; i<selected_for_trade.size(); i++){
                     User.delete_item_with_id(selected_for_trade[i]);
@@ -997,21 +974,22 @@ void mysterious_trader_items(tcod::ConsolePtr &main_win, tcod::ContextPtr &conte
     }
     std::vector<Item *> items_copy;
     init_copy(original_copy, items_copy);
+    int ch;
     draw_mysterious_trader_items(main_win, context, items_copy, csr_pos, calculate_quality_points(*items_copy[csr_pos]));
     while(true){
-        int ch=SDL_getch(main_win, context);
+        ch=SDL_getch(main_win, context);
         if((ch=='s'||ch==SDLK_DOWN)&&((csr_pos+page_num*30)<items_copy.size()-1&&csr_pos<29)){
             csr_pos++;
             draw_mysterious_trader_items(main_win, context, items_copy, csr_pos, calculate_quality_points(*items_copy[csr_pos]));
         }
-        if((ch=='w'||ch==SDLK_UP)&&csr_pos>0){
+        else if((ch=='w'||ch==SDLK_UP)&&csr_pos>0){
             csr_pos--;
             draw_mysterious_trader_items(main_win, context, items_copy, csr_pos, calculate_quality_points(*items_copy[csr_pos]));
         }
-        if(ch=='q'){
+        else if(ch=='q'){
             return;
         }
-        if(ch==SDLK_RETURN){
+        else if(ch==SDLK_RETURN){
             for(int i=0; i<User.inv.item.size(); i++){
                 if(User.inv.item[i].rarity==Rarity::LEGENDARY){
                     int status = select_inventory_for_exchange(main_win, context, User, &mysterious_merchant.store[csr_pos].first);

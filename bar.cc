@@ -76,30 +76,32 @@ void redraw_bar(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player &U
     int gear_output_count=0;
     for(int i=0; i<pub_layout.size(); i++){
         for(int j=0; j<pub_layout[i].size(); j++){
-            if(pub_layout[i][j]=='.'){
-                TCOD_console_put_char_ex(main_win.get(), j, i+1, pub_layout[i][j], GREEN, BLACK);
-            }
-            else if(pub_layout[i][j]=='/'&&gear_output_count<gear_merchant.store.size()){
-                draw_gear_merchant_store(main_win, context, gear_merchant.store[gear_output_count].first, j, i+1);
-                gear_output_count++;
-            }
-            else if(pub_layout[i][j]=='/'&&gear_output_count>=gear_merchant.store.size()){
-                continue;
-            }
-            else if(pub_layout[i][j]=='~'){
-                TCOD_console_put_char_ex(main_win.get(), j, i+1, pub_layout[i][j], LIGHT_BLUE, BLACK);
-            }
-            else if(pub_layout[i][j]=='{'||pub_layout[i][j]=='}'){
-                TCOD_console_put_char_ex(main_win.get(), j, i+1, pub_layout[i][j], DARK_RED, BLACK);
-            }
-            else if(pub_layout[i][j]=='x'){
-                TCOD_console_put_char_ex(main_win.get(), j, i+1, pub_layout[i][j], LIGHT_RED, BLACK);
-            }
-            else if(pub_layout[i][j]=='M'||pub_layout[i][j]=='B'||pub_layout[i][j]=='F'||pub_layout[i][j]=='G'||pub_layout[i][j]=='T'||pub_layout[i][j]=='S'||pub_layout[i][j]=='I'||pub_layout[i][j]=='A'){
-                TCOD_console_put_char_ex(main_win.get(), j, i+1, '@', MAGENTA, BLACK);
-            }
-            else{
-                TCOD_console_put_char_ex(main_win.get(), j, i+1, pub_layout[i][j], WHITE, BLACK);
+            if(pub_layout[i][j]!=' '){
+                if(pub_layout[i][j]=='.'){
+                    TCOD_console_put_char_ex(main_win.get(), j, i+1, pub_layout[i][j], GREEN, BLACK);
+                }
+                else if(pub_layout[i][j]=='/'&&gear_output_count<gear_merchant.store.size()){
+                    draw_gear_merchant_store(main_win, context, gear_merchant.store[gear_output_count].first, j, i+1);
+                    gear_output_count++;
+                }
+                else if(pub_layout[i][j]=='/'&&gear_output_count>=gear_merchant.store.size()){
+                    continue;
+                }
+                else if(pub_layout[i][j]=='~'){
+                    TCOD_console_put_char_ex(main_win.get(), j, i+1, pub_layout[i][j], LIGHT_BLUE, BLACK);
+                }
+                else if(pub_layout[i][j]=='{'||pub_layout[i][j]=='}'){
+                    TCOD_console_put_char_ex(main_win.get(), j, i+1, pub_layout[i][j], DARK_RED, BLACK);
+                }
+                else if(pub_layout[i][j]=='x'){
+                    TCOD_console_put_char_ex(main_win.get(), j, i+1, pub_layout[i][j], LIGHT_RED, BLACK);
+                }
+                else if(pub_layout[i][j]=='S'||pub_layout[i][j]=='M'||pub_layout[i][j]=='B'||pub_layout[i][j]=='F'||pub_layout[i][j]=='G'||pub_layout[i][j]=='T'||pub_layout[i][j]=='N'||pub_layout[i][j]=='I'||pub_layout[i][j]=='A'){
+                    TCOD_console_put_char_ex(main_win.get(), j, i+1, '@', MAGENTA, BLACK);
+                }
+                else{
+                    TCOD_console_put_char_ex(main_win.get(), j, i+1, pub_layout[i][j], WHITE, BLACK);
+                }
             }
         }
     }
@@ -148,7 +150,7 @@ void draw_bartender_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, 
     context->present(*main_win);
 }
 
-void bartender_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Bartender &bartender, Player &User){
+void bartender_interface(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Bartender &bartender, Player &User){
     draw_bartender_mode(main_win, context, bartender, User);
     int ch;
     while(true){
@@ -167,14 +169,7 @@ void bartender_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Barte
                 continue;
             }
             else{
-                clear_and_draw_dialog(main_win, context, "[Bartender] Confirm you want to purchase a bottle of water? [y/n]");
-                while(true){
-                    ch=SDL_getch(main_win, context);
-                    if(ch>0&&ch<128){
-                        break;
-                    }
-                }
-                if(ch=='y'){
+                if(SDL_getch_y_or_n(main_win, context, "[Bartender] Confirm you want to purchase a bottle of water? [y/n]")){
                     User.gold-=5+50*((100.0-bartender.relation)/100.0);
                     User.inv.water.water++;
                     if(bartender.relation<100){
@@ -187,7 +182,7 @@ void bartender_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Barte
                 draw_bartender_mode(main_win, context, bartender, User);
             }
         }
-        if(ch=='2'){
+        else if(ch=='2'){
             if(User.gold<20+100*((100.0-bartender.relation)/100.0)){
                 clear_and_draw_dialog(main_win, context, "[Bartender] Don't waste my time if you don't have enough gold.");
                 if(bartender.relation>=5){
@@ -201,14 +196,7 @@ void bartender_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Barte
                 continue;
             }
             else{
-                clear_and_draw_dialog(main_win, context, "[Bartender] Confirm you want to purchase a can of sparkling water? [y/n]");
-                while(true){
-                    ch=SDL_getch(main_win, context);
-                    if(ch>0&&ch<128){
-                        break;
-                    }
-                }
-                if(ch=='y'){
+                if(SDL_getch_y_or_n(main_win, context, "[Bartender] Confirm you want to purchase a can of sparkling water? [y/n]")){
                     User.gold-=20+100*((100.0-bartender.relation)/100.0);
                     User.inv.water.sparkling_juice++;
                     if(bartender.relation<100){
@@ -221,7 +209,7 @@ void bartender_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Barte
                 draw_bartender_mode(main_win, context, bartender, User);
             }
         }
-        if(ch=='q'){
+        else if(ch=='q'){
             return;
         }
     }
@@ -253,7 +241,7 @@ void draw_farmer_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, con
     context->present(*main_win);
 }
 
-void farmer_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Farmer &farmer, Player &User){
+void farmer_interface(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Farmer &farmer, Player &User){
     draw_farmer_mode(main_win, context, farmer, User);
     int ch;
     while(true){
@@ -272,14 +260,7 @@ void farmer_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Farmer &
                 continue;
             }
             else{
-                clear_and_draw_dialog(main_win, context, "[Farmer] Confirm you want to purchase a piece of bread? [y/n]");
-                while(true){
-                    ch=SDL_getch(main_win, context);
-                    if(ch>0&&ch<128){
-                        break;
-                    }
-                }
-                if(ch=='y'){
+                if(SDL_getch_y_or_n(main_win, context, "[Farmer] Confirm you want to purchase a piece of bread? [y/n]")){
                     User.gold-=5+50*((100.0-farmer.relation)/100.0);
                     User.inv.food.bread++;
                     if(farmer.relation<100){
@@ -292,7 +273,7 @@ void farmer_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Farmer &
                 draw_farmer_mode(main_win, context, farmer, User);
             }
         }
-        if(ch=='2'){
+        else if(ch=='2'){
             if(User.gold<20+100*((100.0-farmer.relation)/100.0)){
                 clear_and_draw_dialog(main_win, context, "[Farmer] Don't waste my time if you don't have enough gold.");
                 if(farmer.relation>=5){
@@ -306,14 +287,7 @@ void farmer_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Farmer &
                 continue;
             }
             else{
-                clear_and_draw_dialog(main_win, context, "[Farmer] Confirm you want to purchase a packet of waffles? [y/n]");
-                while(true){
-                    ch=SDL_getch(main_win, context);
-                    if(ch>0&&ch<128){
-                        break;
-                    }
-                }
-                if(ch=='y'){
+                if(SDL_getch_y_or_n(main_win, context, "[Farmer] Confirm you want to purchase a packet of waffles? [y/n]")){
                     User.gold-=20+100*((100.0-farmer.relation)/100.0);
                     User.inv.food.waffle++;
                     if(farmer.relation<100){
@@ -326,7 +300,7 @@ void farmer_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Farmer &
                 draw_farmer_mode(main_win, context, farmer, User);
             }
         }
-        if(ch=='3'){
+        else if(ch=='3'){
             if(User.gold<50+150*((100.0-farmer.relation)/100.0)){
                 clear_and_draw_dialog(main_win, context, "[Farmer] Don't waste my time if you don't have enough gold.");
                 if(farmer.relation>=5){
@@ -340,14 +314,7 @@ void farmer_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Farmer &
                 continue;
             }
             else{
-                clear_and_draw_dialog(main_win, context, "[Farmer] Confirm you want to purchase a energy bar? [y/n]");
-                while(true){
-                    ch=SDL_getch(main_win, context);
-                    if(ch>0&&ch<128){
-                        break;
-                    }
-                }
-                if(ch=='y'){
+                if(SDL_getch_y_or_n(main_win, context, "[Farmer] Confirm you want to purchase a energy bar? [y/n]")){
                     User.gold-=50+150*((100.0-farmer.relation)/100.0);
                     User.inv.food.energy_bar++;
                     if(farmer.relation<100){
@@ -360,7 +327,7 @@ void farmer_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Farmer &
                 draw_farmer_mode(main_win, context, farmer, User);
             }
         }
-        if(ch=='q'){
+        else if(ch=='q'){
             return;
         }
     }
@@ -368,17 +335,26 @@ void farmer_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Farmer &
 
 void char_move(int ch, tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player &User, Csr &csr_pos, const std::vector<std::string> &pub_layout){
     if((ch=='a'||ch==SDLK_LEFT)&&csr_pos.first>1&&pub_layout[csr_pos.second][csr_pos.first-1]==' '){
+        TCOD_console_put_char_ex(main_win.get(), csr_pos.first, csr_pos.second+1, ' ', WHITE, BLACK);
         csr_pos.first--;
+        draw_player(main_win, context, csr_pos.first, csr_pos.second);
     }
     if((ch=='d'||ch==SDLK_RIGHT)&&csr_pos.first<78&&pub_layout[csr_pos.second][csr_pos.first+1]==' '){
+        TCOD_console_put_char_ex(main_win.get(), csr_pos.first, csr_pos.second+1, ' ', WHITE, BLACK);
         csr_pos.first++;
+        draw_player(main_win, context, csr_pos.first, csr_pos.second);
     }
     if((ch=='w'||ch==SDLK_UP)&&csr_pos.second>1&&pub_layout[csr_pos.second-1][csr_pos.first]==' '){
+        TCOD_console_put_char_ex(main_win.get(), csr_pos.first, csr_pos.second+1, ' ', WHITE, BLACK);
         csr_pos.second--;
+        draw_player(main_win, context, csr_pos.first, csr_pos.second);
     }
     if((ch=='s'||ch==SDLK_DOWN)&&csr_pos.second<48&&pub_layout[csr_pos.second+1][csr_pos.first]==' '){
+        TCOD_console_put_char_ex(main_win.get(), csr_pos.first, csr_pos.second+1, ' ', WHITE, BLACK);
         csr_pos.second++;
+        draw_player(main_win, context, csr_pos.first, csr_pos.second);
     }
+    context->present(*main_win);
 }
 
 void draw_menu_selections(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, int line, bool is_bold, std::string output){
@@ -418,7 +394,7 @@ void draw_bank_menu(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Chest
     context->present(*main_win);
 }
 
-void bank_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, NoDelete &perm_config, Player &User, Chest &chest, Bank &bank){
+void bank_interface(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, NoDelete &perm_config, Player &User, Chest &chest, Bank &bank){
     unsigned int csr_pos=0;
     int ch;
     draw_bank_menu(main_win, context, chest, bank, csr_pos, User.steps);
@@ -428,14 +404,14 @@ void bank_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, NoDelete &
             csr_pos++;
             draw_bank_menu(main_win, context, chest, bank, csr_pos, User.steps);
         }
-        if((ch==SDLK_UP||ch=='w')&&csr_pos>0){
+        else if((ch==SDLK_UP||ch=='w')&&csr_pos>0){
             csr_pos--;
             draw_bank_menu(main_win, context, chest, bank, csr_pos, User.steps);
         }
-        if(ch=='q'){
+        else if(ch=='q'){
             return;
         }
-        if(ch==SDLK_RETURN){
+        else if(ch==SDLK_RETURN){
             switch(csr_pos){
                 case 0:
                     if(!User.inv.item.empty()){
@@ -512,7 +488,7 @@ void draw_gear_merchant(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, u
     context->present(*main_win);
 }
 
-void gear_merchant_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Merchant &gear_merchant, Player &User, NoDelete &perm_config){
+void gear_merchant_interface(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Merchant &gear_merchant, Player &User, NoDelete &perm_config){
     unsigned int csr_pos=0;
     int ch;
     draw_gear_merchant(main_win, context, csr_pos);
@@ -522,14 +498,14 @@ void gear_merchant_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, M
             csr_pos++;
             draw_gear_merchant(main_win, context, csr_pos);
         }
-        if((ch==SDLK_UP||ch=='w')&&csr_pos>0){
+        else if((ch==SDLK_UP||ch=='w')&&csr_pos>0){
             csr_pos--;
             draw_gear_merchant(main_win, context, csr_pos);
         }
-        if(ch=='q'){
+        else if(ch=='q'){
             return;
         }
-        if(ch==SDLK_RETURN){
+        else if(ch==SDLK_RETURN){
             switch(csr_pos){
                 case 0:
                     if(!gear_merchant.store.empty()){
@@ -574,7 +550,7 @@ void draw_mysterious_trader_menu(tcod::ConsolePtr &main_win, tcod::ContextPtr &c
     context->present(*main_win);
 }
 
-void mysterious_trader_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player &User, Merchant &mysterious_trader){
+void mysterious_trader_interface(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player &User, Merchant &mysterious_trader){
     unsigned int csr_pos=0;
     int ch;
     draw_mysterious_trader_menu(main_win, context, csr_pos);
@@ -584,18 +560,18 @@ void mysterious_trader_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &contex
             csr_pos++;
             draw_mysterious_trader_menu(main_win, context, csr_pos);
         }
-        if((ch==SDLK_UP||ch=='w')&&csr_pos>0){
+        else if((ch==SDLK_UP||ch=='w')&&csr_pos>0){
             csr_pos--;
             draw_mysterious_trader_menu(main_win, context, csr_pos);
         }
-        if(ch=='m'){
+        else if(ch=='m'){
             show_misc_items(main_win, context, User.inv.misc);
             draw_mysterious_trader_menu(main_win, context, csr_pos);
         }
-        if(ch=='q'){
+        else if(ch=='q'){
             return;
         }
-        if(ch==SDLK_RETURN){
+        else if(ch==SDLK_RETURN){
             switch(csr_pos){
                 case 0:{
                     unsigned long long int amount=get_ullint(main_win, context, "Amount of Artifact Materials: ");
@@ -633,6 +609,47 @@ void mysterious_trader_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &contex
                         clear_and_draw_dialog(main_win, context, "[...] Return only when the black moon howls.");
                     }
                     break;
+                default:
+                    break;
+            }
+        }
+    }
+}
+
+void miner_hire_menu(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, const Miner &miner, unsigned int csr_pos){
+    SDL_wclear_main_win(main_win, context);
+    SDL_wclear_dialog_bar(main_win, context);
+    tcod::print(*main_win, {0, 0}, "Miner's Inn", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+    tcod::print(*main_win, {0, 1}, "[Innkeeper] Ay matey, what brings you here today?", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+    int line = 3;
+    draw_menu_selections(main_win, context, line, csr_pos==0, "[Hire Miners]");
+    line+=2;
+    draw_menu_selections(main_win, context, line, csr_pos==1, "[Accumulated Loot]");
+    context->present(*main_win);
+}
+
+void miner_hire_interface(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player &User, Miner &miner, Archaeologist &archaeologist){
+    unsigned int csr_pos = 0;
+    miner_hire_menu(main_win, context, miner, csr_pos);
+    int ch;
+    while(true){
+        ch=SDL_getch(main_win, context);
+        if((ch=='w'||ch==SDLK_UP)&&csr_pos>0){
+            csr_pos--;
+            miner_hire_menu(main_win, context, miner, csr_pos);
+        }
+        else if((ch=='s'||ch==SDLK_DOWN)&&csr_pos<1){
+            csr_pos++;
+            miner_hire_menu(main_win, context, miner, csr_pos);
+        }
+        else if(ch=='q'){
+            return;
+        }
+        else if(ch==SDLK_RETURN){
+            if(csr_pos==0){
+                if(!miner.job.has_active_job&&SDL_getch_y_or_n(main_win, context, "Hire a batch of miners? [y/n]")){
+                    clear_and_draw_dialog(main_win, context, "[System] Success");
+                }
             }
         }
     }
@@ -655,31 +672,27 @@ void bar_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player &Use
         ch=SDL_getch(main_win, context);
         if(ch=='w'||ch=='a'||ch=='s'||ch=='d'||ch==SDLK_LEFT||ch==SDLK_RIGHT||ch==SDLK_DOWN||ch==SDLK_UP){
             char_move(ch, main_win, context, User, csr_pos, pub_layout);
-            redraw_bar(main_win, context, User, npc.gear_merchant, pub_layout, csr_pos);
         }
-        if(ch=='x'){
+        else if(ch=='x'){
             char target=search_surroundings(pub_layout, csr_pos.first, csr_pos.second);
-            if(target=='0'){
-                continue;
-            }
-            else if(target=='M'){
-                mysterious_trader_mode(main_win, context, User, npc.mysterious_trader);
+            if(target=='M'){
+                mysterious_trader_interface(main_win, context, User, npc.mysterious_trader);
                 redraw_bar(main_win, context, User, npc.gear_merchant, pub_layout, csr_pos);
             }
             else if(target=='B'){
-                bartender_mode(main_win, context, npc.bartender, User);
+                bartender_interface(main_win, context, npc.bartender, User);
                 redraw_bar(main_win, context, User, npc.gear_merchant, pub_layout, csr_pos);
             }
             else if(target=='F'){
-                farmer_mode(main_win, context, npc.farmer, User);
+                farmer_interface(main_win, context, npc.farmer, User);
                 redraw_bar(main_win, context, User, npc.gear_merchant, pub_layout, csr_pos);
             }
             else if(target=='G'){
-                gear_merchant_mode(main_win, context, npc.gear_merchant, User, perm_config);
+                gear_merchant_interface(main_win, context, npc.gear_merchant, User, perm_config);
                 redraw_bar(main_win, context, User, npc.gear_merchant, pub_layout, csr_pos);
             }
             else if(target=='T'){
-                bank_mode(main_win, context, perm_config, User, npc.chest, npc.bank);
+                bank_interface(main_win, context, perm_config, User, npc.chest, npc.bank);
                 redraw_bar(main_win, context, User, npc.gear_merchant, pub_layout, csr_pos);
             }
             else if(target=='S'){
@@ -687,28 +700,29 @@ void bar_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player &Use
                 redraw_bar(main_win, context, User, npc.gear_merchant, pub_layout, csr_pos);
             }
             else if(target=='I'){
-                // Miner Corp interface
+                miner_hire_interface(main_win, context, User, npc.miner, npc.archaeologist);
+                redraw_bar(main_win, context, User, npc.gear_merchant, pub_layout, csr_pos);
             }
             else if(target=='A'){
                 // Archaeologist interface
             }
         }
-        if(ch=='c'){
+        else if(ch=='c'){
             if(csr_pos.first==78&&csr_pos.second==1){
                 return;
             }
         }
-        if(ch=='i'){
+        else if(ch=='i'){
             if(!User.inv.item.empty()){
                 inventory_mode(main_win, context, User, perm_config);
                 redraw_bar(main_win, context, User, npc.gear_merchant, pub_layout, csr_pos);
             }
         }
-        if(ch=='e'){
+        else if(ch=='e'){
             eat_drink_mode(main_win, context, User);
             redraw_bar(main_win, context, User, npc.gear_merchant, pub_layout, csr_pos);
         }
-        if(ch=='q'){
+        else if(ch=='q'){
             return;
         }
     }
