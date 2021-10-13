@@ -6,57 +6,54 @@ Rarity generate_loot_rarity(Dungeon type){
     std::uniform_int_distribution<int> loot_type(1, 1000);
     int loot=loot_type(generator);
     if(type==Dungeon::ENEMY){
-        if(loot<500){
+        if(loot<=500){
             return Rarity::COMMON;
         }
-        if(loot>=500&&loot<950){
+        else if(loot<=950){
             return Rarity::UNCOMMON;
         }
-        if(loot>=950){
+        else if(loot<=1000){
             return Rarity::RARE;
         }
     }
     else if(type==Dungeon::ROOM_BOSS){
-        if(loot<500){
+        if(loot<=500){
             return Rarity::UNCOMMON;
         }
-        if(loot>=500&&loot<800){
+        else if(loot<=800){
             return Rarity::RARE;
         }
-        if(loot>=800){
+        else if(loot<=1000){
             return Rarity::EPIC;
-        }
-        if(loot>=999){
-            return Rarity::LEGENDARY;
         }
     }
     else if(type==Dungeon::LEVEL_BOSS){
-        if(loot<400){
+        if(loot<=400){
             return Rarity::RARE;
         }
-        if(loot>=400&&loot<950){
+        else if(loot<=950){
             return Rarity::EPIC;
         }
-        if(loot>=950){
+        else if(loot<=1000){
             return Rarity::LEGENDARY;
         }
     }
     else if(type==Dungeon::MINI_BOSS){
-        if(loot<200){
+        if(loot<=200){
             return Rarity::EPIC;
         }
-        if(loot<1000){
+        else if(loot<=980){
             return Rarity::LEGENDARY;
         }
-        if(loot>=1000){
+        else if(loot<=1000){
             return Rarity::ARTIFACT;
         }
     }
     else if(type==Dungeon::FINAL_BOSS){
-        if(loot<990){
+        if(loot<=500){
             return Rarity::LEGENDARY;
         }
-        if(loot>=990){
+        else if(loot<=1000){
             return Rarity::ARTIFACT;
         }
     }
@@ -93,19 +90,19 @@ double rarity_value(Rarity rarity){ // increase the stats value for generated it
     if(rarity==Rarity::COMMON){
         return 1.0;
     }
-    if(rarity==Rarity::UNCOMMON){
+    else if(rarity==Rarity::UNCOMMON){
         return 1.5;
     }
-    if(rarity==Rarity::RARE){
+    else if(rarity==Rarity::RARE){
         return 2.0;
     }
-    if(rarity==Rarity::EPIC){
+    else if(rarity==Rarity::EPIC){
         return 3.0;
     }
-    if(rarity==Rarity::LEGENDARY){
+    else if(rarity==Rarity::LEGENDARY){
         return 5.0;
     }
-    if(rarity==Rarity::ARTIFACT){
+    else if(rarity==Rarity::ARTIFACT){
         return 10.0;
     }
     return 0;
@@ -115,19 +112,19 @@ double rarity_bonus(Rarity rarity){ // increase bonus stats chance
     if(rarity==Rarity::COMMON){
         return 1.0;
     }
-    if(rarity==Rarity::UNCOMMON){
-        return 1.0;
+    else if(rarity==Rarity::UNCOMMON){
+        return 1.2;
     }
-    if(rarity==Rarity::RARE){
-        return 1.0;
+    else if(rarity==Rarity::RARE){
+        return 1.5;
     }
-    if(rarity==Rarity::EPIC){
+    else if(rarity==Rarity::EPIC){
         return 2.0;
     }
-    if(rarity==Rarity::LEGENDARY){
+    else if(rarity==Rarity::LEGENDARY){
         return 2.5;
     }
-    if(rarity==Rarity::ARTIFACT){
+    else if(rarity==Rarity::ARTIFACT){
         return 4.0;
     }
     return 0;
@@ -151,7 +148,7 @@ Item generate_loot(Rarity loot_rarity){
             crit_dmg=2*rarity_value(loot_rarity);
         }
     }
-    if(loot_type==Type::HELMET){ // helmet
+    else if(loot_type==Type::HELMET){ // helmet
         hp=(40+deviation(generator))*rarity_value(loot_rarity);
         if(bonus_stats(generator)<=(6*rarity_bonus(loot_rarity))){
             def=5*rarity_value(loot_rarity);
@@ -160,19 +157,19 @@ Item generate_loot(Rarity loot_rarity){
             shield=20*rarity_value(loot_rarity);
         }
     }
-    if(loot_type==Type::GREAVES){ // greaves
+    else if(loot_type==Type::GREAVES){ // greaves
         def=(50+deviation(generator))*rarity_value(loot_rarity);
         if(bonus_stats(generator)<=(5*rarity_bonus(loot_rarity))){
             shield=15*rarity_value(loot_rarity);
         }
     }
-    if(loot_type==Type::BOOTS){ // boots
+    else if(loot_type==Type::BOOTS){ // boots
         def=(30+deviation(generator))*rarity_value(loot_rarity);
         if(bonus_stats(generator)<=(10*rarity_bonus(loot_rarity))){
             crit_chance=5*rarity_value(loot_rarity);
         }
     }
-    if(loot_type==Type::WEAPON){ // weapon
+    else if(loot_type==Type::WEAPON){ // weapon
         attk=(200+deviation(generator))*rarity_value(loot_rarity);
         if(bonus_stats(generator)<=(5*rarity_bonus(loot_rarity))){
             crit_dmg=10*rarity_value(loot_rarity);
@@ -181,7 +178,7 @@ Item generate_loot(Rarity loot_rarity){
             crit_chance=5*rarity_value(loot_rarity);
         }
     }
-    if(loot_type==Type::SHIELD){ // shield
+    else if(loot_type==Type::SHIELD){ // shield
         shield=(100+deviation(generator))*rarity_value(loot_rarity);
         if(bonus_stats(generator)<=(10*rarity_bonus(loot_rarity))){
             def=20*rarity_value(loot_rarity);
@@ -216,7 +213,7 @@ Item generate_trade_items(Rarity loot_rarity){
             crit_dmg=2*rarity_value(loot_rarity);
         }
     }
-    if(loot_type==Type::HELMET){ // helmet
+    else if(loot_type==Type::HELMET){ // helmet
         hp=(40+deviation(generator))*rarity_value(loot_rarity);
         if(bonus_stats(generator)<=(10*rarity_bonus(loot_rarity))){
             def=5*rarity_value(loot_rarity);
@@ -225,19 +222,19 @@ Item generate_trade_items(Rarity loot_rarity){
             shield=20*rarity_value(loot_rarity);
         }
     }
-    if(loot_type==Type::GREAVES){ // greaves
+    else if(loot_type==Type::GREAVES){ // greaves
         def=(50+deviation(generator))*rarity_value(loot_rarity);
         if(bonus_stats(generator)<=(10*rarity_bonus(loot_rarity))){
             shield=15*rarity_value(loot_rarity);
         }
     }
-    if(loot_type==Type::BOOTS){ // boots
+    else if(loot_type==Type::BOOTS){ // boots
         def=(30+deviation(generator))*rarity_value(loot_rarity);
         if(bonus_stats(generator)<=(15*rarity_bonus(loot_rarity))){
             crit_chance=5*rarity_value(loot_rarity);
         }
     }
-    if(loot_type==Type::WEAPON){ // weapon
+    else if(loot_type==Type::WEAPON){ // weapon
         attk=(200+deviation(generator))*rarity_value(loot_rarity);
         if(bonus_stats(generator)<=(10*rarity_bonus(loot_rarity))){
             crit_dmg=10*rarity_value(loot_rarity);
@@ -246,7 +243,7 @@ Item generate_trade_items(Rarity loot_rarity){
             crit_chance=5*rarity_value(loot_rarity);
         }
     }
-    if(loot_type==Type::SHIELD){ // shield
+    else if(loot_type==Type::SHIELD){ // shield
         shield=(100+deviation(generator))*rarity_value(loot_rarity);
         if(bonus_stats(generator)<=(15*rarity_bonus(loot_rarity))){
             def=20*rarity_value(loot_rarity);
@@ -272,7 +269,7 @@ Item craft_item(Rarity loot_rarity, Type loot_type){
             crit_dmg=2*rarity_value(loot_rarity);
         }
     }
-    if(loot_type==Type::HELMET){ // helmet
+    else if(loot_type==Type::HELMET){ // helmet
         hp=(40+deviation(generator))*rarity_value(loot_rarity);
         if(bonus_stats(generator)<=(6*rarity_bonus(loot_rarity))){
             def=5*rarity_value(loot_rarity);
@@ -281,19 +278,19 @@ Item craft_item(Rarity loot_rarity, Type loot_type){
             shield=20*rarity_value(loot_rarity);
         }
     }
-    if(loot_type==Type::GREAVES){ // greaves
+    else if(loot_type==Type::GREAVES){ // greaves
         def=(50+deviation(generator))*rarity_value(loot_rarity);
         if(bonus_stats(generator)<=(5*rarity_bonus(loot_rarity))){
             shield=15*rarity_value(loot_rarity);
         }
     }
-    if(loot_type==Type::BOOTS){ // boots
+    else if(loot_type==Type::BOOTS){ // boots
         def=(30+deviation(generator))*rarity_value(loot_rarity);
         if(bonus_stats(generator)<=(10*rarity_bonus(loot_rarity))){
             crit_chance=5*rarity_value(loot_rarity);
         }
     }
-    if(loot_type==Type::WEAPON){ // weapon
+    else if(loot_type==Type::WEAPON){ // weapon
         attk=(200+deviation(generator))*rarity_value(loot_rarity);
         if(bonus_stats(generator)<=(5*rarity_bonus(loot_rarity))){
             crit_dmg=10*rarity_value(loot_rarity);
@@ -302,7 +299,7 @@ Item craft_item(Rarity loot_rarity, Type loot_type){
             crit_chance=5*rarity_value(loot_rarity);
         }
     }
-    if(loot_type==Type::SHIELD){ // shield
+    else if(loot_type==Type::SHIELD){ // shield
         shield=(100+deviation(generator))*rarity_value(loot_rarity);
         if(bonus_stats(generator)<=(10*rarity_bonus(loot_rarity))){
             def=20*rarity_value(loot_rarity);
@@ -338,7 +335,7 @@ void reforge_item(unsigned int ancient_cores, unsigned int crystallium, Item *it
             item->original.crit_dmg=10*rarity_value(loot_rarity);
         }
     }
-    if(loot_type==Type::HELMET){ // helmet
+    else if(loot_type==Type::HELMET){ // helmet
         item->original.hp=(40+deviation(generator))*rarity_value(loot_rarity);
         if(bonus_stats(generator)<=1*rarity_bonus(loot_rarity)*ancient_cores_bonus){
             item->original.def=5*rarity_value(loot_rarity);
@@ -350,7 +347,7 @@ void reforge_item(unsigned int ancient_cores, unsigned int crystallium, Item *it
             item->original.shield=20*rarity_value(loot_rarity);
         }
     }
-    if(loot_type==Type::GREAVES){ // greaves
+    else if(loot_type==Type::GREAVES){ // greaves
         item->original.def=(50+deviation(generator))*rarity_value(loot_rarity);
         if(bonus_stats(generator)<=1*rarity_bonus(loot_rarity)*ancient_cores_bonus){
             item->original.def+=20*rarity_value(loot_rarity);
@@ -359,7 +356,7 @@ void reforge_item(unsigned int ancient_cores, unsigned int crystallium, Item *it
             item->original.shield=15*rarity_value(loot_rarity);
         }
     }
-    if(loot_type==Type::BOOTS){ // boots
+    else if(loot_type==Type::BOOTS){ // boots
         item->original.def=(30+deviation(generator))*rarity_value(loot_rarity);
         if(bonus_stats(generator)<=1*rarity_bonus(loot_rarity)*ancient_cores_bonus){
             item->original.def+=10*rarity_value(loot_rarity);
@@ -368,7 +365,7 @@ void reforge_item(unsigned int ancient_cores, unsigned int crystallium, Item *it
             item->original.crit_chance=5*rarity_value(loot_rarity);
         }
     }
-    if(loot_type==Type::WEAPON){ // weapon
+    else if(loot_type==Type::WEAPON){ // weapon
         item->original.attk=(200+deviation(generator))*rarity_value(loot_rarity);
         if(bonus_stats(generator)<=1*rarity_bonus(loot_rarity)*crystallium_bonus){
             item->original.crit_dmg=30*rarity_value(loot_rarity);
@@ -377,7 +374,7 @@ void reforge_item(unsigned int ancient_cores, unsigned int crystallium, Item *it
             item->original.crit_chance=2*rarity_value(loot_rarity);
         }
     }
-    if(loot_type==Type::SHIELD){ // shield
+    else if(loot_type==Type::SHIELD){ // shield
         item->original.shield=(100+deviation(generator))*rarity_value(loot_rarity);
         if(bonus_stats(generator)<=10*rarity_bonus(loot_rarity)*ancient_cores_bonus){
             item->original.def=20*rarity_value(loot_rarity);
@@ -501,13 +498,13 @@ int generate_gold(Dungeon type){
     if(type==Dungeon::ENEMY){
         return (gold(generator));
     }
-    if(type==Dungeon::ROOM_BOSS){
+    else if(type==Dungeon::ROOM_BOSS){
         return (gold(generator)*gold(generator));
     }
-    if(type==Dungeon::LEVEL_BOSS){
+    else if(type==Dungeon::LEVEL_BOSS){
         return (gold(generator)*30);
     }
-    if(type==Dungeon::FINAL_BOSS){
+    else if(type==Dungeon::FINAL_BOSS){
         return (gold(generator)*100);
     }
     return 0;
