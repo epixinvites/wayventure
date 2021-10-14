@@ -1,6 +1,8 @@
 # Welcome to Wayventure's development branch!
 
-### Join our Discord family [here](https://discord.gg/5TZ7MZDyWm)!
+### Join our family!
+- [IRC] - Libera.chat at #wayventure
+- [Discord](https://discord.gg/5TZ7MZDyWm)
 
 ![wayventure.gif](wayventure.gif)  
 *Sorry for the low framerate, I had to compress the GIF*
