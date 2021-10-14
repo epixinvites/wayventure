@@ -230,5 +230,12 @@ struct NoDelete{
             );
     }
 };
+struct Time{
+public:
+    long hours;
+    unsigned int minutes;
+    unsigned int seconds;
+    Time(long total_seconds);
+};
 
 

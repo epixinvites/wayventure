@@ -628,6 +628,78 @@ void miner_hire_menu(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, cons
     context->present(*main_win);
 }
 
+void draw_miner_hire_selections(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Miner &miner, unsigned int csr_pos, long long int ideal_payment, long long int actual_payment){
+    SDL_wclear_main_win(main_win, context);
+    tcod::print(*main_win, {0,1}, "Hire Miners", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+    draw_menu_selections(main_win, context, 3, csr_pos==0, "Amount of Miners: "+std::to_string(miner.job.number_of_miners));
+    std::stringstream payment_string;
+    payment_string<<"Payment ["<<ideal_payment<<"]: "<<actual_payment;
+    draw_menu_selections(main_win, context, 5, csr_pos==1, payment_string.str());
+    draw_menu_selections(main_win, context, 7, csr_pos==2, "[Done]");
+    draw_menu_selections(main_win, context, 8, csr_pos==3, "[Cancel]");
+    clear_and_draw_dialog(main_win, context, "Miner's Inn");
+}
+
+void miner_hire_selection(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Miner &miner, Player &User){
+    unsigned int csr_pos=0;
+    long long int actual_payment=0, ideal_payment=0;
+    int ch;
+    draw_miner_hire_selections(main_win, context, miner, csr_pos, ideal_payment, actual_payment);
+    while(true){
+        ch=SDL_getch(main_win, context);
+        if((ch=='w'||ch==SDLK_UP)&&csr_pos>0){
+            csr_pos--;
+            draw_miner_hire_selections(main_win, context, miner, csr_pos, ideal_payment, actual_payment);
+        }
+        else if((ch=='s'||ch==SDLK_DOWN)&&csr_pos<3){
+            csr_pos++;
+            draw_miner_hire_selections(main_win, context, miner, csr_pos, ideal_payment, actual_payment);
+        }
+        else if(ch==SDLK_RETURN){
+            switch(csr_pos){
+                case 0:
+                {
+                    miner.job.number_of_miners=get_int(main_win, context, "[System] Please enter the amount of miners you wish to hire: ");
+                    ideal_payment=(pow(miner.job.number_of_miners,2))*1000*((1000-miner.relation)/1000);
+                    draw_miner_hire_selections(main_win, context, miner, csr_pos, ideal_payment, actual_payment);
+                    break;
+                }
+                case 1:
+                {
+                    actual_payment=get_llint(main_win, context, "[System] Please enter the amount you wish to pay: ");
+                    draw_miner_hire_selections(main_win, context, miner, csr_pos, ideal_payment, actual_payment);
+                    break;
+                }
+                case 2:
+                {
+                    if(actual_payment>User.gold){
+                        clear_and_draw_dialog(main_win, context, "[System] Insufficient gold");
+                        continue;
+                    }
+                    else if(miner.job.number_of_miners>10){
+                        clear_and_draw_dialog(main_win, context, "[System] You cannot hire more than 10 miners");
+                        continue;
+                    }
+                    else if(miner.job.number_of_miners<=0){
+                        clear_and_draw_dialog(main_win, context, "[System] Value of hired miners must be more than 0");
+                        continue;
+                    }
+                    break;
+                }
+                case 3:
+                    miner.job=Miner::Job_Details();
+                    return;
+                default:
+                    break;
+            }
+
+        }
+        else if(ch=='q'){
+            return;
+        }
+    }
+}
+
 void miner_hire_interface(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player &User, Miner &miner, Archaeologist &archaeologist){
     unsigned int csr_pos = 0;
     miner_hire_menu(main_win, context, miner, csr_pos);
@@ -647,8 +719,16 @@ void miner_hire_interface(tcod::ConsolePtr &main_win, tcod::ContextPtr &context,
         }
         else if(ch==SDLK_RETURN){
             if(csr_pos==0){
-                if(!miner.job.has_active_job&&SDL_getch_y_or_n(main_win, context, "Hire a batch of miners? [y/n]")){
-                    clear_and_draw_dialog(main_win, context, "[System] Success");
+                if(!miner.job.has_active_job){
+                    miner_hire_selection(main_win, context, miner, User);
+                    miner_hire_menu(main_win, context, miner, csr_pos);
+                }
+                else{
+                    const std::chrono::time_point<std::chrono::steady_clock> now = std::chrono::steady_clock::now();
+                    std::stringstream ss;
+                    Time time_left{86400-std::chrono::duration_cast<std::chrono::seconds>(now-miner.job.job_start).count()};
+                    ss<<"[System] Time left: "<<time_left.hours<<" hours "<<time_left.minutes<<" minutes "<<time_left.seconds<<" seconds";
+                    clear_and_draw_dialog(main_win, context, ss.str());
                 }
             }
         }
