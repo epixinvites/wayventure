@@ -8,13 +8,13 @@
 *Sorry for the low framerate, I had to compress the GIF*
 
 ### Installation instructions:
-Dependencies for compilation: A C++ compiler, [libtcod](https://github.com/libtcod/libtcod), [SDL2](https://www.libsdl.org/download-2.0.php)
+Dependencies for compilation: A C++ compiler, [libtcod](https://github.com/libtcod/libtcod), [SDL2](https://www.libsdl.org/download-2.0.php)  
+I apologize for not being able to statically compile it because I can't statically compile libtcod without it SegFaulting. If you are able to statically compile the entire program, please open an issue or discussion and share how you managed it. Thanks!
 
-```
-Build instructions: Follow the makefile
-Run ./wayventure to start playing
-How to play? Congratulations if you got the game working, you should be able to summon the help page with Shift+h
-```
+If you're proficient in C++ and use Linux, I've prepared a makefile and a cmake script for easier compiling along with libtcod and SDL2's .a libs in the `libs/` folder.
+
+I sincerely apologize for the inconvinience you have to go through to test my program.
+
 ## Issues/Feature Requests
 Please open an issue if you found any bugs or simply just want to give suggestions about the gameplay!
 For upcoming releases/features please refer [here](https://app.simplenote.com/p/kkFf1V).
@@ -25,4 +25,4 @@ Special thanks to
 - [@HexDecimal](https://github.com/HexDecimal) for helping me so much throughout the development of this project and his [libtcod](https://github.com/libtcod/libtcod) lib!
 - [@DexterHuang](https://github.com/DexterHuang) for inspiring me with his [CyberCodeOnline](https://github.com/DexterHuang/CyberCodeOnline)!
 ## Donations
-If you would like to support this project, you may donate (Bitcoins only) to this address `bc1qs92p3ugxg7aecc49uz4zezm73lj82edmdx4vnt8k8q55ytk4y0tsswxzwx`. Anything is appreciated :)  
+If you would like to support this project, you could sponsor a webpage for this project :) 
