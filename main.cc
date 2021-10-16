@@ -75,7 +75,7 @@ std::pair<int, int> SDL_getch_ex(tcod::ConsolePtr &main_win, tcod::ContextPtr &c
     return {0, 0};
 }
 
-bool SDL_getch_y_or_n(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, std::string dialogue){
+bool SDL_getch_y_or_n(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, const std::string &dialogue){
     clear_and_draw_dialog(main_win, context, dialogue);
     int ch=SDL_getch(main_win, context);
     while(!(ch>0&&ch<128)){
@@ -110,7 +110,7 @@ void SDL_wclear_main_win(tcod::ConsolePtr &main_win, tcod::ContextPtr &context){
 //    context->present(*main_win);
 }
 
-std::string get_string(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, std::string dialogue, std::string original){
+std::string get_string(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, const std::string &dialogue, std::string original){
     std::string input;
     clear_and_draw_dialog(main_win, context, dialogue);
     int ch;
@@ -136,7 +136,7 @@ std::string get_string(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, st
     }
 }
 
-unsigned int get_int(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, std::string dialogue){
+unsigned int get_int(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, const std::string &dialogue){
     std::string input;
     clear_and_draw_dialog(main_win, context, dialogue);
     int ch;
@@ -162,7 +162,7 @@ unsigned int get_int(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, std:
     }
 }
 
-long long int get_llint(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, std::string dialogue){
+long long int get_llint(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, const std::string &dialogue){
     std::string input;
     clear_and_draw_dialog(main_win, context, dialogue);
     int ch;
@@ -188,7 +188,7 @@ long long int get_llint(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, s
     }
 }
 
-unsigned long long int get_ullint(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, std::string dialogue){
+unsigned long long int get_ullint(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, const std::string &dialogue){
     std::string input;
     clear_and_draw_dialog(main_win, context, dialogue);
     int ch;
@@ -232,7 +232,7 @@ std::pair<int, Dungeon> check_monster_pos(std::vector<monster> monsters, int x, 
     return {-1, Dungeon::NONE};
 }
 
-void char_move(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, int ch, Csr &csr_pos, std::vector<monster> monsters, Player &User, NPC &npc, level Current){
+void char_move(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, int ch, Csr &csr_pos, const std::vector<monster> &monsters, Player &User, NPC &npc, level Current){
     bool require_move=false;
     if((ch=='a'||ch==SDLK_LEFT)&&csr_pos.first>1&&!check_surroundings(monsters, csr_pos.first-1, csr_pos.second)){
         TCOD_console_put_char_ex(main_win.get(), csr_pos.first, csr_pos.second+1, ' ', WHITE, BLACK);
@@ -542,7 +542,7 @@ void end_program(int sig){
     }
 }
 
-void end_program(int sig, std::string error){
+void end_program(int sig, const std::string &error){
     if(sig==-1){
         std::cout << "Bug vs Programmer - 1:0" << std::endl;
         std::cerr << error << std::endl;
@@ -572,7 +572,7 @@ void init_data(Player &User, level &Current, Csr &csr_pos, std::vector<monster> 
     }
 }
 
-void save_data(Player User, level Current, Csr csr_pos, std::vector<monster> monsters, NPC npc, NoDelete perm_config){
+void save_data(Player User, level Current, Csr csr_pos, const std::vector<monster> &monsters, const NPC &npc, NoDelete perm_config){
     std::ofstream ofile("save/user.save", std::ios::trunc | std::ios::binary);
     cereal::PortableBinaryOutputArchive archive(ofile);
     User.uninitialize_stats();
@@ -685,6 +685,7 @@ void init(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Csr &csr_pos, P
     for(int i = 0; i<61; i++){
         User.add_item(generate_trade_items(Rarity::LEGENDARY));
     }
+    User.gold=100000;
     User.init();
     std::ifstream ascii_wayfarer("res/wayfarer.txt");
     if(!ascii_wayfarer){
@@ -718,7 +719,7 @@ int main(int argc, char *argv[]){
     NPC npc;
     NoDelete perm_config;
     User.inv.misc.heal_amount=10;
-    tcod::ConsolePtr main_win=tcod::new_console(80, 55);
+    tcod::ConsolePtr main_win=tcod::new_console(80, 56);
     TCOD_ContextParams params{};
     params.tcod_version=TCOD_COMPILEDVERSION;
     params.columns=main_win->w;

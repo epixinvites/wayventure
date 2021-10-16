@@ -33,13 +33,16 @@ void process_copy(std::vector<Item> &original, std::vector<Item *> &items_copy, 
     if(perm_config.default_sort_rarity_method==SORT_TYPE_RARITY_DESCENDING){ // Sort by rarity descending
         std::sort(items_copy.begin(), items_copy.end(), sort_descending);
     }
+    if(original.empty()){
+        return;
+    }
     if(items_copy.empty()){
         reset_inv_params(perm_config);
         process_copy(original, items_copy, perm_config);
     }
 }
 
-void print_item(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, bool curr_pos_matches_condition, bool curr_config_matches_condition, int line, std::string output, bool is_valid=true){
+void print_item(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, bool curr_pos_matches_condition, bool curr_config_matches_condition, int line, const std::string &output, bool is_valid=true){
     if(!is_valid){
         tcod::print(*main_win, {0, line}, "["+output+"]", &GRAY, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
         return;

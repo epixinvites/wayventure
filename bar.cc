@@ -545,8 +545,12 @@ void draw_mysterious_trader_menu(tcod::ConsolePtr &main_win, tcod::ContextPtr &c
     tcod::print(*main_win, {0, 0}, "Mysterious Hut", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
     tcod::print(*main_win, {0, 1}, "[Mysterious Trader] ...", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
     draw_menu_selections(main_win, context, 3, csr_pos==0, "[Exchange items for Artifact Materials]");
-    draw_menu_selections(main_win, context, 5, csr_pos==1, "[Exchange items for Ancient Cores]");
-    draw_menu_selections(main_win, context, 7, csr_pos==2, "[Exchange gears for Artifact Gears]");
+    tcod::print(*main_win, {0, 4}, "- 5 Legendary Material", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+    tcod::print(*main_win, {0, 5}, "- 1 Ancient Core", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+    draw_menu_selections(main_win, context, 7, csr_pos==1, "[Exchange items for Ancient Cores]");
+    tcod::print(*main_win, {0,8}, "- 1 Mysterious Shard", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+    tcod::print(*main_win, {0,9}, "- 1 Crystallium", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+    draw_menu_selections(main_win, context, 11, csr_pos==2, "[Exchange gears for Artifact Gears]");
     context->present(*main_win);
 }
 
@@ -628,7 +632,7 @@ void miner_hire_menu(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, cons
     context->present(*main_win);
 }
 
-void draw_miner_hire_selections(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Miner &miner, unsigned int csr_pos, long long int ideal_payment, long long int actual_payment){
+void draw_miner_hire_selections(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Miner &miner, unsigned int csr_pos, int ideal_payment, int actual_payment){
     SDL_wclear_main_win(main_win, context);
     tcod::print(*main_win, {0,1}, "Hire Miners", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
     draw_menu_selections(main_win, context, 3, csr_pos==0, "Amount of Miners: "+std::to_string(miner.job.number_of_miners));
@@ -642,7 +646,7 @@ void draw_miner_hire_selections(tcod::ConsolePtr &main_win, tcod::ContextPtr &co
 
 void miner_hire_selection(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Miner &miner, Player &User){
     unsigned int csr_pos=0;
-    long long int actual_payment=0, ideal_payment=0;
+    int actual_payment=0, ideal_payment=0;
     int ch;
     draw_miner_hire_selections(main_win, context, miner, csr_pos, ideal_payment, actual_payment);
     while(true){
@@ -666,17 +670,13 @@ void miner_hire_selection(tcod::ConsolePtr &main_win, tcod::ContextPtr &context,
                 }
                 case 1:
                 {
-                    actual_payment=get_llint(main_win, context, "[System] Please enter the amount you wish to pay: ");
+                    actual_payment=get_int(main_win, context, "[System] Please enter the amount you wish to pay: ");
                     draw_miner_hire_selections(main_win, context, miner, csr_pos, ideal_payment, actual_payment);
                     break;
                 }
                 case 2:
                 {
-                    if(actual_payment>User.gold){
-                        clear_and_draw_dialog(main_win, context, "[System] Insufficient gold");
-                        continue;
-                    }
-                    else if(miner.job.number_of_miners>10){
+                    if(miner.job.number_of_miners>10){
                         clear_and_draw_dialog(main_win, context, "[System] You cannot hire more than 10 miners");
                         continue;
                     }
@@ -684,7 +684,25 @@ void miner_hire_selection(tcod::ConsolePtr &main_win, tcod::ContextPtr &context,
                         clear_and_draw_dialog(main_win, context, "[System] Value of hired miners must be more than 0");
                         continue;
                     }
-                    break;
+                    else if(actual_payment>User.gold){
+                        clear_and_draw_dialog(main_win, context, "[System] Insufficient gold");
+                        continue;
+                    }
+                    else if(actual_payment<(ideal_payment)*0.9){
+                        clear_and_draw_dialog(main_win, context, "[Innkeeper] If you're here to tale advantage of us, SCRAM!");
+                        continue;
+                    }
+                    miner.job.has_active_job=true;
+                    miner.job.processed=false;
+                    miner.job.job_start=std::chrono::steady_clock::now();
+                    miner.job.loot_multiplier=double(actual_payment)/double(ideal_payment);
+                    miner.relation+=(miner.job.loot_multiplier/2.0)-1;
+                    if(miner.job.loot_multiplier>2.0){
+                        miner.job.loot_multiplier=2.0;
+                    }
+                    User.gold-=actual_payment;
+                    draw_stats(main_win, context, User);
+                    return;
                 }
                 case 3:
                     miner.job=Miner::Job_Details();
@@ -696,6 +714,51 @@ void miner_hire_selection(tcod::ConsolePtr &main_win, tcod::ContextPtr &context,
         }
         else if(ch=='q'){
             return;
+        }
+    }
+}
+
+void print_mysterious_loot(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Miner &miner, const unsigned &csr_pos){
+    SDL_wclear_main_win(main_win, context);
+    tcod::print(*main_win, {0,1}, "[Keeper] How are you doing today?", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+    std::stringstream ss;
+    ss<<"Mysterious Piece: "<<miner.loot.mysterious_piece;
+    tcod::print(*main_win, {0,3}, ss.str(), &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+    ss.str(std::string());
+    ss<<"Mysterious Artifact: "<<miner.loot.mysterious_artifact;
+    tcod::print(*main_win, {0,5}, ss.str(), &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+    draw_menu_selections(main_win, context, 7, csr_pos==0, "[Cancel]");
+    draw_menu_selections(main_win, context, 8, csr_pos==1, "[Transfer to Archaeologist]");
+    clear_and_draw_dialog(main_win, context, "Miner's Storage");
+}
+
+void show_miner_loot(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Miner &miner, Archaeologist &archaeologist){
+    unsigned csr_pos=0;
+    int ch;
+    print_mysterious_loot(main_win, context, miner, csr_pos);
+    while(true){
+        ch=SDL_getch(main_win, context);
+        if((ch=='s'||ch==SDLK_DOWN)&&csr_pos<1){
+            csr_pos++;
+            print_mysterious_loot(main_win, context, miner, csr_pos);
+        }
+        else if((ch=='w'||ch==SDLK_UP)&&csr_pos>0){
+            csr_pos--;
+            print_mysterious_loot(main_win, context, miner, csr_pos);
+        }
+        else if(ch=='q'){
+            return;
+        }
+        else if(ch==SDLK_RETURN){
+            if(csr_pos==0){
+                return;
+            }
+            else if(csr_pos==1&&SDL_getch_y_or_n(main_win, context, "[Keeper] Transfer raw loot to Archaeologist? [y/n]")){
+                archaeologist.loot.mysterious_artifact=miner.loot.mysterious_artifact;
+                archaeologist.loot.mysterious_piece=miner.loot.mysterious_piece;
+                miner.loot=Raw_Loot();
+            }
+            print_mysterious_loot(main_win, context, miner, csr_pos);
         }
     }
 }
@@ -724,14 +787,23 @@ void miner_hire_interface(tcod::ConsolePtr &main_win, tcod::ContextPtr &context,
                     miner_hire_menu(main_win, context, miner, csr_pos);
                 }
                 else{
-                    const std::chrono::time_point<std::chrono::steady_clock> now = std::chrono::steady_clock::now();
                     std::stringstream ss;
-                    Time time_left{86400-std::chrono::duration_cast<std::chrono::seconds>(now-miner.job.job_start).count()};
+                    Time time_left{86400-std::chrono::duration_cast<std::chrono::seconds>(std::chrono::steady_clock::now()-miner.job.job_start).count()};
                     ss<<"[System] Time left: "<<time_left.hours<<" hours "<<time_left.minutes<<" minutes "<<time_left.seconds<<" seconds";
                     clear_and_draw_dialog(main_win, context, ss.str());
                 }
             }
+            else if(csr_pos==1){
+                show_miner_loot(main_win, context, miner, archaeologist);
+                miner_hire_menu(main_win, context, miner, csr_pos);
+            }
         }
+    }
+}
+
+bool process_miner_job(Miner &miner){
+    if(std::chrono::duration_cast<std::chrono::seconds>(std::chrono::steady_clock::now()-miner.job.job_start).count()>86400){
+        
     }
 }
 
@@ -780,6 +852,11 @@ void bar_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player &Use
                 redraw_bar(main_win, context, User, npc.gear_merchant, pub_layout, csr_pos);
             }
             else if(target=='I'){
+                if(!npc.miner.job.processed){
+                    if(std::chrono::duration_cast<std::chrono::seconds>(std::chrono::steady_clock::now()-npc.miner.job.job_start).count()>86400){
+
+                    }
+                }
                 miner_hire_interface(main_win, context, User, npc.miner, npc.archaeologist);
                 redraw_bar(main_win, context, User, npc.gear_merchant, pub_layout, csr_pos);
             }

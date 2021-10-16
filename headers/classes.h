@@ -171,11 +171,12 @@ struct Raw_Loot{
 };
 struct Miner{
     struct Job_Details{
-        bool has_active_job = false;
+        bool has_active_job=false;
         std::chrono::time_point<std::chrono::steady_clock> job_start;
         int number_of_miners = 0;
-        double loot_multiplier = 1;
-        template<class Archive>void serialize(Archive &archive){archive(has_active_job,job_start,number_of_miners,loot_multiplier);}
+        double loot_multiplier = 0;
+        bool processed=true;
+        template<class Archive>void serialize(Archive &archive){archive(has_active_job,job_start,number_of_miners,loot_multiplier,processed);}
     };
     int relation = 0;
     int skill_level = 0;
@@ -189,7 +190,8 @@ struct Archaeologist{
         std::chrono::time_point<std::chrono::steady_clock> job_start;
         int number_of_archaeologists = 0;
         double rarity_multiplier = 0;
-        template<class Archive>void serialize(Archive &archive){archive(has_active_job,job_start,number_of_archaeologists,rarity_multiplier);}
+        bool processed = false;
+        template<class Archive>void serialize(Archive &archive){archive(has_active_job,job_start,number_of_archaeologists,rarity_multiplier,processed);}
     };
     int relation = 0;
     int skill_level = 0;

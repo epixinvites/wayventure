@@ -5,7 +5,7 @@
 #include "headers/draw.h"
 #include "headers/generate.h"
 
-int calculate_price(const Item cur, int relationship, bool player_sell){
+int calculate_price(const Item &cur, int relationship, bool player_sell){
     int price=100*rarity_value(cur.rarity)*rarity_value(cur.rarity);
     if(cur.def>0&&cur.type!=Type::GREAVES){
         price*=1.5+(cur.def/100.0);
@@ -186,7 +186,7 @@ void draw_trader_items(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, co
     SDL_wclear_stats_bar(main_win, context);
     draw_stats(main_win, context, User);
     draw_base(main_win, context, 34, items_copy.size(), page_num, false, false);
-    for(int i=page_num*30, iterator=0; i<items_copy.size()&&iterator<30; i++, iterator++){
+    for(long long int i=page_num*30, iterator=0; i<items_copy.size()&&iterator<30; i++, iterator++){
         print_item(main_win, context, items_copy[i], iterator, csr_pos==iterator);
     }
     print_trader_item_description(main_win, context, items_copy[page_num*30+csr_pos], 35, price, is_locked);
@@ -207,7 +207,7 @@ void draw_sell_items(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, cons
     SDL_wclear_stats_bar(main_win, context);
     draw_stats(main_win, context, User);
     draw_base(main_win, context, 34, items_copy.size(), page_num, false, false);
-    for(int i=page_num*30, iterator=0; i<items_copy.size()&&iterator<30; i++, iterator++){
+    for(long long int i=page_num*30, iterator=0; i<items_copy.size()&&iterator<30; i++, iterator++){
         print_item(main_win, context, items_copy[i], iterator, csr_pos==iterator);
     }
     print_sell_item_description(main_win, context, items_copy[page_num*30+csr_pos], 35, price);
@@ -404,7 +404,7 @@ void show_merchant_items(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, 
     unsigned int page_num=0;
     int csr_pos=0;
     std::vector<Item> original_copy;
-    for(auto i: gear_merchant.store){
+    for(const auto &i: gear_merchant.store){
         original_copy.push_back(i.first);
     }
     std::vector<Item *> items_copy;
@@ -453,7 +453,7 @@ void show_merchant_items(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, 
                         page_num--;
                     }
                     original_copy.clear();
-                    for(auto i: gear_merchant.store){
+                    for(const auto &i: gear_merchant.store){
                         original_copy.push_back(i.first);
                     }
                     init_copy(original_copy, items_copy);
@@ -525,8 +525,8 @@ void sell_items_to_merchant(tcod::ConsolePtr &main_win, tcod::ContextPtr &contex
                     init_copy(User.inv.item, items_copy);
                 }
                 draw_stats(main_win, context, User);
-                draw_sell_items(main_win, context, User, items_copy, page_num, csr_pos, calculate_price(*items_copy[csr_pos+page_num*30], gear_merchant.relation, true));
             }
+            draw_sell_items(main_win, context, User, items_copy, page_num, csr_pos, calculate_price(*items_copy[csr_pos+page_num*30], gear_merchant.relation, true));
         }
         else if(ch=='q'){
             return;
@@ -572,7 +572,7 @@ void print_trader_misc_menu(tcod::ConsolePtr &main_win, tcod::ContextPtr &contex
     clear_and_draw_dialog(main_win, context, "Material Shop:");
 }
 
-bool trader_check_if_payment_valid(std::string type, unsigned long long int &payment, unsigned long long int amount){
+bool trader_check_if_payment_valid(const std::string &type, unsigned long long int &payment, unsigned long long int amount){
     if(payment>=(trader_prices.at(type)*amount)){
         payment-=(trader_prices.at(type)*amount);
         return true;
@@ -798,9 +798,9 @@ void trader_misc_menu(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Pla
 
 double calculate_quality_points(const Item &cur){
     double quality_points=std::pow(rarity_value(cur.rarity), 4);
-    quality_points+=cur.def/10;
-    quality_points+=cur.crit_chance/5;
-    quality_points+=cur.crit_dmg/5;
+    quality_points+=cur.def/10.0;
+    quality_points+=cur.crit_chance/5.0;
+    quality_points+=cur.crit_dmg/5.0;
     switch(cur.type){
         case Type::HELMET:
             quality_points*=cur.hp/(40*rarity_value(cur.rarity));
@@ -894,7 +894,7 @@ void print_inventory_with_quality_points(tcod::ConsolePtr &main_win, tcod::Conte
     SDL_wclear_stats_bar(main_win, context);
     draw_stats(main_win, context, User);
     draw_base_with_quality_points(main_win, context, 34, items_copy.size(), page_num, target_quality, total_quality);
-    for(int i=page_num*30, iterator=0; i<items_copy.size()&&iterator<30; i++, iterator++){
+    for(long long int i=page_num*30, iterator=0; i<items_copy.size()&&iterator<30; i++, iterator++){
         print_item_with_selection(main_win, context, items_copy[i].first, iterator, csr_pos==iterator, items_copy[page_num*30+iterator].second);
     }
     print_inventory_with_quality_points_description(main_win, context, items_copy[page_num*30+csr_pos].first, 35);
@@ -969,7 +969,7 @@ void mysterious_trader_items(tcod::ConsolePtr &main_win, tcod::ContextPtr &conte
     unsigned int page_num=0;
     int csr_pos=0;
     std::vector<Item> original_copy;
-    for(auto i: mysterious_merchant.store){
+    for(const auto &i: mysterious_merchant.store){
         original_copy.push_back(i.first);
     }
     std::vector<Item *> items_copy;
@@ -1005,7 +1005,7 @@ void mysterious_trader_items(tcod::ConsolePtr &main_win, tcod::ContextPtr &conte
                         }
                         original_copy.clear();
                         items_copy.clear();
-                        for(auto i: mysterious_merchant.store){
+                        for(const auto &i: mysterious_merchant.store){
                             original_copy.push_back(i.first);
                         }
                         init_copy(original_copy, items_copy);

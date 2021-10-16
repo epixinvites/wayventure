@@ -31,7 +31,7 @@ void draw_base(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, int y, uns
 //    context->present(*main_win);
 }
 
-void print_bold_with_condition(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, std::string output, const TCOD_ColorRGB &foreground, int line, bool is_bold){
+void print_bold_with_condition(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, const std::string &output, const TCOD_ColorRGB &foreground, int line, bool is_bold){
     if(is_bold){
         tcod::print(*main_win, {0, line}, output, &BLACK, &foreground, TCOD_BKGND_SET, TCOD_LEFT);
     }
@@ -297,7 +297,7 @@ void draw_inventory(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, const
     draw_stats(main_win, context, User);
     if(!items_copy.empty()){
         draw_base(main_win, context, 34, items_copy.size(), page_num, is_blacksmith_mode, is_inventory_modifier_mode);
-        for(int i=page_num*30, iterator=0; i<items_copy.size()&&iterator<30; i++, iterator++){
+        for(long long int i=page_num*30, iterator=0; i<items_copy.size()&&iterator<30; i++, iterator++){
             print_item(main_win, context, items_copy[i], iterator, csr_pos==iterator);
         }
         print_description(main_win, context, items_copy[page_num*30+csr_pos], 35);

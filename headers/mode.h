@@ -36,7 +36,7 @@ struct SortDescending{
         int priority_j=priority[j->rarity];
         return priority_i>priority_j;
     }
-    bool operator()(const std::pair<Item, bool> i, const std::pair<Item, bool> j){
+    bool operator()(const std::pair<Item, bool> &i, const std::pair<Item, bool> &j){
         int priority_i=priority[i.first.rarity];
         int priority_j=priority[j.first.rarity];
         return priority_i>priority_j;
@@ -82,6 +82,6 @@ void show_merchant_items(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, 
 void sell_items_to_merchant(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Merchant &gear_merchant, Player &User, NoDelete &perm_config);
 void store_misc_items(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Miscellaneous &User, Chest &chest);
 void retrieve_misc_items(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Miscellaneous &User, Chest &chest);
-int calculate_price(const Item cur, int relationship, bool player_sell=false);
+int calculate_price(const Item &cur, int relationship, bool player_sell=false);
 void trader_misc_menu(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player &User, Merchant &gear_merchant);
 void mysterious_trader_items(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player &User, Merchant &mysterious_merchant);
