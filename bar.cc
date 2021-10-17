@@ -786,7 +786,7 @@ void miner_hire_interface(tcod::ConsolePtr &main_win, tcod::ContextPtr &context,
                 }
                 else{
                     std::stringstream ss;
-                    Time time_left{86400-std::chrono::duration_cast<std::chrono::seconds>(std::chrono::steady_clock::now()-miner.job.job_start).count()};
+                    Time time_left{miner.job.job_duration.time_to_seconds()-std::chrono::duration_cast<std::chrono::seconds>(std::chrono::steady_clock::now()-miner.job.job_start).count()};
                     ss<<"[System] Time left: "<<time_left.hours<<" hours "<<time_left.minutes<<" minutes "<<time_left.seconds<<" seconds";
                     clear_and_draw_dialog(main_win, context, ss.str());
                 }
@@ -797,11 +797,6 @@ void miner_hire_interface(tcod::ConsolePtr &main_win, tcod::ContextPtr &context,
             }
         }
     }
-}
-
-bool is_times_up(const std::chrono::time_point<std::chrono::steady_clock> &job_start, Time length){
-    Time time_passed{std::chrono::duration_cast<std::chrono::seconds>(std::chrono::steady_clock::now()-job_start).count()};
-    return time_passed>=length;
 }
 
 void bar_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player &User, NPC &npc, NoDelete &perm_config){

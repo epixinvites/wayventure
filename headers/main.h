@@ -9,6 +9,7 @@ const std::string username="Wayfarrer"; // Please don't put weird characters and
 
 // Tweak these colors if your eyes go ouch. You can play around with the colors and rebuild the program when you're ready.
 static constexpr TCOD_ColorRGB BLACK{32,32,32}; // def_background
+static constexpr TCOD_ColorRGB FULL_BLACK{0,0,0};
 static constexpr TCOD_ColorRGB WHITE{208,208,208}; // def_foreground
 static constexpr TCOD_ColorRGB CYAN{0,255,255}; // player_char (exclusive)
 static constexpr TCOD_ColorRGB LIGHT_RED{255,50,50}; // enemy (exclusive)

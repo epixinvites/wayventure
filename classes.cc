@@ -272,3 +272,8 @@ bool Time::operator>=(const Time& time){
 long Time::time_to_seconds() const{
     return(hours*3600+minutes*60+seconds);
 }
+
+bool Miner::Job_Details::is_job_finished(){
+    Time time_passed{std::chrono::duration_cast<std::chrono::seconds>(std::chrono::steady_clock::now()-job_start).count()};
+    return time_passed>=job_duration;
+}

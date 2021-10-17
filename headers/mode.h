@@ -85,4 +85,3 @@ void retrieve_misc_items(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, 
 int calculate_price(const Item &cur, int relationship, bool player_sell=false);
 void trader_misc_menu(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player &User, Merchant &gear_merchant);
 void mysterious_trader_items(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player &User, Merchant &mysterious_merchant);
-bool is_times_up(const std::chrono::time_point<std::chrono::steady_clock> &job_start, Time length);

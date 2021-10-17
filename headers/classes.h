@@ -4,6 +4,17 @@
 #include <map>
 #include <chrono>
 #include "main.h"
+struct Time{
+    long hours;
+    unsigned int minutes;
+    unsigned int seconds;
+    template<class Archive>void serialize(Archive &archive){archive(hours,minutes,seconds);}
+    Time(long total_seconds);
+    Time(long hours, unsigned int minutes, unsigned int seconds);
+    bool operator>(const Time&);
+    bool operator>=(const Time&);
+    long time_to_seconds() const;
+};
 struct monster{
     int x, y; // x cords and y cords
     Dungeon type; // 'e' for enemy, 'b' for boss
@@ -171,11 +182,13 @@ struct Raw_Loot{
 };
 struct Miner{
     struct Job_Details{
+        Time job_duration = {24,0,0};
         bool has_active_job=false;
         std::chrono::time_point<std::chrono::steady_clock> job_start;
         int number_of_miners = 0;
         double loot_multiplier = 0;
         bool processed=true;
+        bool is_job_finished();
         template<class Archive>void serialize(Archive &archive){archive(has_active_job,job_start,number_of_miners,loot_multiplier,processed);}
     };
     int relation = 0;
@@ -186,12 +199,13 @@ struct Miner{
 };
 struct Archaeologist{
     struct Job_Details{
+        Time decrypt_artifact_duration = {2,0,0};
+        Time decrypt_piece_duration = {0,20,0};
+        Time total_job_duration = {0,0,0};
         bool has_active_job = false;
         std::chrono::time_point<std::chrono::steady_clock> job_start;
-        int number_of_archaeologists = 0;
-        double rarity_multiplier = 0;
         bool processed = false;
-        template<class Archive>void serialize(Archive &archive){archive(has_active_job,job_start,number_of_archaeologists,rarity_multiplier,processed);}
+        template<class Archive>void serialize(Archive &archive){archive(total_job_duration,has_active_job,job_start,processed);}
     };
     int skill_level = 0;
     Raw_Loot loot;
@@ -230,16 +244,6 @@ struct NoDelete{
             keep_changes_persistent
             );
     }
-};
-struct Time{
-    long hours;
-    unsigned int minutes;
-    unsigned int seconds;
-    Time(long total_seconds);
-    Time(long hours, unsigned int minutes, unsigned int seconds);
-    bool operator>(const Time&);
-    bool operator>=(const Time&);
-    long time_to_seconds() const;
 };
 
 

@@ -215,8 +215,8 @@ unsigned long long int get_ullint(tcod::ConsolePtr &main_win, tcod::ContextPtr &
 }
 
 void timer_thread(Miner &miner, const bool &terminate){
-    while(true&&(!terminate)){
-        if(miner.job.has_active_job&&is_times_up(miner.job.job_start, {24,0,0})){
+    while(!terminate){
+        if(miner.job.has_active_job&&miner.job.is_job_finished()){
             miner.loot.mysterious_piece+=((20*miner.job.number_of_miners)+generate_random_number(0,2*miner.job.number_of_miners))*miner.job.loot_multiplier;
             miner.loot.mysterious_artifact+=((4*miner.job.number_of_miners)+generate_random_number(0,miner.job.number_of_miners))*miner.job.loot_multiplier;
             miner.job=Miner::Job_Details();
@@ -698,14 +698,14 @@ void print_starting_screen(tcod::ConsolePtr &main_win, tcod::ContextPtr &context
         end_program(-1, "wayfarer.txt not found!");
         return;
     }
-    int win_iterator=0;
+    int win_iterator=10;
     std::string line;
     while(std::getline(ascii_wayfarer, line)){
-        tcod::print(*main_win, {1, win_iterator}, line, &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+        tcod::print(*main_win, {7, win_iterator}, line, &WHITE, &FULL_BLACK, TCOD_BKGND_SET, TCOD_LEFT);
         win_iterator++;
     }
-    tcod::print(*main_win, {40, 10}, "A simple old school dungeon adventure with endless possibilities...", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_CENTER);
-    tcod::print(*main_win, {25, 20}, "Press any key to continue...", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_CENTER);
+    tcod::print(*main_win, {37, 25}, "A complex dungeon crawler with endless possibilities...", &WHITE, &FULL_BLACK, TCOD_BKGND_SET, TCOD_CENTER);
+    tcod::print(*main_win, {35, 33}, "-Press any key to continue-", &WHITE, &FULL_BLACK, TCOD_BKGND_SET, TCOD_CENTER);
     context->present(*main_win);
     ascii_wayfarer.close();
     int ch;
