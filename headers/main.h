@@ -1,4 +1,5 @@
 #pragma once
+#include "classes.h"
 #include <libtcod.h>
 #include <SDL2/SDL.h>
 const auto modkeys=KMOD_CTRL|KMOD_SHIFT|KMOD_ALT;
@@ -25,41 +26,6 @@ static constexpr TCOD_ColorRGB MAGENTA{255,0,255}; // NPC (exclusive)
 // Don't touch any of these. For god's sake.
 const std::string empty_line="                                                                                ";
 
-enum class Rarity{
-    NONE,
-    ALL,
-    COMMON,
-    UNCOMMON,
-    RARE,
-    EPIC,
-    LEGENDARY,
-    ARTIFACT,
-};
-
-enum class Type{
-    NONE,
-    ALL,
-    HELMET,
-    CHESTPLATE,
-    GREAVES,
-    BOOTS,
-    SHIELD,
-    WEAPON
-};
-
-enum class Dungeon{
-    NONE,
-    ENEMY,
-    ROOM_BOSS,
-    LEVEL_BOSS,
-    MINI_BOSS,
-    FINAL_BOSS
-};
-
-constexpr char DEFAULT_SHOW_SELECTION='!';
-constexpr char SORT_TYPE_RARITY_ASCENDING='a';
-constexpr char SORT_TYPE_RARITY_DESCENDING='d';
-
 void clear_and_draw_dialog(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, const std::string &dialog);
 int SDL_getch(tcod::ConsolePtr &main_win, tcod::ContextPtr &context);
 std::pair<int,int>SDL_getch_ex(tcod::ConsolePtr &main_win, tcod::ContextPtr &context);
@@ -72,3 +38,6 @@ unsigned int get_int(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, cons
 long long int get_llint(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, const std::string &dialogue);
 unsigned long long int get_ullint(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, const std::string &dialogue);
 void print_bold_with_condition(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, const std::string &output, const TCOD_ColorRGB &foreground, int line, bool is_bold);
+void end_program(int sig);
+void end_program(int sig, const std::string &error);
+void save_data(Player User, level Current, Csr csr_pos, const std::vector<monster> &monsters, const NPC &npc, NoDelete perm_config);

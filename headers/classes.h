@@ -3,7 +3,41 @@
 #include <vector>
 #include <map>
 #include <chrono>
-#include "main.h"
+enum class Rarity{
+    NONE,
+    ALL,
+    COMMON,
+    UNCOMMON,
+    RARE,
+    EPIC,
+    LEGENDARY,
+    ARTIFACT,
+};
+
+enum class Type{
+    NONE,
+    ALL,
+    HELMET,
+    CHESTPLATE,
+    GREAVES,
+    BOOTS,
+    SHIELD,
+    WEAPON
+};
+
+enum class Dungeon{
+    NONE,
+    ENEMY,
+    ROOM_BOSS,
+    LEVEL_BOSS,
+    MINI_BOSS,
+    FINAL_BOSS
+};
+
+constexpr char DEFAULT_SHOW_SELECTION='!';
+constexpr char SORT_TYPE_RARITY_ASCENDING='a';
+constexpr char SORT_TYPE_RARITY_DESCENDING='d';
+
 struct Time{
     long hours;
     unsigned int minutes;

@@ -1,8 +1,3 @@
-//
-// Created by skynet on 10/17/21.
-//
+#pragma once
 
-#ifndef WAYVENTURE_DUNGEON_H
-#define WAYVENTURE_DUNGEON_H
-
-#endif //WAYVENTURE_DUNGEON_H
+void init_dungeon(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Csr &csr_pos, Player &User, level &Current, std::vector<monster> &monsters, NPC &npc, NoDelete &perm_config);
