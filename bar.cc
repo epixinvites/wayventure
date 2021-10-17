@@ -334,26 +334,24 @@ void farmer_interface(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Far
 }
 
 void char_move(int ch, tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player &User, Csr &csr_pos, const std::vector<std::string> &pub_layout){
+    Csr original_pos=csr_pos;
     if((ch=='a'||ch==SDLK_LEFT)&&csr_pos.first>1&&pub_layout[csr_pos.second][csr_pos.first-1]==' '){
-        TCOD_console_put_char_ex(main_win.get(), csr_pos.first, csr_pos.second+1, ' ', WHITE, BLACK);
         csr_pos.first--;
-        draw_player(main_win, context, csr_pos.first, csr_pos.second);
     }
     if((ch=='d'||ch==SDLK_RIGHT)&&csr_pos.first<78&&pub_layout[csr_pos.second][csr_pos.first+1]==' '){
-        TCOD_console_put_char_ex(main_win.get(), csr_pos.first, csr_pos.second+1, ' ', WHITE, BLACK);
         csr_pos.first++;
-        draw_player(main_win, context, csr_pos.first, csr_pos.second);
     }
     if((ch=='w'||ch==SDLK_UP)&&csr_pos.second>1&&pub_layout[csr_pos.second-1][csr_pos.first]==' '){
-        TCOD_console_put_char_ex(main_win.get(), csr_pos.first, csr_pos.second+1, ' ', WHITE, BLACK);
         csr_pos.second--;
-        draw_player(main_win, context, csr_pos.first, csr_pos.second);
     }
     if((ch=='s'||ch==SDLK_DOWN)&&csr_pos.second<48&&pub_layout[csr_pos.second+1][csr_pos.first]==' '){
-        TCOD_console_put_char_ex(main_win.get(), csr_pos.first, csr_pos.second+1, ' ', WHITE, BLACK);
         csr_pos.second++;
-        draw_player(main_win, context, csr_pos.first, csr_pos.second);
     }
+    TCOD_console_put_char_ex(main_win.get(), original_pos.first, original_pos.second+1, ' ', WHITE, BLACK);
+    if(original_pos.first==78&&original_pos.second==1){
+        TCOD_console_put_char_ex(main_win.get(), 78, 2, '>', WHITE, BLACK);
+    }
+    draw_player(main_win, context, csr_pos.first, csr_pos.second);
     context->present(*main_win);
 }
 
@@ -696,10 +694,10 @@ void miner_hire_selection(tcod::ConsolePtr &main_win, tcod::ContextPtr &context,
                     miner.job.processed=false;
                     miner.job.job_start=std::chrono::steady_clock::now();
                     miner.job.loot_multiplier=double(actual_payment)/double(ideal_payment);
-                    miner.relation+=(miner.job.loot_multiplier/2.0)-1;
                     if(miner.job.loot_multiplier>2.0){
                         miner.job.loot_multiplier=2.0;
                     }
+                    miner.relation+=(miner.job.loot_multiplier-1);
                     User.gold-=actual_payment;
                     draw_stats(main_win, context, User);
                     return;
@@ -801,10 +799,9 @@ void miner_hire_interface(tcod::ConsolePtr &main_win, tcod::ContextPtr &context,
     }
 }
 
-bool process_miner_job(Miner &miner){
-    if(std::chrono::duration_cast<std::chrono::seconds>(std::chrono::steady_clock::now()-miner.job.job_start).count()>86400){
-        
-    }
+bool is_times_up(const std::chrono::time_point<std::chrono::steady_clock> &job_start, Time length){
+    Time time_passed{std::chrono::duration_cast<std::chrono::seconds>(std::chrono::steady_clock::now()-job_start).count()};
+    return time_passed>=length;
 }
 
 void bar_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player &User, NPC &npc, NoDelete &perm_config){
@@ -852,11 +849,6 @@ void bar_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player &Use
                 redraw_bar(main_win, context, User, npc.gear_merchant, pub_layout, csr_pos);
             }
             else if(target=='I'){
-                if(!npc.miner.job.processed){
-                    if(std::chrono::duration_cast<std::chrono::seconds>(std::chrono::steady_clock::now()-npc.miner.job.job_start).count()>86400){
-
-                    }
-                }
                 miner_hire_interface(main_win, context, User, npc.miner, npc.archaeologist);
                 redraw_bar(main_win, context, User, npc.gear_merchant, pub_layout, csr_pos);
             }

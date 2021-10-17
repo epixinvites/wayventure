@@ -1,6 +1,6 @@
 #include <iostream>
 #include <random>
-#include <sstream>
+#include <thread>
 #include <fstream>
 #include <filesystem>
 #include <chrono>
@@ -212,6 +212,18 @@ unsigned long long int get_ullint(tcod::ConsolePtr &main_win, tcod::ContextPtr &
         ss << dialogue << input;
         clear_and_draw_dialog(main_win, context, ss.str());
     }
+}
+
+void timer_thread(Miner &miner, const bool &terminate){
+    while(true&&(!terminate)){
+        if(miner.job.has_active_job&&is_times_up(miner.job.job_start, {24,0,0})){
+            miner.loot.mysterious_piece+=((20*miner.job.number_of_miners)+generate_random_number(0,2*miner.job.number_of_miners))*miner.job.loot_multiplier;
+            miner.loot.mysterious_artifact+=((4*miner.job.number_of_miners)+generate_random_number(0,miner.job.number_of_miners))*miner.job.loot_multiplier;
+            miner.job=Miner::Job_Details();
+        }
+        std::this_thread::sleep_for(std::chrono::seconds(1));
+    }
+    return;
 }
 
 bool check_surroundings(std::vector<monster> monsters, int x, int y){
@@ -566,6 +578,7 @@ void init_data(Player &User, level &Current, Csr &csr_pos, std::vector<monster> 
         if(save_file_version!=version_check){
             throw std::runtime_error("Versions of save files do not match. Aborting. Do not attempt to edit the save files, lost of data will be expected.");
         }
+        User.init();
         // Insert data corruption checks
         std::filesystem::remove("save/user.save.1");
         std::filesystem::copy("save/user.save", "save/user.save.1");
@@ -679,14 +692,7 @@ void init_dungeon(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Csr &cs
     }
 }
 
-void init(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Csr &csr_pos, Player &User, level &Current, NPC &npc, NoDelete &perm_config){
-    std::vector<monster> monsters;
-    init_data(User, Current, csr_pos, monsters, npc, perm_config);
-    for(int i = 0; i<61; i++){
-        User.add_item(generate_trade_items(Rarity::LEGENDARY));
-    }
-    User.gold=100000;
-    User.init();
+void print_starting_screen(tcod::ConsolePtr &main_win, tcod::ContextPtr &context){
     std::ifstream ascii_wayfarer("res/wayfarer.txt");
     if(!ascii_wayfarer){
         end_program(-1, "wayfarer.txt not found!");
@@ -709,10 +715,10 @@ void init(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Csr &csr_pos, P
             break;
         }
     }
-    init_dungeon(main_win, context, csr_pos, User, Current, monsters, npc, perm_config);
 }
 
-int main(int argc, char *argv[]){
+void init(){
+    // Variable initialization
     Csr csr_pos{1, 1};
     Player User;
     level Current{1, 1, 1};
@@ -732,7 +738,23 @@ int main(int argc, char *argv[]){
     tcod::ContextPtr context=tcod::new_context(params);
     TCOD_console_set_default_foreground(main_win.get(), WHITE);
     TCOD_console_set_default_background(main_win.get(), BLACK);
-    init(main_win, context, csr_pos, User, Current, npc, perm_config);
+    std::vector<monster> monsters;
+    bool terminate_timer=false;
+    // Get data from save files (if present)
+    init_data(User, Current, csr_pos, monsters, npc, perm_config);
+    // Start timer thread to refresh jobs
+    std::thread refresh_timer(timer_thread, std::ref(npc.miner), std::ref(terminate_timer));
+    // Start main dungeon
+    print_starting_screen(main_win, context);
+    init_dungeon(main_win, context, csr_pos, User, Current, monsters, npc, perm_config);
+    // Terminate thread
+    terminate_timer=true;
+    refresh_timer.join();
+    // Terminate libtcod
     TCOD_quit();
+}
+
+int main(int argc, char *argv[]){
+    init();
     return 0;
 }

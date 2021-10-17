@@ -10,6 +10,7 @@ Item generate_loot_from_monster_type(Dungeon type);
 Item generate_loot_from_rarity_type(Rarity type);
 monster_stats create_monster(level Current, Dungeon type);
 bool return_chance(int chance);
+int generate_random_number(int range_lo, int range_hi);
 void generate_doors(std::vector<std::pair<int,int>> &doors, level Current);
 int generate_gold(Dungeon type);
 double rarity_value(Rarity rarity);

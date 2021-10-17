@@ -476,6 +476,13 @@ bool return_chance(int chance){
     return (chance>=probability(generator));
 }
 
+int generate_random_number(int range_lo, int range_hi){
+    std::random_device device;
+    std::mt19937 generator(device());
+    std::uniform_int_distribution<int> numgenerator(range_lo, range_hi);
+    return numgenerator(generator);
+}
+
 void generate_doors(std::vector<std::pair<int, int>> &doors, level Current){
     if(Current.y>1){ // {x , y}
         doors.push_back({39, 49}); // bottom door

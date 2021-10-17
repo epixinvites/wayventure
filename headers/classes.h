@@ -10,7 +10,7 @@ struct monster{
     template<class Archive>void serialize(Archive &archive){archive(x,y,type);}
 };
 struct Csr{
-    int first = 0, second = 0;
+    int first = 1, second = 1;
     template<class Archive>void serialize(Archive &archive){archive(first,second);}
 };
 struct monster_stats{ // base stats
@@ -193,11 +193,10 @@ struct Archaeologist{
         bool processed = false;
         template<class Archive>void serialize(Archive &archive){archive(has_active_job,job_start,number_of_archaeologists,rarity_multiplier,processed);}
     };
-    int relation = 0;
     int skill_level = 0;
     Raw_Loot loot;
     Job_Details job;
-    template<class Archive>void serialize(Archive &archive){archive(relation,skill_level,loot,job);}
+    template<class Archive>void serialize(Archive &archive){archive(skill_level,loot,job);}
 };
 struct NPC{
     Bartender bartender;
@@ -233,11 +232,14 @@ struct NoDelete{
     }
 };
 struct Time{
-public:
     long hours;
     unsigned int minutes;
     unsigned int seconds;
     Time(long total_seconds);
+    Time(long hours, unsigned int minutes, unsigned int seconds);
+    bool operator>(const Time&);
+    bool operator>=(const Time&);
+    long time_to_seconds() const;
 };
 
 

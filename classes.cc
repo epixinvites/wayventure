@@ -258,3 +258,17 @@ Time::Time(long total_seconds){
     minutes=(total_seconds%3600)/60;
     seconds=(total_seconds%3600)%60;
 }
+
+Time::Time(long hours, unsigned int minutes, unsigned int seconds):hours{hours},minutes{minutes},seconds{seconds}{}
+
+bool Time::operator>(const Time& time){
+    return(this->time_to_seconds()>time.time_to_seconds());
+}
+
+bool Time::operator>=(const Time& time){
+    return(this->time_to_seconds()>=time.time_to_seconds());
+}
+
+long Time::time_to_seconds() const{
+    return(hours*3600+minutes*60+seconds);
+}
