@@ -1,9 +1,10 @@
 #include "headers/classes.h"
 #include <cmath>
+#include <iostream>
 
-Item::Item(std::string name, Type type, Rarity rarity, bool is_equipped, int hp, int attk, int def, int shield, int crit_chance, int crit_dmg, unsigned int calibration, unsigned int uses, double durability):name{name}, type{type}, rarity{rarity}, is_equipped{is_equipped}, hp{hp}, attk{attk}, def{def},
-                                                                                                                                                                                                             shield{shield}, crit_chance{crit_chance}, crit_dmg{crit_dmg}, calibration{calibration},
-                                                                                                                                                                                                             uses{uses}, durability{durability}{
+Item::Item(std::string name, Type type, Rarity rarity, bool is_equipped, int hp, int attk, int def, int shield, int crit_chance, int crit_dmg, unsigned int calibration, unsigned int uses, double durability):name{name}, type{type}, rarity{rarity}, is_equipped{is_equipped}, hp{hp}, attk{attk},
+                                                                                                                                                                                                               def{def}, shield{shield}, crit_chance{crit_chance}, crit_dmg{crit_dmg},
+                                                                                                                                                                                                               calibration{calibration}, uses{uses}, durability{durability}{
 }
 
 Player::Player(int ori_hp, int attk, int def, int ori_shield, int crit_chance, int crit_dmg, unsigned long long int gold):ori_hp{ori_hp}, attk{attk}, def{def}, ori_shield{ori_shield}, crit_chance{crit_chance}, crit_dmg{crit_dmg}, gold{gold}{
@@ -132,8 +133,8 @@ void Item::initialize_item(){
 }
 
 unsigned long long int Inventory::get_inventory_largest_id(){
-    unsigned long long int largest_id = 0;
-    for(const auto &i:item){
+    unsigned long long int largest_id=0;
+    for(const auto &i: item){
         if(i.id>largest_id){
             largest_id=i.id;
         }
@@ -141,8 +142,8 @@ unsigned long long int Inventory::get_inventory_largest_id(){
     return largest_id;
 }
 
-Item* Inventory::get_pointer_to_item_with_id(unsigned long long int id){
-    for(auto &i : item){
+Item *Inventory::get_pointer_to_item_with_id(unsigned long long int id){
+    for(auto &i: item){
         if(i.id==id){
             return &i;
         }
@@ -155,7 +156,7 @@ void Player::delete_item_with_id(unsigned long long int id){
 }
 
 void Player::add_item(Item input){
-    input.id = inv.get_inventory_largest_id()+1;
+    input.id=inv.get_inventory_largest_id()+1;
     inv.item.push_back(input);
     for(int i=0; i<inv.item.size(); i++){ // loops through every single item and finds all items that is_equipped
         if(inv.item[i].is_equipped){
@@ -259,21 +260,48 @@ Time::Time(long total_seconds){
     seconds=(total_seconds%3600)%60;
 }
 
-Time::Time(long hours, unsigned int minutes, unsigned int seconds):hours{hours},minutes{minutes},seconds{seconds}{}
+Time::Time(long hours, unsigned int minutes, unsigned int seconds):hours{hours}, minutes{minutes}, seconds{seconds}{}
 
-bool Time::operator>(const Time& time){
-    return(this->time_to_seconds()>time.time_to_seconds());
+bool Time::operator>(const Time &time){
+    return (this->time_to_seconds()>time.time_to_seconds());
 }
 
-bool Time::operator>=(const Time& time){
-    return(this->time_to_seconds()>=time.time_to_seconds());
+bool Time::operator>=(const Time &time){
+    return (this->time_to_seconds()>=time.time_to_seconds());
 }
 
 long Time::time_to_seconds() const{
-    return(hours*3600+minutes*60+seconds);
+    return (hours*3600+minutes*60+seconds);
 }
 
 bool Miner::Job_Details::is_job_finished(){
     Time time_passed{std::chrono::duration_cast<std::chrono::seconds>(std::chrono::steady_clock::now()-job_start).count()};
     return time_passed>=job_duration;
+}
+
+bool Archaeologist::Job_Details::is_job_finished(){
+    Time time_passed{std::chrono::duration_cast<std::chrono::seconds>(std::chrono::steady_clock::now()-job_start).count()};
+    return time_passed>=total_job_duration;
+}
+
+std::ostream &operator<<(std::ostream &os, const Time &time){
+    return os << time.hours << " hours " << time.minutes << " minutes " << time.seconds << " seconds";
+}
+
+Miscellaneous::Cores Miscellaneous::Cores::operator+=(const Cores &other){
+    this->ancient_core+=other.ancient_core;
+    this->mysterious_shard+=other.mysterious_shard;
+    this->crystallium+=other.crystallium;
+    this->crystal_core+=other.crystal_core;
+    return *this;
+}
+
+Miscellaneous::Material_rarity Miscellaneous::Material_rarity::operator+=(const Material_rarity &other){
+    this->artifact+=other.artifact;
+    this->legendary+=other.legendary;
+    this->epic+=other.epic;
+    this->rare+=other.rare;
+    this->uncommon+=other.uncommon;
+    this->common+=other.common;
+    return *this;
 }

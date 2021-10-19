@@ -4,6 +4,7 @@
 #include "headers/generate.h"
 #include "headers/mode.h"
 #include "headers/main.h"
+
 bool check_surroundings(std::vector<monster> monsters, int x, int y){
     for(int i=0; i<monsters.size(); i++){
         if(x==monsters[i].x&&y==monsters[i].y){
@@ -311,7 +312,7 @@ void drop_items_on_death(Player &User, Csr &csr_pos, level &current){
     current={1, 1, 1};
 }
 
-void init_dungeon(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Csr &csr_pos, Player &User, level &Current, std::vector<monster> &monsters, NPC &npc, NoDelete &perm_config){
+void main_dungeon(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Csr &csr_pos, Player &User, level &Current, std::vector<monster> &monsters, NPC &npc, NoDelete &perm_config){
     std::vector<std::pair<int, int>> doors;
     if(monsters.empty()){
         generate_monsters(monsters, Current, csr_pos);

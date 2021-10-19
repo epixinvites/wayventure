@@ -424,7 +424,7 @@ void print_misc_item(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Misc
     SDL_wclear_main_win(main_win, context);
     tcod::print(*main_win, {0, 1}, "Cores:", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
     print_bold_with_condition(main_win, context, "Ancient Cores: "+std::to_string(User.cores.ancient_core), DARK_RED, 2, csr_pos==0);
-    print_bold_with_condition(main_win, context, "Mysterious Shard: "+std::to_string(User.cores.crystal_core), DARK_RED, 3, csr_pos==1);
+    print_bold_with_condition(main_win, context, "Mysterious Shard: "+std::to_string(User.cores.mysterious_shard), DARK_RED, 3, csr_pos==1);
     print_bold_with_condition(main_win, context, "Crystallium: "+std::to_string(User.cores.crystallium), YELLOW, 4, csr_pos==2);
     print_bold_with_condition(main_win, context, "Crystal Cores: "+std::to_string(User.cores.crystal_core), PURPLE, 5, csr_pos==3);
     tcod::print(*main_win, {0, 7}, "Materials:", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
@@ -1018,7 +1018,7 @@ void reforge_repair_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, 
                 unsigned int gold_cost=rarity_value(items_copy[csr_pos+(page_num*30)]->rarity)*200;
                 unsigned int material_cost=2*(1+((100-items_copy[csr_pos+(page_num*30)]->durability)/100.0));
                 std::stringstream ss;
-                ss<<"Proceed? Cost of reforge: "<<gold_cost<<" Gold, "<<material_cost<<" Materials [y/n]";
+                ss << "Proceed? Cost of reforge: " << gold_cost << " Gold, " << material_cost << " Materials [y/n]";
                 if(SDL_getch_y_or_n(main_win, context, ss.str())&&decrease_materials(items_copy[csr_pos+(page_num*30)]->rarity, User.inv.misc, material_cost)&&User.gold>=gold_cost){
                     User.gold-=gold_cost;
                     bool use_crystallium=false, use_ancient_core=false;

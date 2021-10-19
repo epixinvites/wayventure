@@ -21,7 +21,7 @@ void draw_stats(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, const Pla
     ss << "HP:" << User.cur_hp << " Attk:" << User.attk << " Def:" << User.def << " Shield:" << User.cur_shield << " CritChn:" << User.crit_chance << " CritDmg:" << User.crit_dmg;
     tcod::print(*main_win, {0, 51}, ss.str(), &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
     ss.str(std::string());
-    ss<< "Gold:" << User.gold << " T:" << User.steps/10;
+    ss << "Gold:" << User.gold << " T:" << User.steps/10;
     tcod::print(*main_win, {0, 52}, ss.str(), &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
     ss.str(std::string());
     ss << "Saturation (" << User.saturation << "/100)" << " [";

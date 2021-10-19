@@ -34,7 +34,7 @@ int SDL_getch(tcod::ConsolePtr &main_win, tcod::ContextPtr &context){
             if(event.key.keysym.mod & KMOD_SHIFT){
                 return toupper(event.key.keysym.sym);
             }
-            if(event.key.keysym.mod & KMOD_CTRL){
+            else if(event.key.keysym.mod & KMOD_CTRL){
                 if(event.key.keysym.sym=='r'){
                     SDL_SetWindowSize(context->get_sdl_window(), main_win->w*tileset->tile_width, main_win->h*tileset->tile_height);
                     continue;
@@ -132,7 +132,7 @@ std::string get_string(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, co
             input.push_back(ch);
         }
         std::stringstream ss;
-        ss << dialogue << input;
+        ss << dialogue << input << '|';
         clear_and_draw_dialog(main_win, context, ss.str());
     }
 }
@@ -158,7 +158,7 @@ unsigned int get_int(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, cons
             input.push_back(ch);
         }
         std::stringstream ss;
-        ss << dialogue << input;
+        ss << dialogue << input << '|';
         clear_and_draw_dialog(main_win, context, ss.str());
     }
 }
@@ -184,7 +184,7 @@ long long int get_llint(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, c
             input.push_back(ch);
         }
         std::stringstream ss;
-        ss << dialogue << input;
+        ss << dialogue << input << '|';
         clear_and_draw_dialog(main_win, context, ss.str());
     }
 }
@@ -210,17 +210,29 @@ unsigned long long int get_ullint(tcod::ConsolePtr &main_win, tcod::ContextPtr &
             input.push_back(ch);
         }
         std::stringstream ss;
-        ss << dialogue << input;
+        ss << dialogue << input << '|';
         clear_and_draw_dialog(main_win, context, ss.str());
     }
 }
 
-void timer_thread(Miner &miner, const bool &terminate){
+void timer_thread(Miner &miner, Archaeologist &archaeologist, const bool &terminate){
     while(!terminate){
         if(miner.job.has_active_job&&miner.job.is_job_finished()){
-            miner.loot.mysterious_piece+=((20*miner.job.number_of_miners)+generate_random_number(0,2*miner.job.number_of_miners))*miner.job.loot_multiplier;
-            miner.loot.mysterious_artifact+=((4*miner.job.number_of_miners)+generate_random_number(0,miner.job.number_of_miners))*miner.job.loot_multiplier;
+            miner.loot.mysterious_piece+=(((20*miner.job.number_of_miners)+generate_random_number(0, 2*miner.job.number_of_miners))*miner.job.loot_multiplier)*((500+miner.skill_level)/500);
+            miner.loot.mysterious_artifact+=(((4*miner.job.number_of_miners)+generate_random_number(0, miner.job.number_of_miners))*miner.job.loot_multiplier)*((500+miner.skill_level)/500);
+            miner.skill_level+=(miner.job.number_of_miners+generate_random_number(0, miner.job.number_of_miners))/pow(1.02,miner.skill_level);
+            if(miner.skill_level>250.0){
+                miner.skill_level=250.0;
+            }
             miner.job=Miner::Job_Details();
+        }
+        if(archaeologist.job.has_active_job&&archaeologist.job.is_job_finished()){
+            // Generate loot
+            // Material 0, 5, 20, 50, 100, 225
+            // Cores 0, 75, 200, 250
+            if(archaeologist.skill_level<)
+            // Increase skill_level
+            // Reset Job struct
         }
         std::this_thread::sleep_for(std::chrono::seconds(1));
     }
@@ -343,10 +355,10 @@ void init(){
     // Get data from save files (if present)
     init_data(User, Current, csr_pos, monsters, npc, perm_config);
     // Start timer thread to refresh jobs
-    std::thread refresh_timer(timer_thread, std::ref(npc.miner), std::ref(terminate_timer));
+    std::thread refresh_timer(timer_thread, std::ref(npc.miner), std::ref(npc.archaeologist), std::ref(terminate_timer));
     // Start main dungeon
     print_starting_screen(main_win, context);
-    init_dungeon(main_win, context, csr_pos, User, Current, monsters, npc, perm_config);
+    main_dungeon(main_win, context, csr_pos, User, Current, monsters, npc, perm_config);
     // Terminate thread
     terminate_timer=true;
     refresh_timer.join();

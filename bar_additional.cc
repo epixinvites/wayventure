@@ -5,7 +5,7 @@
 #include "headers/draw.h"
 #include "headers/generate.h"
 
-int calculate_price(const Item &cur, int relationship, bool player_sell){
+int calculate_price(const Item &cur, double relationship, bool player_sell){
     int price=100*rarity_value(cur.rarity)*rarity_value(cur.rarity);
     if(cur.def>0&&cur.type!=Type::GREAVES){
         price*=1.5+(cur.def/100.0);
@@ -939,19 +939,19 @@ int select_inventory_for_exchange(tcod::ConsolePtr &main_win, tcod::ContextPtr &
         else if(ch==SDLK_RETURN){
             if(selected_items[csr_pos+(page_num*30)].second){
                 selected_items[csr_pos+(page_num*30)].second=false;
-                total_quality-=(int)(calculate_quality_points(*selected_items[csr_pos+(page_num*30)].first));
+                total_quality-=(int) (calculate_quality_points(*selected_items[csr_pos+(page_num*30)].first));
                 selected_for_trade.erase(std::remove(selected_for_trade.begin(), selected_for_trade.end(), selected_items[csr_pos+(page_num*30)].first->id), selected_for_trade.end());
             }
             else{
                 selected_items[csr_pos+(page_num*30)].second=true;
-                total_quality+=(int)(calculate_quality_points(*selected_items[csr_pos+(page_num*30)].first));
+                total_quality+=(int) (calculate_quality_points(*selected_items[csr_pos+(page_num*30)].first));
                 selected_for_trade.push_back(selected_items[csr_pos+(page_num*30)].first->id);
             }
             print_inventory_with_quality_points(main_win, context, csr_pos, page_num, User, selected_items, calculate_quality_points(*target), total_quality);
         }
         else if(ch=='B'&&!selected_for_trade.empty()){
             if(total_quality>=calculate_quality_points(*target)){
-                for(int i = 0; i<selected_for_trade.size(); i++){
+                for(int i=0; i<selected_for_trade.size(); i++){
                     User.delete_item_with_id(selected_for_trade[i]);
                 }
                 selected_items.clear();
@@ -992,7 +992,7 @@ void mysterious_trader_items(tcod::ConsolePtr &main_win, tcod::ContextPtr &conte
         else if(ch==SDLK_RETURN){
             for(int i=0; i<User.inv.item.size(); i++){
                 if(User.inv.item[i].rarity==Rarity::LEGENDARY){
-                    int status = select_inventory_for_exchange(main_win, context, User, &mysterious_merchant.store[csr_pos].first);
+                    int status=select_inventory_for_exchange(main_win, context, User, &mysterious_merchant.store[csr_pos].first);
                     if(status==1){
                         draw_mysterious_trader_items(main_win, context, items_copy, csr_pos, calculate_quality_points(*items_copy[csr_pos]));
                         clear_and_draw_dialog(main_win, context, "[Trader] ...*Stares*");
