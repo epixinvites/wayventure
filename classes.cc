@@ -254,34 +254,34 @@ void Player::drink(int *water){
     }
 }
 
-Time::Time(long total_seconds){
-    hours=total_seconds/3600;
-    minutes=(total_seconds%3600)/60;
-    seconds=(total_seconds%3600)%60;
+Time::Time(long totalSeconds){
+    hours=totalSeconds/3600;
+    minutes=(totalSeconds%3600)/60;
+    seconds=(totalSeconds%3600)%60;
 }
 
 Time::Time(long hours, unsigned int minutes, unsigned int seconds):hours{hours}, minutes{minutes}, seconds{seconds}{}
 
 bool Time::operator>(const Time &time){
-    return (this->time_to_seconds()>time.time_to_seconds());
+    return (this->timeToSeconds()>time.timeToSeconds());
 }
 
 bool Time::operator>=(const Time &time){
-    return (this->time_to_seconds()>=time.time_to_seconds());
+    return (this->timeToSeconds()>=time.timeToSeconds());
 }
 
-long Time::time_to_seconds() const{
+long Time::timeToSeconds() const{
     return (hours*3600+minutes*60+seconds);
 }
 
-bool Miner::Job_Details::is_job_finished(){
-    Time time_passed{std::chrono::duration_cast<std::chrono::seconds>(std::chrono::steady_clock::now()-job_start).count()};
-    return time_passed>=job_duration;
+bool Miner::Job_Details::isJobFinished() const{
+    Time timePassed{std::chrono::duration_cast<std::chrono::seconds>(std::chrono::steady_clock::now()-job_start).count()};
+    return timePassed>=total_job_duration;
 }
 
-bool Archaeologist::Job_Details::is_job_finished(){
-    Time time_passed{std::chrono::duration_cast<std::chrono::seconds>(std::chrono::steady_clock::now()-job_start).count()};
-    return time_passed>=total_job_duration;
+bool Archaeologist::Job_Details::isJobFinished() const{
+    Time timePassed{std::chrono::duration_cast<std::chrono::seconds>(std::chrono::steady_clock::now()-job_start).count()};
+    return timePassed>=total_job_duration;
 }
 
 std::ostream &operator<<(std::ostream &os, const Time &time){

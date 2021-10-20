@@ -29,7 +29,7 @@ struct Time{
     template<class Archive>
     void serialize(Archive &archive){archive(hours, minutes, seconds);}
 
-    Time(long total_seconds);
+    Time(long totalSeconds);
 
     Time(long hours, unsigned int minutes, unsigned int seconds);
 
@@ -37,7 +37,7 @@ struct Time{
 
     bool operator>=(const Time &);
 
-    long time_to_seconds() const;
+    long timeToSeconds() const;
 };
 
 struct monster{
@@ -287,16 +287,17 @@ struct Raw_Loot{
 
 struct Miner{
     struct Job_Details{
-        Time job_duration={48, 0, 0};
+        Time original_job_duration={48, 0, 0};
+        Time total_job_duration={0, 0, 0};
         bool has_active_job=false;
         std::chrono::time_point<std::chrono::steady_clock> job_start;
         int number_of_miners=0;
         double loot_multiplier=0;
 
-        bool is_job_finished();
+        bool isJobFinished() const;
 
         template<class Archive>
-        void serialize(Archive &archive){archive(has_active_job, job_start, number_of_miners, loot_multiplier);}
+        void serialize(Archive &archive){archive(total_job_duration, has_active_job, job_start, number_of_miners, loot_multiplier);}
     };
 
     double relation=0;
@@ -317,7 +318,7 @@ struct Archaeologist{
         bool has_active_job=false;
         std::chrono::time_point<std::chrono::steady_clock> job_start;
 
-        bool is_job_finished();
+        bool isJobFinished() const;
 
         template<class Archive>
         void serialize(Archive &archive){archive(total_job_duration, decryption_amount, has_active_job, job_start);}

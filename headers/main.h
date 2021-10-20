@@ -28,29 +28,29 @@ static constexpr TCOD_ColorRGB MAGENTA{255, 0, 255}; // NPC (exclusive)
 // Don't touch any of these. For god's sake.
 const std::string empty_line="                                                                                ";
 
-void clear_and_draw_dialog(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, const std::string &dialog);
+void clear_and_draw_dialog(tcod::ConsolePtr &mainWin, tcod::ContextPtr &context, const std::string &dialog);
 
-int SDL_getch(tcod::ConsolePtr &main_win, tcod::ContextPtr &context);
+int SDL_getch(tcod::ConsolePtr &mainWin, tcod::ContextPtr &context);
 
-std::pair<int, int> SDL_getch_ex(tcod::ConsolePtr &main_win, tcod::ContextPtr &context);
+std::pair<int, int> SDL_getch_ex(tcod::ConsolePtr &mainWin, tcod::ContextPtr &context);
 
-bool SDL_getch_y_or_n(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, const std::string &dialogue);
+bool SDL_getch_y_or_n(tcod::ConsolePtr &mainWin, tcod::ContextPtr &context, const std::string &dialogue);
 
-void SDL_wclear_main_win(tcod::ConsolePtr &main_win, tcod::ContextPtr &context);
+void SDL_wclear_mainWin(tcod::ConsolePtr &mainWin, tcod::ContextPtr &context);
 
-void SDL_wclear_dialog_bar(tcod::ConsolePtr &main_win, tcod::ContextPtr &context);
+void SDL_wclear_dialog_bar(tcod::ConsolePtr &mainWin, tcod::ContextPtr &context);
 
-void SDL_wclear_stats_bar(tcod::ConsolePtr &main_win, tcod::ContextPtr &context);
+void SDL_wclear_stats_bar(tcod::ConsolePtr &mainWin, tcod::ContextPtr &context);
 
-std::string get_string(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, const std::string &dialogue, std::string original);
+std::string get_string(tcod::ConsolePtr &mainWin, tcod::ContextPtr &context, const std::string &dialogue, std::string original);
 
-unsigned int get_int(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, const std::string &dialogue);
+unsigned int get_int(tcod::ConsolePtr &mainWin, tcod::ContextPtr &context, const std::string &dialogue);
 
-long long int get_llint(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, const std::string &dialogue);
+long long int get_llint(tcod::ConsolePtr &mainWin, tcod::ContextPtr &context, const std::string &dialogue);
 
-unsigned long long int get_ullint(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, const std::string &dialogue);
+unsigned long long int get_ullint(tcod::ConsolePtr &mainWin, tcod::ContextPtr &context, const std::string &dialogue);
 
-void print_bold_with_condition(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, const std::string &output, const TCOD_ColorRGB &foreground, int line, bool is_bold);
+void print_bold_with_condition(tcod::ConsolePtr &mainWin, tcod::ContextPtr &context, const std::string &output, const TCOD_ColorRGB &foreground, int line, bool is_bold);
 
 void end_program(int sig);
 
