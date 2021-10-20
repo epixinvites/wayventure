@@ -322,11 +322,11 @@ void end_program(int sig, const std::string &error){
     }
 }
 
-bool is_empty(std::ifstream &pFile){
-    return pFile.peek()==std::ifstream::traits_type::eof();
+bool is_empty(std::ifstream &p_file){
+    return p_file.peek()==std::ifstream::traits_type::eof();
 }
 
-void init_data(Player &user, Level &Current, Csr &csr_pos, std::vector<Monster> &monsters, Npc &npc, No_Delete &perm_config){
+void init_data(Player &user, Level &current, Csr &csr_pos, std::vector<Monster> &monsters, Npc &npc, No_Delete &perm_config){
     std::string version_check;
     if(username.length()>30){
         throw std::runtime_error("Nope. Nopenopenopenope. You didn't follow my instructions.");
@@ -334,7 +334,7 @@ void init_data(Player &user, Level &Current, Csr &csr_pos, std::vector<Monster> 
     std::ifstream ifile("save/user.save", std::ios::binary);
     if(!is_empty(ifile)){
         cereal::PortableBinaryInputArchive retrieve(ifile);
-        retrieve(user, Current, csr_pos, monsters, npc, perm_config, version_check);
+        retrieve(user, current, csr_pos, monsters, npc, perm_config, version_check);
         if(save_file_version!=version_check){
             throw std::runtime_error("Versions of save files do not match. Aborting. Do not attempt to edit the save files, lost of data will be expected.");
         }
@@ -345,11 +345,11 @@ void init_data(Player &user, Level &Current, Csr &csr_pos, std::vector<Monster> 
     }
 }
 
-void save_data(Player user, Level Current, Csr csr_pos, const std::vector<Monster> &monsters, const Npc &npc, No_Delete perm_config){
+void save_data(Player user, Level current, Csr csr_pos, const std::vector<Monster> &monsters, const Npc &npc, No_Delete perm_config){
     std::ofstream ofile("save/user.save", std::ios::trunc | std::ios::binary);
     cereal::PortableBinaryOutputArchive archive(ofile);
     user.uninitialize_stats();
-    archive(user, Current, csr_pos, monsters, npc, perm_config, save_file_version);
+    archive(user, current, csr_pos, monsters, npc, perm_config, save_file_version);
 }
 
 void print_starting_screen(tcod::ConsolePtr &main_win, tcod::ContextPtr &context){
@@ -381,7 +381,7 @@ void init(){
     // Variable initialization
     Csr csr_pos{1, 1};
     Player user;
-    Level Current{1, 1, 1};
+    Level current{1, 1, 1};
     Npc npc;
     No_Delete perm_config;
     user.inv.misc.heal_amount=10;
@@ -401,12 +401,12 @@ void init(){
     std::vector<Monster> monsters;
     std::atomic<bool> terminate = false;
     // Get data from save files (if present)
-    init_data(user, Current, csr_pos, monsters, npc, perm_config);
+    init_data(user, current, csr_pos, monsters, npc, perm_config);
     // Start timer thread to refresh jobs
     std::thread refresh_timer(job_thread, std::ref(npc.miner), std::ref(npc.archaeologist), std::ref(terminate));
     // Start main dungeon
     print_starting_screen(main_win, context);
-    main_dungeon(main_win, context, csr_pos, user, Current, monsters, npc, perm_config);
+    main_dungeon(main_win, context, csr_pos, user, current, monsters, npc, perm_config);
     // Terminate thread
     terminate.store(true, std::memory_order_release);
     refresh_timer.join();

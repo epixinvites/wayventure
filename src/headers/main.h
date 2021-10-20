@@ -56,4 +56,4 @@ void end_program(int sig);
 
 void end_program(int sig, const std::string &error);
 
-void save_data(Player user, Level Current, Csr csr_pos, const std::vector<Monster> &monsters, const Npc &npc, No_Delete perm_config);
+void save_data(Player user, Level current, Csr csr_pos, const std::vector<Monster> &monsters, const Npc &npc, No_Delete perm_config);
