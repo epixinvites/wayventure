@@ -290,7 +290,7 @@ void job_thread(Miner &miner, Archaeologist &archaeologist, const std::atomic<bo
 void end_program(int sig){
     if(sig==0){
         std::cout << "Nya~" << std::endl;
-        std::ifstream cosmos_ascii("res/cosmos.txt");
+        std::ifstream cosmos_ascii("src/res/cosmos.txt");
         std::string line;
         while(std::getline(cosmos_ascii, line)){
             std::cout << line << std::endl;
@@ -298,7 +298,7 @@ void end_program(int sig){
         return;
     }
     if(sig==1){
-        std::ifstream tombstone_file("res/tombstone.txt");
+        std::ifstream tombstone_file("src/res/tombstone.txt");
         std::string line;
         while(std::getline(tombstone_file, line)){
             std::cout << line << std::endl;
@@ -353,7 +353,7 @@ void save_data(Player user, Level Current, Csr csr_pos, const std::vector<Monste
 }
 
 void print_starting_screen(tcod::ConsolePtr &main_win, tcod::ContextPtr &context){
-    std::ifstream ascii_wayfarer("res/wayfarer.txt");
+    std::ifstream ascii_wayfarer("src/res/wayfarer.txt");
     if(!ascii_wayfarer){
         end_program(-1, "wayfarer.txt not found!");
         return;

@@ -995,7 +995,7 @@ void bar_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player &use
     Csr csr_pos{78, 1};
     refresh_gear_merchant_store(npc.gear_merchant, user.steps);
     refresh_mysterious_merchant_store(npc.mysterious_trader, user.steps);
-    std::ifstream pub_layout_file("res/bar_layout.txt");
+    std::ifstream pub_layout_file("src/res/bar_layout.txt");
     std::vector<std::string> pub_layout; // {50,80}
     for(int i=0; i<50; i++){
         std::string line;
