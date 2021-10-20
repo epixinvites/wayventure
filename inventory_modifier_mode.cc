@@ -2,7 +2,7 @@
 #include "headers/classes.h"
 #include "headers/mode.h"
 
-void reset_inv_params(NoDelete &perm_config){
+void reset_inv_params(No_Delete &perm_config){
     perm_config.default_show_type_type=Type::ALL;
     perm_config.default_show_rarity_type=Rarity::ALL;
     perm_config.default_sort_rarity_method=DEFAULT_SHOW_SELECTION;
@@ -16,7 +16,7 @@ void init_copy(std::vector<Item> &original, std::vector<Item *> &items_copy){
     }
 }
 
-void process_copy(std::vector<Item> &original, std::vector<Item *> &items_copy, NoDelete &perm_config){
+void process_copy(std::vector<Item> &original, std::vector<Item *> &items_copy, No_Delete &perm_config){
     init_copy(original, items_copy);
     if(perm_config.only_show_equipped){ // Only show Equipped
         items_copy.erase(std::remove_if(items_copy.begin(), items_copy.end(), [](const Item *v){return v->is_equipped==false;}), items_copy.end());
@@ -42,25 +42,25 @@ void process_copy(std::vector<Item> &original, std::vector<Item *> &items_copy, 
     }
 }
 
-void print_item(tcod::ConsolePtr &mainWin, tcod::ContextPtr &context, bool curr_pos_matches_condition, bool curr_config_matches_condition, int line, const std::string &output, bool is_valid=true){
+void print_item(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, bool curr_pos_matches_condition, bool curr_config_matches_condition, int line, const std::string &output, bool is_valid=true){
     if(!is_valid){
-        tcod::print(*mainWin, {0, line}, "["+output+"]", &GRAY, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+        tcod::print(*main_win, {0, line}, "["+output+"]", &GRAY, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
         return;
     }
     if(curr_pos_matches_condition){
         if(curr_config_matches_condition){
-            tcod::print(*mainWin, {0, line}, "->["+output+"]", &BLACK, &WHITE, TCOD_BKGND_SET, TCOD_LEFT);
+            tcod::print(*main_win, {0, line}, "->["+output+"]", &BLACK, &WHITE, TCOD_BKGND_SET, TCOD_LEFT);
         }
         else{
-            tcod::print(*mainWin, {0, line}, "["+output+"]", &BLACK, &WHITE, TCOD_BKGND_SET, TCOD_LEFT);
+            tcod::print(*main_win, {0, line}, "["+output+"]", &BLACK, &WHITE, TCOD_BKGND_SET, TCOD_LEFT);
         }
     }
     else{
         if(curr_config_matches_condition){
-            tcod::print(*mainWin, {0, line}, "->["+output+"]", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+            tcod::print(*main_win, {0, line}, "->["+output+"]", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
         }
         else{
-            tcod::print(*mainWin, {0, line}, "["+output+"]", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+            tcod::print(*main_win, {0, line}, "["+output+"]", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
         }
     }
 }
@@ -92,41 +92,41 @@ bool check_if_equip_valid(const std::vector<Item *> &items_copy){
     return false;
 }
 
-void draw_inventory_modifier_selection(tcod::ConsolePtr &mainWin, tcod::ContextPtr &context, const std::vector<Item *> &items_copy, const NoDelete &perm_config, unsigned int csr_pos){
-    SDL_wclear_mainWin(mainWin, context);
-    SDL_wclear_dialog_bar(mainWin, context);
-    tcod::print(*mainWin, {0, 0}, "Inventory Modifier Selection", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
-    tcod::print(*mainWin, {0, 1}, "Show only [Rarity]:", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
-    print_item(mainWin, context, csr_pos==0, perm_config.default_show_rarity_type==Rarity::ALL, 2, "All");
-    print_item(mainWin, context, csr_pos==1, perm_config.default_show_rarity_type==Rarity::COMMON, 3, "Common", check_if_rarity_valid(items_copy, Rarity::COMMON));
-    print_item(mainWin, context, csr_pos==2, perm_config.default_show_rarity_type==Rarity::UNCOMMON, 4, "Uncommon", check_if_rarity_valid(items_copy, Rarity::UNCOMMON));
-    print_item(mainWin, context, csr_pos==3, perm_config.default_show_rarity_type==Rarity::RARE, 5, "Rare", check_if_rarity_valid(items_copy, Rarity::RARE));
-    print_item(mainWin, context, csr_pos==4, perm_config.default_show_rarity_type==Rarity::EPIC, 6, "Epic", check_if_rarity_valid(items_copy, Rarity::EPIC));
-    print_item(mainWin, context, csr_pos==5, perm_config.default_show_rarity_type==Rarity::LEGENDARY, 7, "Legendary", check_if_rarity_valid(items_copy, Rarity::LEGENDARY));
-    print_item(mainWin, context, csr_pos==6, perm_config.default_show_rarity_type==Rarity::ARTIFACT, 8, "Artifact", check_if_rarity_valid(items_copy, Rarity::ARTIFACT));
-    tcod::print(*mainWin, {0, 10}, "Show only [Type]:", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
-    print_item(mainWin, context, csr_pos==7, perm_config.default_show_type_type==Type::ALL, 11, "All");
-    print_item(mainWin, context, csr_pos==8, perm_config.default_show_type_type==Type::HELMET, 12, "Helmet", check_if_type_valid(items_copy, Type::HELMET));
-    print_item(mainWin, context, csr_pos==9, perm_config.default_show_type_type==Type::CHESTPLATE, 13, "Chestplate", check_if_type_valid(items_copy, Type::CHESTPLATE));
-    print_item(mainWin, context, csr_pos==10, perm_config.default_show_type_type==Type::GREAVES, 14, "Greaves", check_if_type_valid(items_copy, Type::GREAVES));
-    print_item(mainWin, context, csr_pos==11, perm_config.default_show_type_type==Type::BOOTS, 15, "Boots", check_if_type_valid(items_copy, Type::BOOTS));
-    print_item(mainWin, context, csr_pos==12, perm_config.default_show_type_type==Type::SHIELD, 16, "Shield", check_if_type_valid(items_copy, Type::SHIELD));
-    print_item(mainWin, context, csr_pos==13, perm_config.default_show_type_type==Type::WEAPON, 17, "Weapon", check_if_type_valid(items_copy, Type::WEAPON));
-    tcod::print(*mainWin, {0, 19}, "Show only [Equipped]:", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
-    print_item(mainWin, context, csr_pos==14, !perm_config.only_show_equipped, 20, "All");
-    print_item(mainWin, context, csr_pos==15, perm_config.only_show_equipped, 21, "Equipped Only", check_if_equip_valid(items_copy));
-    tcod::print(*mainWin, {0, 23}, "Sort by [Rarity]:", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
-    print_item(mainWin, context, csr_pos==16, perm_config.default_sort_rarity_method==DEFAULT_SHOW_SELECTION, 24, "None");
-    print_item(mainWin, context, csr_pos==17, perm_config.default_sort_rarity_method==SORT_TYPE_RARITY_ASCENDING, 25, "Ascending");
-    print_item(mainWin, context, csr_pos==18, perm_config.default_sort_rarity_method==SORT_TYPE_RARITY_DESCENDING, 26, "Descending");
-    print_item(mainWin, context, csr_pos==19, perm_config.show_current_item_compared_to_equipped, 28, "Show difference between current and equipped item");
-    print_item(mainWin, context, csr_pos==20, perm_config.keep_changes_persistent, 30, "Keep Changes Persistent");
-    print_item(mainWin, context, csr_pos==21, false, 32, "Reset To Defaults");
-    print_item(mainWin, context, csr_pos==22, false, 34, "Done");
-    context->present(*mainWin);
+void draw_inventory_modifier_selection(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, const std::vector<Item *> &items_copy, const No_Delete &perm_config, unsigned int csr_pos){
+    SDL_wclear_main_win(main_win, context);
+    SDL_wclear_dialog_bar(main_win, context);
+    tcod::print(*main_win, {0, 0}, "Inventory Modifier Selection", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+    tcod::print(*main_win, {0, 1}, "Show only [Rarity]:", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+    print_item(main_win, context, csr_pos==0, perm_config.default_show_rarity_type==Rarity::ALL, 2, "All");
+    print_item(main_win, context, csr_pos==1, perm_config.default_show_rarity_type==Rarity::COMMON, 3, "Common", check_if_rarity_valid(items_copy, Rarity::COMMON));
+    print_item(main_win, context, csr_pos==2, perm_config.default_show_rarity_type==Rarity::UNCOMMON, 4, "Uncommon", check_if_rarity_valid(items_copy, Rarity::UNCOMMON));
+    print_item(main_win, context, csr_pos==3, perm_config.default_show_rarity_type==Rarity::RARE, 5, "Rare", check_if_rarity_valid(items_copy, Rarity::RARE));
+    print_item(main_win, context, csr_pos==4, perm_config.default_show_rarity_type==Rarity::EPIC, 6, "Epic", check_if_rarity_valid(items_copy, Rarity::EPIC));
+    print_item(main_win, context, csr_pos==5, perm_config.default_show_rarity_type==Rarity::LEGENDARY, 7, "Legendary", check_if_rarity_valid(items_copy, Rarity::LEGENDARY));
+    print_item(main_win, context, csr_pos==6, perm_config.default_show_rarity_type==Rarity::ARTIFACT, 8, "Artifact", check_if_rarity_valid(items_copy, Rarity::ARTIFACT));
+    tcod::print(*main_win, {0, 10}, "Show only [Type]:", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+    print_item(main_win, context, csr_pos==7, perm_config.default_show_type_type==Type::ALL, 11, "All");
+    print_item(main_win, context, csr_pos==8, perm_config.default_show_type_type==Type::HELMET, 12, "Helmet", check_if_type_valid(items_copy, Type::HELMET));
+    print_item(main_win, context, csr_pos==9, perm_config.default_show_type_type==Type::CHESTPLATE, 13, "Chestplate", check_if_type_valid(items_copy, Type::CHESTPLATE));
+    print_item(main_win, context, csr_pos==10, perm_config.default_show_type_type==Type::GREAVES, 14, "Greaves", check_if_type_valid(items_copy, Type::GREAVES));
+    print_item(main_win, context, csr_pos==11, perm_config.default_show_type_type==Type::BOOTS, 15, "Boots", check_if_type_valid(items_copy, Type::BOOTS));
+    print_item(main_win, context, csr_pos==12, perm_config.default_show_type_type==Type::SHIELD, 16, "Shield", check_if_type_valid(items_copy, Type::SHIELD));
+    print_item(main_win, context, csr_pos==13, perm_config.default_show_type_type==Type::WEAPON, 17, "Weapon", check_if_type_valid(items_copy, Type::WEAPON));
+    tcod::print(*main_win, {0, 19}, "Show only [Equipped]:", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+    print_item(main_win, context, csr_pos==14, !perm_config.only_show_equipped, 20, "All");
+    print_item(main_win, context, csr_pos==15, perm_config.only_show_equipped, 21, "Equipped Only", check_if_equip_valid(items_copy));
+    tcod::print(*main_win, {0, 23}, "Sort by [Rarity]:", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+    print_item(main_win, context, csr_pos==16, perm_config.default_sort_rarity_method==DEFAULT_SHOW_SELECTION, 24, "None");
+    print_item(main_win, context, csr_pos==17, perm_config.default_sort_rarity_method==SORT_TYPE_RARITY_ASCENDING, 25, "Ascending");
+    print_item(main_win, context, csr_pos==18, perm_config.default_sort_rarity_method==SORT_TYPE_RARITY_DESCENDING, 26, "Descending");
+    print_item(main_win, context, csr_pos==19, perm_config.show_current_item_compared_to_equipped, 28, "Show difference between current and equipped item");
+    print_item(main_win, context, csr_pos==20, perm_config.keep_changes_persistent, 30, "Keep Changes Persistent");
+    print_item(main_win, context, csr_pos==21, false, 32, "Reset To Defaults");
+    print_item(main_win, context, csr_pos==22, false, 34, "Done");
+    context->present(*main_win);
 }
 
-void change_config(NoDelete &perm_config, unsigned int csr_pos, const std::vector<Item *> &items_copy){
+void change_config(No_Delete &perm_config, unsigned int csr_pos, const std::vector<Item *> &items_copy){
     switch(csr_pos){
         case 0:
             perm_config.default_show_rarity_type=Rarity::ALL;
@@ -293,12 +293,12 @@ void repeat_up_until_valid_move(unsigned int &csr_pos, const std::vector<Item *>
     }
 }
 
-void inventory_modifier_selection(tcod::ConsolePtr &mainWin, tcod::ContextPtr &context, NoDelete &perm_config, std::vector<Item> original_copy, std::vector<Item *> &items_copy){
+void inventory_modifier_selection(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, No_Delete &perm_config, std::vector<Item> original_copy, std::vector<Item *> &items_copy){
     unsigned int csr_pos=0;
     int ch;
     while(true){
-        draw_inventory_modifier_selection(mainWin, context, items_copy, perm_config, csr_pos);
-        ch=SDL_getch(mainWin, context);
+        draw_inventory_modifier_selection(main_win, context, items_copy, perm_config, csr_pos);
+        ch=SDL_getch(main_win, context);
         if((ch=='s'||ch==SDLK_DOWN)&&csr_pos<22){
             repeat_down_until_valid_move(csr_pos, items_copy);
         }

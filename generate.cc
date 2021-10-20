@@ -383,7 +383,7 @@ void reforge_item(unsigned int ancient_cores, unsigned int crystallium, Item *it
     // if(item.rarity==RARITY_ARTIFACT){ WIP: 50/50 to get special skills }
 }
 
-void generate_monsters(std::vector<monster> &monsters, level Current, Csr csr_pos){
+void generate_monsters(std::vector<Monster> &monsters, Level Current, Csr csr_pos){
     std::random_device device;
     std::mt19937 generator(device());
     std::uniform_int_distribution<int> x_generator(1, 78);
@@ -391,7 +391,7 @@ void generate_monsters(std::vector<monster> &monsters, level Current, Csr csr_po
     std::uniform_int_distribution<int> monster_type(1, 30);
     std::uniform_int_distribution<int> amount(9, 18);
     for(int i=0; i<amount(generator); i++){
-        monster tmp_monster;
+        Monster tmp_monster;
         tmp_monster.x=x_generator(generator);
         tmp_monster.y=y_generator(generator);
         if(Current.x==1&&Current.y==1&&Current.lvl>1){
@@ -423,7 +423,7 @@ void generate_monsters(std::vector<monster> &monsters, level Current, Csr csr_po
         monsters.push_back(tmp_monster);
     }
     if(Current.x==5&&Current.y==5){
-        monster tmp_monster;
+        Monster tmp_monster;
         tmp_monster.x=39;
         tmp_monster.y=24;
         if(Current.lvl<5){
@@ -436,11 +436,11 @@ void generate_monsters(std::vector<monster> &monsters, level Current, Csr csr_po
     }
 }
 
-monster_stats create_monster(level Current, Dungeon type){
+Monster_Stats create_monster(Level Current, Dungeon type){
     std::random_device device;
     std::mt19937 generator(device());
     std::uniform_int_distribution<int> diff_generator(-20, 20);
-    monster_stats monster;
+    Monster_Stats monster;
     double x=Current.x+Current.y;
     double lvl=Current.lvl;
     monster.hp=150*(lvl+(x/5.0))+diff_generator(generator);
@@ -483,7 +483,7 @@ int generate_random_number(int range_lo, int range_hi){
     return numgenerator(generator);
 }
 
-void generate_doors(std::vector<std::pair<int, int>> &doors, level Current){
+void generate_doors(std::vector<std::pair<int, int>> &doors, Level Current){
     if(Current.y>1){ // {x , y}
         doors.push_back({39, 49}); // bottom door
     }

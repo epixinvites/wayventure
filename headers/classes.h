@@ -29,7 +29,7 @@ struct Time{
     template<class Archive>
     void serialize(Archive &archive){archive(hours, minutes, seconds);}
 
-    Time(long totalSeconds);
+    Time(long total_seconds);
 
     Time(long hours, unsigned int minutes, unsigned int seconds);
 
@@ -37,10 +37,10 @@ struct Time{
 
     bool operator>=(const Time &);
 
-    long timeToSeconds() const;
+    long time_to_seconds() const;
 };
 
-struct monster{
+struct Monster{
     int x, y; // x cords and y cords
     Dungeon type; // 'e' for enemy, 'b' for boss
     template<class Archive>
@@ -54,7 +54,7 @@ struct Csr{
     void serialize(Archive &archive){archive(first, second);}
 };
 
-struct monster_stats{ // base stats
+struct Monster_Stats{ // base stats
     int hp=150, attk=60, def=0;
 };
 
@@ -122,7 +122,7 @@ struct Miscellaneous{
         void serialize(Archive &archive){archive(ancient_core, crystallium, crystal_core, mysterious_shard);}
     };
 
-    struct Material_rarity{
+    struct Material_Rarity{
         unsigned long long int common=0;
         unsigned long long int uncommon=0;
         unsigned long long int rare=0;
@@ -130,13 +130,13 @@ struct Miscellaneous{
         unsigned long long int legendary=0;
         unsigned long long int artifact=0;
 
-        Material_rarity operator+=(const Material_rarity &other);
+        Material_Rarity operator+=(const Material_Rarity &other);
 
         template<class Archive>
         void serialize(Archive &archive){archive(common, uncommon, rare, epic, legendary, artifact);}
     };
 
-    struct Material_type{
+    struct Material_Type{
         unsigned long long int helmet=0;
         unsigned long long int chestplate=0;
         unsigned long long int greaves=0;
@@ -149,8 +149,8 @@ struct Miscellaneous{
     };
 
     unsigned long long int heal_amount=0;
-    Material_rarity materials;
-    Material_type blueprint;
+    Material_Rarity materials;
+    Material_Type blueprint;
     Cores cores;
 
     template<class Archive>
@@ -217,7 +217,7 @@ public:
     void serialize(Archive &archive){archive(steps, saturation, hydration, gold, cur_hp, cur_shield, inv);}
 };
 
-struct level{
+struct Level{
     int lvl, x, y;
 
     void reset(int sig){
@@ -231,7 +231,7 @@ struct level{
         }
     }
 
-    level(int lvl, int x, int y):lvl{lvl}, x{x}, y{y}{};
+    Level(int lvl, int x, int y):lvl{lvl}, x{x}, y{y}{};
 
     template<class Archive>
     void serialize(Archive &archive){archive(lvl, x, y);}
@@ -294,7 +294,7 @@ struct Miner{
         int number_of_miners=0;
         double loot_multiplier=0;
 
-        bool isJobFinished() const;
+        bool is_job_finished() const;
 
         template<class Archive>
         void serialize(Archive &archive){archive(total_job_duration, has_active_job, job_start, number_of_miners, loot_multiplier);}
@@ -318,7 +318,7 @@ struct Archaeologist{
         bool has_active_job=false;
         std::chrono::time_point<std::chrono::steady_clock> job_start;
 
-        bool isJobFinished() const;
+        bool is_job_finished() const;
 
         template<class Archive>
         void serialize(Archive &archive){archive(total_job_duration, decryption_amount, has_active_job, job_start);}
@@ -334,7 +334,7 @@ struct Archaeologist{
     void serialize(Archive &archive){archive(skill_level, loot_storage, raw_storage, job);}
 };
 
-struct NPC{
+struct Npc{
     Bartender bartender;
     Farmer farmer;
     Bank bank;
@@ -348,7 +348,7 @@ struct NPC{
     void serialize(Archive &archive){archive(bartender, farmer, bank, chest, gear_merchant, mysterious_trader, miner, archaeologist);}
 };
 
-struct NoDelete{
+struct No_Delete{
     // Configurations
     // Stats? Maybe how many enemies killed, bosses killed and so on
     // Titles unlocked

@@ -18,14 +18,14 @@
 #include <cereal/types/utility.hpp>
 #include <cereal/types/chrono.hpp>
 
-int SDL_getch(tcod::ConsolePtr &mainWin, tcod::ContextPtr &context){
+int SDL_getch(tcod::ConsolePtr &main_win, tcod::ContextPtr &context){
     SDL_FlushEvent(SDL_KEYDOWN);
     SDL_Event event;
     SDL_WaitEvent(nullptr);
     while(SDL_PollEvent(&event)){
         if(event.type==SDL_WINDOWEVENT){
             if(event.window.event==SDL_WINDOWEVENT_EXPOSED){
-                context->present(*mainWin);
+                context->present(*main_win);
             }
         }
         if(event.type==SDL_QUIT){
@@ -37,7 +37,7 @@ int SDL_getch(tcod::ConsolePtr &mainWin, tcod::ContextPtr &context){
             }
             else if(event.key.keysym.mod & KMOD_CTRL){
                 if(event.key.keysym.sym=='r'){
-                    SDL_SetWindowSize(context->get_sdl_window(), mainWin->w*tileset->tile_width, mainWin->h*tileset->tile_height);
+                    SDL_SetWindowSize(context->get_sdl_window(), main_win->w*tileset->tile_width, main_win->h*tileset->tile_height);
                     continue;
                 }
             }
@@ -49,14 +49,14 @@ int SDL_getch(tcod::ConsolePtr &mainWin, tcod::ContextPtr &context){
     return 0;
 }
 
-std::pair<int, int> SDL_getch_ex(tcod::ConsolePtr &mainWin, tcod::ContextPtr &context){
+std::pair<int, int> SDL_getch_ex(tcod::ConsolePtr &main_win, tcod::ContextPtr &context){
     SDL_FlushEvent(SDL_KEYDOWN);
     SDL_Event event;
     SDL_WaitEvent(nullptr);
     while(SDL_PollEvent(&event)){
         if(event.type==SDL_WINDOWEVENT){
             if(event.window.event==SDL_WINDOWEVENT_EXPOSED){
-                context->present(*mainWin);
+                context->present(*main_win);
             }
         }
         if(event.type==SDL_QUIT){
@@ -65,7 +65,7 @@ std::pair<int, int> SDL_getch_ex(tcod::ConsolePtr &mainWin, tcod::ContextPtr &co
         if(event.type==SDL_KEYDOWN){
             if(event.key.keysym.mod & KMOD_CTRL){
                 if(event.key.keysym.sym=='r'){
-                    SDL_SetWindowSize(context->get_sdl_window(), mainWin->w*tileset->tile_width, mainWin->h*tileset->tile_height);
+                    SDL_SetWindowSize(context->get_sdl_window(), main_win->w*tileset->tile_width, main_win->h*tileset->tile_height);
                     continue;
                 }
             }
@@ -77,11 +77,11 @@ std::pair<int, int> SDL_getch_ex(tcod::ConsolePtr &mainWin, tcod::ContextPtr &co
     return {0, 0};
 }
 
-bool SDL_getch_y_or_n(tcod::ConsolePtr &mainWin, tcod::ContextPtr &context, const std::string &dialogue){
-    clear_and_draw_dialog(mainWin, context, dialogue);
-    int ch=SDL_getch(mainWin, context);
+bool SDL_getch_y_or_n(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, const std::string &dialogue){
+    clear_and_draw_dialog(main_win, context, dialogue);
+    int ch=SDL_getch(main_win, context);
     while(!(ch>0&&ch<128)){
-        ch=SDL_getch(mainWin, context);
+        ch=SDL_getch(main_win, context);
     }
     if(ch=='y'){
         return true;
@@ -91,33 +91,33 @@ bool SDL_getch_y_or_n(tcod::ConsolePtr &mainWin, tcod::ContextPtr &context, cons
     }
 }
 
-void SDL_wclear_dialog_bar(tcod::ConsolePtr &mainWin, tcod::ContextPtr &context){
-    tcod::print(*mainWin, {0, 0}, empty_line, &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
-//    context->present(*mainWin);
+void SDL_wclear_dialog_bar(tcod::ConsolePtr &main_win, tcod::ContextPtr &context){
+    tcod::print(*main_win, {0, 0}, empty_line, &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+//    context->present(*main_win);
 }
 
-void SDL_wclear_stats_bar(tcod::ConsolePtr &mainWin, tcod::ContextPtr &context){
+void SDL_wclear_stats_bar(tcod::ConsolePtr &main_win, tcod::ContextPtr &context){
     for(int i=51; i<56; i++){
-        tcod::print(*mainWin, {0, i}, empty_line, &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+        tcod::print(*main_win, {0, i}, empty_line, &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
     }
-//    context->present(*mainWin);
+//    context->present(*main_win);
 }
 
-void SDL_wclear_mainWin(tcod::ConsolePtr &mainWin, tcod::ContextPtr &context){
+void SDL_wclear_main_win(tcod::ConsolePtr &main_win, tcod::ContextPtr &context){
     for(int i=1; i<51; i++){
         for(int j=0; j<80; j++){
-            tcod::print(*mainWin, {0, i}, empty_line, &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+            tcod::print(*main_win, {0, i}, empty_line, &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
         }
     }
-//    context->present(*mainWin);
+//    context->present(*main_win);
 }
 
-std::string get_string(tcod::ConsolePtr &mainWin, tcod::ContextPtr &context, const std::string &dialogue, std::string original){
+std::string get_string(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, const std::string &dialogue, std::string original){
     std::string input;
-    clear_and_draw_dialog(mainWin, context, dialogue);
+    clear_and_draw_dialog(main_win, context, dialogue);
     int ch;
     while(true){
-        ch=SDL_getch(mainWin, context);
+        ch=SDL_getch(main_win, context);
         if(ch==SDLK_RETURN&&input.length()>0){ // KEY_ENTER
             return input;
         }
@@ -134,16 +134,16 @@ std::string get_string(tcod::ConsolePtr &mainWin, tcod::ContextPtr &context, con
         }
         std::stringstream ss;
         ss << dialogue << input << '|';
-        clear_and_draw_dialog(mainWin, context, ss.str());
+        clear_and_draw_dialog(main_win, context, ss.str());
     }
 }
 
-unsigned int get_int(tcod::ConsolePtr &mainWin, tcod::ContextPtr &context, const std::string &dialogue){
+unsigned int get_int(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, const std::string &dialogue){
     std::string input;
-    clear_and_draw_dialog(mainWin, context, dialogue);
+    clear_and_draw_dialog(main_win, context, dialogue);
     int ch;
     while(true){
-        ch=SDL_getch(mainWin, context);
+        ch=SDL_getch(main_win, context);
         if(ch==SDLK_RETURN&&input.length()>0){ // KEY_ENTER
             return std::stoi(input);
         }
@@ -160,16 +160,16 @@ unsigned int get_int(tcod::ConsolePtr &mainWin, tcod::ContextPtr &context, const
         }
         std::stringstream ss;
         ss << dialogue << input << '|';
-        clear_and_draw_dialog(mainWin, context, ss.str());
+        clear_and_draw_dialog(main_win, context, ss.str());
     }
 }
 
-long long int get_llint(tcod::ConsolePtr &mainWin, tcod::ContextPtr &context, const std::string &dialogue){
+long long int get_llint(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, const std::string &dialogue){
     std::string input;
-    clear_and_draw_dialog(mainWin, context, dialogue);
+    clear_and_draw_dialog(main_win, context, dialogue);
     int ch;
     while(true){
-        ch=SDL_getch(mainWin, context);
+        ch=SDL_getch(main_win, context);
         if(ch==SDLK_RETURN&&input.length()>0){ // KEY_ENTER
             return std::stoll(input);
         }
@@ -186,16 +186,16 @@ long long int get_llint(tcod::ConsolePtr &mainWin, tcod::ContextPtr &context, co
         }
         std::stringstream ss;
         ss << dialogue << input << '|';
-        clear_and_draw_dialog(mainWin, context, ss.str());
+        clear_and_draw_dialog(main_win, context, ss.str());
     }
 }
 
-unsigned long long int get_ullint(tcod::ConsolePtr &mainWin, tcod::ContextPtr &context, const std::string &dialogue){
+unsigned long long int get_ullint(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, const std::string &dialogue){
     std::string input;
-    clear_and_draw_dialog(mainWin, context, dialogue);
+    clear_and_draw_dialog(main_win, context, dialogue);
     int ch;
     while(true){
-        ch=SDL_getch(mainWin, context);
+        ch=SDL_getch(main_win, context);
         if(ch==SDLK_RETURN&&input.length()>0){ // KEY_ENTER
             return std::stoull(input);
         }
@@ -212,13 +212,13 @@ unsigned long long int get_ullint(tcod::ConsolePtr &mainWin, tcod::ContextPtr &c
         }
         std::stringstream ss;
         ss << dialogue << input << '|';
-        clear_and_draw_dialog(mainWin, context, ss.str());
+        clear_and_draw_dialog(main_win, context, ss.str());
     }
 }
 
 void job_thread(Miner &miner, Archaeologist &archaeologist, const std::atomic<bool> &terminate){
     while(!terminate.load(std::memory_order_acquire)){
-        if(miner.job.has_active_job&&miner.job.isJobFinished()){
+        if(miner.job.has_active_job&&miner.job.is_job_finished()){
             miner.loot.mysterious_piece+=(((20*miner.job.number_of_miners)+generate_random_number(0, 2*miner.job.number_of_miners))*miner.job.loot_multiplier)*((500+miner.skill_level)/500);
             miner.loot.mysterious_artifact+=(((4*miner.job.number_of_miners)+generate_random_number(0, miner.job.number_of_miners))*miner.job.loot_multiplier)*((500+miner.skill_level)/500);
             miner.skill_level+=(miner.job.number_of_miners+generate_random_number(0, miner.job.number_of_miners))/pow(1.02,miner.skill_level);
@@ -227,7 +227,7 @@ void job_thread(Miner &miner, Archaeologist &archaeologist, const std::atomic<bo
             }
             miner.job=Miner::Job_Details();
         }
-        if(archaeologist.job.has_active_job&&archaeologist.job.isJobFinished()){
+        if(archaeologist.job.has_active_job&&archaeologist.job.is_job_finished()){
             // Material 0, 5, 20, 50, 100, 225
             for(int i=0; i<archaeologist.job.decryption_amount.mysterious_piece; i++){
                 if(archaeologist.skill_level<250.0){
@@ -326,7 +326,7 @@ bool is_empty(std::ifstream &pFile){
     return pFile.peek()==std::ifstream::traits_type::eof();
 }
 
-void init_data(Player &User, level &Current, Csr &csr_pos, std::vector<monster> &monsters, NPC &npc, NoDelete &perm_config){
+void init_data(Player &user, Level &Current, Csr &csr_pos, std::vector<Monster> &monsters, Npc &npc, No_Delete &perm_config){
     std::string version_check;
     if(username.length()>30){
         throw std::runtime_error("Nope. Nopenopenopenope. You didn't follow my instructions.");
@@ -334,25 +334,25 @@ void init_data(Player &User, level &Current, Csr &csr_pos, std::vector<monster> 
     std::ifstream ifile("save/user.save", std::ios::binary);
     if(!is_empty(ifile)){
         cereal::PortableBinaryInputArchive retrieve(ifile);
-        retrieve(User, Current, csr_pos, monsters, npc, perm_config, version_check);
+        retrieve(user, Current, csr_pos, monsters, npc, perm_config, version_check);
         if(save_file_version!=version_check){
             throw std::runtime_error("Versions of save files do not match. Aborting. Do not attempt to edit the save files, lost of data will be expected.");
         }
-        User.init();
+        user.init();
         // Insert data corruption checks
         std::filesystem::remove("save/user.save.1");
         std::filesystem::copy("save/user.save", "save/user.save.1");
     }
 }
 
-void save_data(Player User, level Current, Csr csr_pos, const std::vector<monster> &monsters, const NPC &npc, NoDelete perm_config){
+void save_data(Player user, Level Current, Csr csr_pos, const std::vector<Monster> &monsters, const Npc &npc, No_Delete perm_config){
     std::ofstream ofile("save/user.save", std::ios::trunc | std::ios::binary);
     cereal::PortableBinaryOutputArchive archive(ofile);
-    User.uninitialize_stats();
-    archive(User, Current, csr_pos, monsters, npc, perm_config, save_file_version);
+    user.uninitialize_stats();
+    archive(user, Current, csr_pos, monsters, npc, perm_config, save_file_version);
 }
 
-void print_starting_screen(tcod::ConsolePtr &mainWin, tcod::ContextPtr &context){
+void print_starting_screen(tcod::ConsolePtr &main_win, tcod::ContextPtr &context){
     std::ifstream ascii_wayfarer("res/wayfarer.txt");
     if(!ascii_wayfarer){
         end_program(-1, "wayfarer.txt not found!");
@@ -361,16 +361,16 @@ void print_starting_screen(tcod::ConsolePtr &mainWin, tcod::ContextPtr &context)
     int win_iterator=10;
     std::string line;
     while(std::getline(ascii_wayfarer, line)){
-        tcod::print(*mainWin, {7, win_iterator}, line, &WHITE, &FULL_BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+        tcod::print(*main_win, {7, win_iterator}, line, &WHITE, &FULL_BLACK, TCOD_BKGND_SET, TCOD_LEFT);
         win_iterator++;
     }
-    tcod::print(*mainWin, {37, 25}, "A complex dungeon crawler with endless possibilities...", &WHITE, &FULL_BLACK, TCOD_BKGND_SET, TCOD_CENTER);
-    tcod::print(*mainWin, {35, 33}, "-Press any key to continue-", &WHITE, &FULL_BLACK, TCOD_BKGND_SET, TCOD_CENTER);
-    context->present(*mainWin);
+    tcod::print(*main_win, {37, 25}, "A complex dungeon crawler with endless possibilities...", &WHITE, &FULL_BLACK, TCOD_BKGND_SET, TCOD_CENTER);
+    tcod::print(*main_win, {35, 33}, "-Press any key to continue-", &WHITE, &FULL_BLACK, TCOD_BKGND_SET, TCOD_CENTER);
+    context->present(*main_win);
     ascii_wayfarer.close();
     int ch;
     while(true){
-        ch=SDL_getch(mainWin, context);
+        ch=SDL_getch(main_win, context);
         if(ch>0&&ch<128){
             break;
         }
@@ -380,33 +380,33 @@ void print_starting_screen(tcod::ConsolePtr &mainWin, tcod::ContextPtr &context)
 void init(){
     // Variable initialization
     Csr csr_pos{1, 1};
-    Player User;
-    level Current{1, 1, 1};
-    NPC npc;
-    NoDelete perm_config;
-    User.inv.misc.heal_amount=10;
-    tcod::ConsolePtr mainWin=tcod::new_console(80, 56);
+    Player user;
+    Level Current{1, 1, 1};
+    Npc npc;
+    No_Delete perm_config;
+    user.inv.misc.heal_amount=10;
+    tcod::ConsolePtr main_win=tcod::new_console(80, 56);
     TCOD_ContextParams params{};
     params.tcod_version=TCOD_COMPILEDVERSION;
-    params.columns=mainWin->w;
-    params.rows=mainWin->h;
+    params.columns=main_win->w;
+    params.rows=main_win->h;
     params.window_title="Wayventure_Client";
     params.sdl_window_flags=SDL_WINDOW_RESIZABLE;
     params.vsync=true;
     params.renderer_type=TCOD_RENDERER_SDL2;
     params.tileset=tileset.get();
     tcod::ContextPtr context=tcod::new_context(params);
-    TCOD_console_set_default_foreground(mainWin.get(), WHITE);
-    TCOD_console_set_default_background(mainWin.get(), BLACK);
-    std::vector<monster> monsters;
+    TCOD_console_set_default_foreground(main_win.get(), WHITE);
+    TCOD_console_set_default_background(main_win.get(), BLACK);
+    std::vector<Monster> monsters;
     std::atomic<bool> terminate = false;
     // Get data from save files (if present)
-    init_data(User, Current, csr_pos, monsters, npc, perm_config);
+    init_data(user, Current, csr_pos, monsters, npc, perm_config);
     // Start timer thread to refresh jobs
     std::thread refresh_timer(job_thread, std::ref(npc.miner), std::ref(npc.archaeologist), std::ref(terminate));
     // Start main dungeon
-    print_starting_screen(mainWin, context);
-    main_dungeon(mainWin, context, csr_pos, User, Current, monsters, npc, perm_config);
+    print_starting_screen(main_win, context);
+    main_dungeon(main_win, context, csr_pos, user, Current, monsters, npc, perm_config);
     // Terminate thread
     terminate.store(true, std::memory_order_release);
     refresh_timer.join();

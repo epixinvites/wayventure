@@ -4,18 +4,18 @@
 #include "main.h"
 #include "classes.h"
 
-void draw_level(tcod::ConsolePtr &mainWin, tcod::ContextPtr &context, level Current);
+void draw_level(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Level Current);
 
-void draw_stats(tcod::ConsolePtr &mainWin, tcod::ContextPtr &context, const Player &User);
+void draw_stats(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, const Player &user);
 
-void draw_player(tcod::ConsolePtr &mainWin, tcod::ContextPtr &context, int x, int y);
+void draw_player(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, int x, int y);
 
-void draw_monster(tcod::ConsolePtr &mainWin, tcod::ContextPtr &context, const std::vector<monster> &monsters);
+void draw_monster(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, const std::vector<Monster> &monsters);
 
-void draw_border(std::unique_ptr<TCOD_Console, tcod::ConsoleDeleter> &mainWin, std::unique_ptr<TCOD_Context, tcod::ContextDeleter> &context);
+void draw_border(std::unique_ptr<TCOD_Console, tcod::ConsoleDeleter> &main_win, std::unique_ptr<TCOD_Context, tcod::ContextDeleter> &context);
 
-void draw_doors(tcod::ConsolePtr &mainWin, tcod::ContextPtr &context, level Current);
+void draw_doors(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Level Current);
 
-void draw_inventory(tcod::ConsolePtr &mainWin, tcod::ContextPtr &context, const Player &User, const std::vector<Item *> &items_copy, unsigned int page_num, unsigned int csr_pos, bool is_blacksmith_mode=false, bool is_inventory_modifier_mode=false);
+void draw_inventory(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, const Player &user, const std::vector<Item *> &items_copy, unsigned int page_num, unsigned int csr_pos, bool is_blacksmith_mode=false, bool is_inventory_modifier_mode=false);
 
-void redraw_everything(tcod::ConsolePtr &mainWin, tcod::ContextPtr &context, Csr csr_pos, const Player &User, level Current, const std::vector<monster> &monsters);
+void redraw_everything(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Csr csr_pos, const Player &user, Level Current, const std::vector<Monster> &monsters);

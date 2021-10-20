@@ -6,19 +6,19 @@
 
 // For readability
 
-void generate_monsters(std::vector<monster> &monsters, level Current, Csr csr_pos);
+void generate_monsters(std::vector<Monster> &monsters, Level Current, Csr csr_pos);
 
 Item generate_loot_from_monster_type(Dungeon type);
 
 Item generate_loot_from_rarity_type(Rarity type);
 
-monster_stats create_monster(level Current, Dungeon type);
+Monster_Stats create_monster(Level Current, Dungeon type);
 
 bool return_chance(int chance);
 
 int generate_random_number(int range_lo, int range_hi);
 
-void generate_doors(std::vector<std::pair<int, int>> &doors, level Current);
+void generate_doors(std::vector<std::pair<int, int>> &doors, Level Current);
 
 int generate_gold(Dungeon type);
 
