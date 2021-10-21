@@ -26,5 +26,5 @@ Please open an issue if you found any bugs or simply just want to give suggestio
 Special thanks to 
 - [@HexDecimal](https://github.com/HexDecimal) for helping me so much throughout the development of this project and his [libtcod](https://github.com/libtcod/libtcod) lib!
 - [@DexterHuang](https://github.com/DexterHuang) for inspiring me with his [CyberCodeOnline](https://github.com/DexterHuang/CyberCodeOnline)!
-## Donations
+## Contributing
 If you would like to support this project, the best way you can contribute is to simply either test and submit feedback or if you have the experience, submit a pull request!
