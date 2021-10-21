@@ -19,9 +19,9 @@ I sincerely apologize for the inconvinience you have to go through to test my pr
 
 ## Issues/Feature Requests
 Please open an issue if you found any bugs or simply just want to give suggestions about the gameplay!
-For upcoming releases/features please refer [here](https://app.simplenote.com/p/kkFf1V), and for current TODOs please refer to our [kanban board](https://app.gitkraken.com/glo/board/YVe6OSzWtwBMT89r).
+- For upcoming releases/features please refer [here](https://app.simplenote.com/p/kkFf1V), and for current TODOs please refer to our [kanban board](https://app.gitkraken.com/glo/board/YVe6OSzWtwBMT89r).
 
-(Due to the heavy development this game is currently undergoing, I will only be writing the Wiki after I've finished up all the base features)
+(Due to the heavy development this game is currently undergoing, I will only be writing the Wiki after I've released all the base features)
 ## Credits
 Special thanks to 
 - [@HexDecimal](https://github.com/HexDecimal) for helping me so much throughout the development of this project and his [libtcod](https://github.com/libtcod/libtcod) lib!
