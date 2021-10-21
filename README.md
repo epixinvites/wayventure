@@ -1,5 +1,7 @@
 # Welcome to Wayventure's development branch!
 
+### Please only try to compile the released versions, I usually commit broken code
+
 ### Join our family!
 - [IRC] - Libera.chat at #wayventure
 - [Discord](https://discord.gg/5TZ7MZDyWm)
