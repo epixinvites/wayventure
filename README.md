@@ -5,6 +5,7 @@
 ### Join our family!
 - [IRC] - Libera.chat at #wayventure
 - [Discord](https://discord.gg/5TZ7MZDyWm)
+- [Wiki](https://epixinvites.github.io/wayventure) (Not completed yet)
 
 ![wayventure.gif](wayventure.gif)  
 *Sorry for the low framerate, I had to compress the GIF*
@@ -16,7 +17,6 @@ I apologize for not being able to statically compile it since I can't figure out
 If you're proficient in C++ and use Linux, I've prepared a cmake script for easier compiling.
 
 I sincerely apologize for the inconvinience you have to go through to test my program.
-
 ## Issues/Feature Requests
 Please open an issue if you found any bugs or simply just want to give suggestions about the gameplay!
 - For upcoming releases/features please refer [here](https://app.simplenote.com/p/kkFf1V), and for current TODOs please refer to our [kanban board](https://app.gitkraken.com/glo/board/YVe6OSzWtwBMT89r).
@@ -27,4 +27,4 @@ Special thanks to
 - [@HexDecimal](https://github.com/HexDecimal) for helping me so much throughout the development of this project and his [libtcod](https://github.com/libtcod/libtcod) lib!
 - [@DexterHuang](https://github.com/DexterHuang) for inspiring me with his [CyberCodeOnline](https://github.com/DexterHuang/CyberCodeOnline)!
 ## Donations
-If you would like to support this project, you could sponsor a webpage for this project :) 
+If you would like to support this project, the best way you can contribute is to simply either test and submit feedback or if you have the experience, submit a pull request!
