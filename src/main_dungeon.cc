@@ -1,48 +1,71 @@
 #include <vector>
+#include <atomic>
+#include <thread>
 #include "headers/classes.h"
 #include "headers/draw.h"
 #include "headers/generate.h"
 #include "headers/mode.h"
 #include "headers/main.h"
 
-bool check_surroundings(std::vector<Monster> monsters, int x, int y){
-    for(int i=0; i<monsters.size(); i++){
-        if(x==monsters[i].x&&y==monsters[i].y){
+void refresh_lootbox(const std::atomic<bool> &terminate, std::atomic<bool> &require_processing, Dungeon &dungeon_data){
+    while(!terminate.load(std::memory_order_acquire)){
+        dungeon_data.loot_data.clear();
+        int amount_of_lootboxes=generate_random_number(20,50);
+        for(int i = 0; i<amount_of_lootboxes; i++){
+            dungeon_data.loot_data.push_back({{generate_random_number(1,5),generate_random_number(1,5),generate_random_number(1,5)},{generate_random_number(1,78),generate_random_number(1,48)}});
+        }
+        require_processing.store(true, std::memory_order_release);
+        std::this_thread::sleep_for(std::chrono::minutes(5));
+    }
+}
+
+bool check_surroundings_for_monsters(const std::vector<Monster> &monsters, int x, int y){
+    for(const auto &i:monsters){
+        if(x==i.x&&y==i.y){
             return true;
         }
     }
     return false;
 }
 
-std::pair<int, Dungeon> check_monster_pos(std::vector<Monster> monsters, int x, int y){
+bool check_surroundings_for_obstacles(const std::vector<std::pair<int, int>> &loot_in_room, int x, int y){
+    for(const auto &i:loot_in_room){
+        if(x==i.first&&y==i.second){
+            return true;
+        }
+    }
+    return false;
+}
+
+std::pair<int, Enemy_Type> check_monster_pos(const std::vector<Monster> &monsters, int x, int y){
     for(int i=0; i<monsters.size(); i++){
         if(x==monsters[i].x&&y==monsters[i].y){
             return {i, monsters[i].type};
         }
     }
-    return {-1, Dungeon::NONE};
+    return {-1, Enemy_Type::NONE};
 }
 
-void char_move(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, int ch, Csr &csr_pos, const std::vector<Monster> &monsters, Player &user, Npc &npc, Level Current){
+void char_move(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, int ch, Csr &csr_pos, const std::vector<Monster> &monsters, const std::vector<std::pair<int, int>> &loot_in_room, Player &user, Npc &npc, Level current){
     bool require_move=false;
-    if((ch=='a'||ch==SDLK_LEFT)&&csr_pos.first>1&&!check_surroundings(monsters, csr_pos.first-1, csr_pos.second)){
-        TCOD_console_put_char_ex(main_win.get(), csr_pos.first, csr_pos.second+1, ' ', WHITE, BLACK);
-        csr_pos.first--;
+    if((ch=='a'||ch==SDLK_LEFT)&&csr_pos.x>1&&!check_surroundings_for_monsters(monsters, csr_pos.x-1, csr_pos.y)&&!check_surroundings_for_obstacles(loot_in_room, csr_pos.x-1, csr_pos.y)){
+        TCOD_console_put_char_ex(main_win.get(), csr_pos.x, csr_pos.y+1, ' ', WHITE, BLACK);
+        csr_pos.x--;
         require_move=true;
     }
-    else if((ch=='d'||ch==SDLK_RIGHT)&&csr_pos.first<78&&!check_surroundings(monsters, csr_pos.first+1, csr_pos.second)){
-        TCOD_console_put_char_ex(main_win.get(), csr_pos.first, csr_pos.second+1, ' ', WHITE, BLACK);
-        csr_pos.first++;
+    else if((ch=='d'||ch==SDLK_RIGHT)&&csr_pos.x<78&&!check_surroundings_for_monsters(monsters, csr_pos.x+1, csr_pos.y)&&!check_surroundings_for_obstacles(loot_in_room, csr_pos.x+1, csr_pos.y)){
+        TCOD_console_put_char_ex(main_win.get(), csr_pos.x, csr_pos.y+1, ' ', WHITE, BLACK);
+        csr_pos.x++;
         require_move=true;
     }
-    else if((ch=='w'||ch==SDLK_UP)&&csr_pos.second>1&&!check_surroundings(monsters, csr_pos.first, csr_pos.second-1)){
-        TCOD_console_put_char_ex(main_win.get(), csr_pos.first, csr_pos.second+1, ' ', WHITE, BLACK);
-        csr_pos.second--;
+    else if((ch=='w'||ch==SDLK_UP)&&csr_pos.y>1&&!check_surroundings_for_monsters(monsters, csr_pos.x, csr_pos.y-1)&&!check_surroundings_for_obstacles(loot_in_room, csr_pos.x, csr_pos.y-1)){
+        TCOD_console_put_char_ex(main_win.get(), csr_pos.x, csr_pos.y+1, ' ', WHITE, BLACK);
+        csr_pos.y--;
         require_move=true;
     }
-    else if((ch=='s'||ch==SDLK_DOWN)&&csr_pos.second<48&&!check_surroundings(monsters, csr_pos.first, csr_pos.second+1)){
-        TCOD_console_put_char_ex(main_win.get(), csr_pos.first, csr_pos.second+1, ' ', WHITE, BLACK);
-        csr_pos.second++;
+    else if((ch=='s'||ch==SDLK_DOWN)&&csr_pos.y<48&&!check_surroundings_for_monsters(monsters, csr_pos.x, csr_pos.y+1)&&!check_surroundings_for_obstacles(loot_in_room, csr_pos.x, csr_pos.y+1)){
+        TCOD_console_put_char_ex(main_win.get(), csr_pos.x, csr_pos.y+1, ' ', WHITE, BLACK);
+        csr_pos.y++;
         require_move=true;
     }
     if(require_move){
@@ -57,8 +80,9 @@ void char_move(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, int ch, Cs
             npc.bank.interest_next_applied+=50000;
             npc.bank.saved_gold*=npc.bank.storage_interest;
         }
-        draw_doors(main_win, context, Current);
-        draw_player(main_win, context, csr_pos.first, csr_pos.second);
+        draw_loot_box(main_win, context, loot_in_room);
+        draw_doors(main_win, context, current);
+        draw_player(main_win, context, csr_pos.x, csr_pos.y);
         draw_stats(main_win, context, user);
         context->present(*main_win);
     }
@@ -118,8 +142,8 @@ std::pair<std::string, std::string> calculate_damage(Player &user, Monster_Stats
     return {first.str(), second.str()};
 }
 
-bool player_battle(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player &user, Level Current, Dungeon monster_type){
-    Monster_Stats monster=create_monster(Current, monster_type);
+bool player_battle(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player &user, Level current, Enemy_Type monster_type){
+    Monster_Stats monster=create_monster(current, monster_type);
     std::pair<std::string, std::string> log;
     int ch;
     while(true){
@@ -169,89 +193,89 @@ bool player_battle(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player
     }
 }
 
-std::pair<bool, bool> attack_monster(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, std::vector<Monster> &monsters, Csr csr_pos, Player &user, Level Current){
-    std::pair<bool, bool> attack_status{false, false}; // .first = if surroundings have monsters, .second is_alive
-    std::pair<int, Dungeon> pos;
-    if(check_surroundings(monsters, csr_pos.first-1, csr_pos.second)){
+std::pair<bool, bool> attack_monster(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, std::vector<Monster> &monsters, Csr csr_pos, Player &user, Level current){
+    std::pair<bool, bool> attack_status{false, false}; // .first = if surroundings have monsters, .y is_alive
+    std::pair<int, Enemy_Type> pos;
+    if(check_surroundings_for_monsters(monsters, csr_pos.x-1, csr_pos.y)){
         attack_status.first=true;
-        pos=check_monster_pos(monsters, csr_pos.first-1, csr_pos.second);
-        attack_status.second=player_battle(main_win, context, user, Current, pos.second);
+        pos=check_monster_pos(monsters, csr_pos.x-1, csr_pos.y);
+        attack_status.second=player_battle(main_win, context, user, current, pos.second);
         monsters.erase(monsters.begin()+pos.first);
     }
-    else if(check_surroundings(monsters, csr_pos.first+1, csr_pos.second)){
+    else if(check_surroundings_for_monsters(monsters, csr_pos.x+1, csr_pos.y)){
         attack_status.first=true;
-        pos=check_monster_pos(monsters, csr_pos.first+1, csr_pos.second);
-        attack_status.second=player_battle(main_win, context, user, Current, pos.second);
+        pos=check_monster_pos(monsters, csr_pos.x+1, csr_pos.y);
+        attack_status.second=player_battle(main_win, context, user, current, pos.second);
         monsters.erase(monsters.begin()+pos.first);
     }
-    else if(check_surroundings(monsters, csr_pos.first, csr_pos.second-1)){
+    else if(check_surroundings_for_monsters(monsters, csr_pos.x, csr_pos.y-1)){
         attack_status.first=true;
-        pos=check_monster_pos(monsters, csr_pos.first, csr_pos.second-1);
-        attack_status.second=player_battle(main_win, context, user, Current, pos.second);
+        pos=check_monster_pos(monsters, csr_pos.x, csr_pos.y-1);
+        attack_status.second=player_battle(main_win, context, user, current, pos.second);
         monsters.erase(monsters.begin()+pos.first);
     }
-    else if(check_surroundings(monsters, csr_pos.first, csr_pos.second+1)){
+    else if(check_surroundings_for_monsters(monsters, csr_pos.x, csr_pos.y+1)){
         attack_status.first=true;
-        pos=check_monster_pos(monsters, csr_pos.first, csr_pos.second+1);
-        attack_status.second=player_battle(main_win, context, user, Current, pos.second);
+        pos=check_monster_pos(monsters, csr_pos.x, csr_pos.y+1);
+        attack_status.second=player_battle(main_win, context, user, current, pos.second);
         monsters.erase(monsters.begin()+pos.first);
     }
     return {attack_status};
 }
 
-void move_door(std::vector<std::pair<int, int>> &doors, std::vector<Monster> &monsters, Level &Current, Csr &csr_pos){
+void move_door(std::vector<std::pair<int, int>> &doors, std::vector<Monster> &monsters, Level &current, Csr &csr_pos){
     for(int i=0; i<doors.size(); i++){
-        if(doors[i].first==csr_pos.first&&doors[i].second==csr_pos.second-1){
-            ++Current.y;
+        if(doors[i].first==csr_pos.x&&doors[i].second==csr_pos.y-1){
+            ++current.y;
             csr_pos={39, 48};
             doors.clear();
             monsters.clear();
-            generate_doors(doors, Current);
-            generate_monsters(monsters, Current, csr_pos);
+            generate_doors(doors, current);
+            generate_monsters(monsters, current, csr_pos);
             break;
         }
-        else if(doors[i].first==csr_pos.first&&doors[i].second==csr_pos.second+1){
-            --Current.y;
+        else if(doors[i].first==csr_pos.x&&doors[i].second==csr_pos.y+1){
+            --current.y;
             csr_pos={39, 1};
             doors.clear();
             monsters.clear();
-            generate_doors(doors, Current);
-            generate_monsters(monsters, Current, csr_pos);
+            generate_doors(doors, current);
+            generate_monsters(monsters, current, csr_pos);
             break;
         }
-        else if(doors[i].first==csr_pos.first+1&&doors[i].second==csr_pos.second){
-            ++Current.x;
+        else if(doors[i].first==csr_pos.x+1&&doors[i].second==csr_pos.y){
+            ++current.x;
             csr_pos={1, 24};
             doors.clear();
             monsters.clear();
-            generate_doors(doors, Current);
-            generate_monsters(monsters, Current, csr_pos);
+            generate_doors(doors, current);
+            generate_monsters(monsters, current, csr_pos);
             break;
         }
-        else if(doors[i].first==csr_pos.first-1&&doors[i].second==csr_pos.second){
-            --Current.x;
+        else if(doors[i].first==csr_pos.x-1&&doors[i].second==csr_pos.y){
+            --current.x;
             csr_pos={78, 24};
             doors.clear();
             monsters.clear();
-            generate_doors(doors, Current);
-            generate_monsters(monsters, Current, csr_pos);
+            generate_doors(doors, current);
+            generate_monsters(monsters, current, csr_pos);
             break;
         }
     }
 }
 
-bool move_staircase(Level &Current, Csr csr_pos){
-    if(Current.lvl<5&&Current.x==5&&Current.y==5){ // go down
-        if(csr_pos.first==39&&csr_pos.second==24){
-            Current.lvl++;
-            Current.reset(0);
+bool move_staircase(Level &current, Csr csr_pos){
+    if(current.lvl<5&&current.x==5&&current.y==5){ // go down
+        if(csr_pos.x==39&&csr_pos.y==24){
+            current.lvl++;
+            current.reset(0);
             return true;
         }
     }
-    if(Current.lvl>1&&Current.x==1&&Current.y==1){ // go down
-        if(csr_pos.first==39&&csr_pos.second==24){
-            Current.lvl--;
-            Current.reset(1);
+    if(current.lvl>1&&current.x==1&&current.y==1){ // go down
+        if(csr_pos.x==39&&csr_pos.y==24){
+            current.lvl--;
+            current.reset(1);
             return true;
         }
     }
@@ -308,53 +332,65 @@ void eat_drink_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Playe
 
 void drop_items_on_death(Player &user, Csr &csr_pos, Level &current){
     user=Player();
-    csr_pos={1, 1};
-    current={1, 1, 1};
+    csr_pos=Csr();
+    current=Level(1,1,1);
 }
 
-void main_dungeon(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Csr &csr_pos, Player &user, Level &Current, std::vector<Monster> &monsters, Npc &npc, No_Delete &perm_config){
-    std::vector<std::pair<int, int>> doors;
+void main_dungeon(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Dungeon &dungeon_data, Player &user, No_Delete &perm_config){
+    std::atomic<bool> terminate = false, require_processing = false;
+    std::thread lootbox_refresh_thread (refresh_lootbox, std::ref(terminate), std::ref(require_processing), std::ref(dungeon_data));
+    lootbox_refresh_thread.detach();
     if(monsters.empty()){
-        generate_monsters(monsters, Current, csr_pos);
+        generate_monsters(monsters, current, csr_pos);
     }
-    generate_doors(doors, Current);
-    redraw_everything(main_win, context, csr_pos, user, Current, monsters);
+    generate_doors(doors, current);
+    redraw_main_dungeon(main_win, context, csr_pos, user, current, monsters, loot_in_room);
     int ch;
     while(true){
         ch=SDL_getch(main_win, context);
+        if(require_processing.load(std::memory_order_acquire)){
+            dungeon_data.get_loot_in_room(current, loot_in_room);
+            require_processing.store(false, std::memory_order_release);
+            redraw_main_dungeon(main_win, context, csr_pos, user, current, monsters, loot_in_room);
+        }
         if(ch=='w'||ch=='a'||ch=='s'||ch=='d'||ch==SDLK_LEFT||ch==SDLK_RIGHT||ch==SDLK_DOWN||ch==SDLK_UP){
-            char_move(main_win, context, ch, csr_pos, monsters, user, npc, Current);
+            char_move(main_win, context, ch, csr_pos, monsters, loot_in_room, user, npc, current);
         }
         else if(ch=='z'){
-            move_door(doors, monsters, Current, csr_pos);
-            redraw_everything(main_win, context, csr_pos, user, Current, monsters);
+            move_door(doors, monsters, current, csr_pos);
+            dungeon_data.get_loot_in_room(current, loot_in_room);
+            redraw_main_dungeon(main_win, context, csr_pos, user, current, monsters, loot_in_room);
         }
         else if(ch=='x'){
-            std::pair<bool, bool> attack_status=attack_monster(main_win, context, monsters, csr_pos, user, Current);
+            std::pair<bool, bool> attack_status=attack_monster(main_win, context, monsters, csr_pos, user, current);
             if(attack_status.first&&!attack_status.second){ // If dead return to main menu
                 end_program(1);
-                drop_items_on_death(user, csr_pos, Current);
-                save_data(user, Current, csr_pos, monsters, npc, perm_config);
+                drop_items_on_death(user, csr_pos, current);
+                save_data(user, current, csr_pos, monsters, npc, perm_config);
                 return;
             }
             else if(attack_status.first&&attack_status.second){ // If win redraw dungeon and move on
                 user.cur_shield=user.ori_shield;
-                redraw_everything(main_win, context, csr_pos, user, Current, monsters);
+                redraw_main_dungeon(main_win, context, csr_pos, user, current, monsters, loot_in_room);
             }
         }
         else if(ch=='c'){
-            if(move_staircase(Current, csr_pos)){
-                generate_doors(doors, Current);
+            if(move_staircase(current, csr_pos)){
+                generate_doors(doors, current);
             }
-            else if(Current.lvl==1&&Current.x==1&&Current.y==1&&csr_pos.first==1&&csr_pos.second==48){
+            else if(current.lvl==1&&current.x==1&&current.y==1&&csr_pos.x==1&&csr_pos.y==48){
                 bar_mode(main_win, context, user, npc, perm_config);
             }
-            redraw_everything(main_win, context, csr_pos, user, Current, monsters);
+            dungeon_data.get_loot_in_room(current, loot_in_room);
+            redraw_main_dungeon(main_win, context, csr_pos, user, current, monsters, loot_in_room);
+        }
+        else if(ch=='v'){
+
         }
         else if(ch=='i'){
             if(!user.inv.item.empty()){
                 inventory_mode(main_win, context, user, perm_config);
-                redraw_everything(main_win, context, csr_pos, user, Current, monsters);
+                redraw_main_dungeon(main_win, context, csr_pos, user, current, monsters, loot_in_room);
             }
             else{
                 clear_and_draw_dialog(main_win, context, "[System] Error: Inventory Empty");
@@ -362,7 +398,7 @@ void main_dungeon(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Csr &cs
         }
         else if(ch=='e'){
             eat_drink_mode(main_win, context, user);
-            redraw_everything(main_win, context, csr_pos, user, Current, monsters);
+            redraw_main_dungeon(main_win, context, csr_pos, user, current, monsters, loot_in_room);
         }
         else if(ch=='.'){
             if(user.cur_hp<user.ori_hp){
@@ -372,35 +408,38 @@ void main_dungeon(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Csr &cs
             if(user.cur_hp>user.ori_hp){
                 user.cur_hp=user.ori_hp;
             }
-            redraw_everything(main_win, context, csr_pos, user, Current, monsters);
+            redraw_main_dungeon(main_win, context, csr_pos, user, current, monsters, loot_in_room);
         }
         else if(ch=='S'){
-            save_data(user, Current, csr_pos, monsters, npc, perm_config);
-            redraw_everything(main_win, context, csr_pos, user, Current, monsters);
+            save_data(user, current, csr_pos, monsters, npc, perm_config);
+            redraw_main_dungeon(main_win, context, csr_pos, user, current, monsters, loot_in_room);
             clear_and_draw_dialog(main_win, context, "Data saved successfully!");
         }
         else if(ch=='H'){
             help_mode(main_win, context, "dungeon_mode");
-            redraw_everything(main_win, context, csr_pos, user, Current, monsters);
+            redraw_main_dungeon(main_win, context, csr_pos, user, current, monsters, loot_in_room);
         }
         else if(ch=='q'){
             if(SDL_getch_y_or_n(main_win, context, "Do you really wish to quit? [y] to quit, any other key to abort.")){
                 end_program(0);
-                save_data(user, Current, csr_pos, monsters, npc, perm_config);
+                save_data(user, current, csr_pos, monsters, npc, perm_config);
+                terminate.store(true, std::memory_order_release);
                 return;
             }
-            redraw_everything(main_win, context, csr_pos, user, Current, monsters);
+            redraw_main_dungeon(main_win, context, csr_pos, user, current, monsters, loot_in_room);
         }
         if(user.saturation<=0){
-            drop_items_on_death(user, csr_pos, Current);
-            save_data(user, Current, csr_pos, monsters, npc, perm_config);
+            drop_items_on_death(user, csr_pos, current);
+            save_data(user, current, csr_pos, monsters, npc, perm_config);
             end_program(2);
+            terminate.store(true, std::memory_order_release);
             return;
         }
         if(user.hydration<=0){
-            drop_items_on_death(user, csr_pos, Current);
-            save_data(user, Current, csr_pos, monsters, npc, perm_config);
+            drop_items_on_death(user, csr_pos, current);
+            save_data(user, current, csr_pos, monsters, npc, perm_config);
             end_program(3);
+            terminate.store(true, std::memory_order_release);
             return;
         }
     }

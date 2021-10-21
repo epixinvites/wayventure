@@ -275,13 +275,13 @@ long Time::time_to_seconds() const{
 }
 
 bool Miner::Job_Details::is_job_finished() const{
-    Time timePassed{std::chrono::duration_cast<std::chrono::seconds>(std::chrono::steady_clock::now()-job_start).count()};
-    return timePassed>=total_job_duration;
+    Time time_passed{std::chrono::duration_cast<std::chrono::seconds>(std::chrono::steady_clock::now()-job_start).count()};
+    return time_passed>=total_job_duration;
 }
 
 bool Archaeologist::Job_Details::is_job_finished() const{
-    Time timePassed{std::chrono::duration_cast<std::chrono::seconds>(std::chrono::steady_clock::now()-job_start).count()};
-    return timePassed>=total_job_duration;
+    Time time_passed{std::chrono::duration_cast<std::chrono::seconds>(std::chrono::steady_clock::now()-job_start).count()};
+    return time_passed>=total_job_duration;
 }
 
 std::ostream &operator<<(std::ostream &os, const Time &time){
@@ -304,4 +304,17 @@ Miscellaneous::Material_Rarity Miscellaneous::Material_Rarity::operator+=(const 
     this->uncommon+=other.uncommon;
     this->common+=other.common;
     return *this;
+}
+
+bool Level::operator==(const Level &other) const{
+    return(this->lvl==other.lvl && this->x==other.x && this->y==other.y);
+}
+
+void Dungeon::get_loot_in_room(const Level &current, std::vector<std::pair<int, int>> &loot_in_room){
+    loot_in_room.clear();
+    for(const auto &i:loot_data){
+        if(i.dungeon_position==current){
+            loot_in_room.push_back({i.room_position.x, i.room_position.y});
+        }
+    }
 }

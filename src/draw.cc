@@ -56,13 +56,13 @@ void draw_player(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, int x, i
 
 void draw_monster(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, const std::vector<Monster> &monsters){
     for(int i=0; i<monsters.size(); i++){
-        if(monsters[i].type==Dungeon::ROOM_BOSS){ // boss
+        if(monsters[i].type==Enemy_Type::ROOM_BOSS){ // boss
             TCOD_console_put_char_ex(main_win.get(), monsters[i].x, monsters[i].y+1, 'X', WHITE, BLACK);
         }
-        else if(monsters[i].type==Dungeon::LEVEL_BOSS){ // level boss
+        else if(monsters[i].type==Enemy_Type::LEVEL_BOSS){ // level boss
             TCOD_console_put_char_ex(main_win.get(), monsters[i].x, monsters[i].y+1, 'X', BLACK, YELLOW);
         }
-        else if(monsters[i].type==Dungeon::FINAL_BOSS){ // final boss
+        else if(monsters[i].type==Enemy_Type::FINAL_BOSS){ // final boss
             TCOD_console_put_char_ex(main_win.get(), monsters[i].x, monsters[i].y+1, 'X', BLACK, PURPLE);
         }
         else{
@@ -106,13 +106,22 @@ void draw_doors(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Level Cur
     }
 }
 
-void redraw_everything(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Csr csr_pos, const Player &user, Level Current, const std::vector<Monster> &monsters){
+void draw_loot_box(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, const std::vector<std::pair<int, int>> &loot_in_room){
+    if(!loot_in_room.empty()){
+        for(const auto &i:loot_in_room){
+            TCOD_console_put_char_ex(main_win.get(), i.first, i.second+1, 'o', YELLOW, BLACK);
+        }
+    }
+}
+
+void redraw_main_dungeon(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Csr csr_pos, const Player &user, Level current, const std::vector<Monster> &monsters, const std::vector<std::pair<int, int>> &loot_in_room){
     TCOD_console_clear(main_win.get());
-    draw_level(main_win, context, Current);
+    draw_level(main_win, context, current);
     draw_stats(main_win, context, user);
     draw_border(main_win, context);
-    draw_doors(main_win, context, Current);
-    draw_player(main_win, context, csr_pos.first, csr_pos.second);
+    draw_doors(main_win, context, current);
+    draw_loot_box(main_win, context, loot_in_room);
+    draw_player(main_win, context, csr_pos.x, csr_pos.y);
     draw_monster(main_win, context, monsters);
     context->present(*main_win);
 }

@@ -8,11 +8,11 @@
 
 void generate_monsters(std::vector<Monster> &monsters, Level Current, Csr csr_pos);
 
-Item generate_loot_from_monster_type(Dungeon type);
+Item generate_loot_from_monster_type(Enemy_Type type);
 
 Item generate_loot_from_rarity_type(Rarity type);
 
-Monster_Stats create_monster(Level Current, Dungeon type);
+Monster_Stats create_monster(Level Current, Enemy_Type type);
 
 bool return_chance(int chance);
 
@@ -20,7 +20,7 @@ int generate_random_number(int range_lo, int range_hi);
 
 void generate_doors(std::vector<std::pair<int, int>> &doors, Level Current);
 
-int generate_gold(Dungeon type);
+int generate_gold(Enemy_Type type);
 
 double rarity_value(Rarity rarity);
 

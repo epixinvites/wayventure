@@ -106,7 +106,7 @@ void redraw_bar(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player &u
         }
     }
     TCOD_console_put_char_ex(main_win.get(), 78, 2, '>', WHITE, BLACK);
-    draw_player(main_win, context, csr_pos.first, csr_pos.second);
+    draw_player(main_win, context, csr_pos.x, csr_pos.y);
     draw_stats(main_win, context, user);
     tcod::print(*main_win, {0, 0}, "Town", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
     context->present(*main_win);
@@ -335,23 +335,23 @@ void farmer_interface(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Far
 
 void char_move(int ch, tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player &user, Csr &csr_pos, const std::vector<std::string> &pub_layout){
     Csr original_pos=csr_pos;
-    if((ch=='a'||ch==SDLK_LEFT)&&csr_pos.first>1&&pub_layout[csr_pos.second][csr_pos.first-1]==' '){
-        csr_pos.first--;
+    if((ch=='a'||ch==SDLK_LEFT)&&csr_pos.x>1&&pub_layout[csr_pos.y][csr_pos.x-1]==' '){
+        csr_pos.x--;
     }
-    if((ch=='d'||ch==SDLK_RIGHT)&&csr_pos.first<78&&pub_layout[csr_pos.second][csr_pos.first+1]==' '){
-        csr_pos.first++;
+    if((ch=='d'||ch==SDLK_RIGHT)&&csr_pos.x<78&&pub_layout[csr_pos.y][csr_pos.x+1]==' '){
+        csr_pos.x++;
     }
-    if((ch=='w'||ch==SDLK_UP)&&csr_pos.second>1&&pub_layout[csr_pos.second-1][csr_pos.first]==' '){
-        csr_pos.second--;
+    if((ch=='w'||ch==SDLK_UP)&&csr_pos.y>1&&pub_layout[csr_pos.y-1][csr_pos.x]==' '){
+        csr_pos.y--;
     }
-    if((ch=='s'||ch==SDLK_DOWN)&&csr_pos.second<48&&pub_layout[csr_pos.second+1][csr_pos.first]==' '){
-        csr_pos.second++;
+    if((ch=='s'||ch==SDLK_DOWN)&&csr_pos.y<48&&pub_layout[csr_pos.y+1][csr_pos.x]==' '){
+        csr_pos.y++;
     }
-    TCOD_console_put_char_ex(main_win.get(), original_pos.first, original_pos.second+1, ' ', WHITE, BLACK);
-    if(original_pos.first==78&&original_pos.second==1){
+    TCOD_console_put_char_ex(main_win.get(), original_pos.x, original_pos.y+1, ' ', WHITE, BLACK);
+    if(original_pos.x==78&&original_pos.y==1){
         TCOD_console_put_char_ex(main_win.get(), 78, 2, '>', WHITE, BLACK);
     }
-    draw_player(main_win, context, csr_pos.first, csr_pos.second);
+    draw_player(main_win, context, csr_pos.x, csr_pos.y);
     context->present(*main_win);
 }
 
@@ -1010,7 +1010,7 @@ void bar_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player &use
             char_move(ch, main_win, context, user, csr_pos, pub_layout);
         }
         else if(ch=='x'){
-            char target=search_surroundings(pub_layout, csr_pos.first, csr_pos.second);
+            char target=search_surroundings(pub_layout, csr_pos.x, csr_pos.y);
             if(target=='M'){
                 mysterious_trader_interface(main_win, context, user, npc.mysterious_trader);
                 redraw_bar(main_win, context, user, npc.gear_merchant, pub_layout, csr_pos);
@@ -1045,7 +1045,7 @@ void bar_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player &use
             }
         }
         else if(ch=='c'){
-            if(csr_pos.first==78&&csr_pos.second==1){
+            if(csr_pos.x==78&&csr_pos.y==1){
                 return;
             }
         }

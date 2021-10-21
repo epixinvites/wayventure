@@ -1,11 +1,11 @@
 #include "headers/generate.h"
 
-Rarity generate_loot_rarity(Dungeon type){
+Rarity generate_loot_rarity(Enemy_Type type){
     std::random_device device;
     std::mt19937 generator(device());
     std::uniform_int_distribution<int> loot_type(1, 1000);
     int loot=loot_type(generator);
-    if(type==Dungeon::ENEMY){
+    if(type==Enemy_Type::ENEMY){
         if(loot<=500){
             return Rarity::COMMON;
         }
@@ -16,7 +16,7 @@ Rarity generate_loot_rarity(Dungeon type){
             return Rarity::RARE;
         }
     }
-    else if(type==Dungeon::ROOM_BOSS){
+    else if(type==Enemy_Type::ROOM_BOSS){
         if(loot<=500){
             return Rarity::UNCOMMON;
         }
@@ -27,7 +27,7 @@ Rarity generate_loot_rarity(Dungeon type){
             return Rarity::EPIC;
         }
     }
-    else if(type==Dungeon::LEVEL_BOSS){
+    else if(type==Enemy_Type::LEVEL_BOSS){
         if(loot<=400){
             return Rarity::RARE;
         }
@@ -38,7 +38,7 @@ Rarity generate_loot_rarity(Dungeon type){
             return Rarity::LEGENDARY;
         }
     }
-    else if(type==Dungeon::MINI_BOSS){
+    else if(type==Enemy_Type::MINI_BOSS){
         if(loot<=200){
             return Rarity::EPIC;
         }
@@ -49,7 +49,7 @@ Rarity generate_loot_rarity(Dungeon type){
             return Rarity::ARTIFACT;
         }
     }
-    else if(type==Dungeon::FINAL_BOSS){
+    else if(type==Enemy_Type::FINAL_BOSS){
         if(loot<=500){
             return Rarity::LEGENDARY;
         }
@@ -187,7 +187,7 @@ Item generate_loot(Rarity loot_rarity){
     return {"Placeholder", loot_type, loot_rarity, false, hp, attk, def, shield, crit_chance, crit_dmg, 0, 0, durability};
 }
 
-Item generate_loot_from_monster_type(Dungeon type){
+Item generate_loot_from_monster_type(Enemy_Type type){
     Rarity loot_rarity=generate_loot_rarity(type);
     return generate_loot(loot_rarity);
 }
@@ -406,7 +406,7 @@ void generate_monsters(std::vector<Monster> &monsters, Level Current, Csr csr_po
                 continue;
             }
         }
-        if(tmp_monster.x==csr_pos.first&&tmp_monster.y==csr_pos.second){
+        if(tmp_monster.x==csr_pos.x&&tmp_monster.y==csr_pos.y){
             i--;
             continue;
         }
@@ -415,10 +415,10 @@ void generate_monsters(std::vector<Monster> &monsters, Level Current, Csr csr_po
             continue;
         }
         if(monster_type(generator)==30){
-            tmp_monster.type=Dungeon::ROOM_BOSS;
+            tmp_monster.type=Enemy_Type::ROOM_BOSS;
         }
         else{
-            tmp_monster.type=Dungeon::ENEMY;
+            tmp_monster.type=Enemy_Type::ENEMY;
         }
         monsters.push_back(tmp_monster);
     }
@@ -427,16 +427,16 @@ void generate_monsters(std::vector<Monster> &monsters, Level Current, Csr csr_po
         tmp_monster.x=39;
         tmp_monster.y=24;
         if(Current.lvl<5){
-            tmp_monster.type=Dungeon::LEVEL_BOSS;
+            tmp_monster.type=Enemy_Type::LEVEL_BOSS;
         }
         if(Current.lvl==5){
-            tmp_monster.type=Dungeon::FINAL_BOSS;
+            tmp_monster.type=Enemy_Type::FINAL_BOSS;
         }
         monsters.push_back(tmp_monster);
     }
 }
 
-Monster_Stats create_monster(Level Current, Dungeon type){
+Monster_Stats create_monster(Level Current, Enemy_Type type){
     std::random_device device;
     std::mt19937 generator(device());
     std::uniform_int_distribution<int> diff_generator(-20, 20);
@@ -448,20 +448,20 @@ Monster_Stats create_monster(Level Current, Dungeon type){
     if(diff_generator(generator)>10){
         monster.def=5*(lvl+(x/5.0));
     }
-    if(type==Dungeon::ENEMY){
+    if(type==Enemy_Type::ENEMY){
         return monster;
     }
-    else if(type==Dungeon::ROOM_BOSS){
+    else if(type==Enemy_Type::ROOM_BOSS){
         monster.hp*=10;
         monster.attk*=3;
         return monster;
     }
-    else if(type==Dungeon::LEVEL_BOSS){
+    else if(type==Enemy_Type::LEVEL_BOSS){
         monster.hp*=15;
         monster.attk*=4;
         return monster;
     }
-    else if(type==Dungeon::FINAL_BOSS){
+    else if(type==Enemy_Type::FINAL_BOSS){
         monster.hp*=50;
         monster.attk*=7;
         return monster;
@@ -498,20 +498,20 @@ void generate_doors(std::vector<std::pair<int, int>> &doors, Level Current){
     }
 }
 
-int generate_gold(Dungeon type){
+int generate_gold(Enemy_Type type){
     std::random_device device;
     std::mt19937 generator(device());
     std::uniform_int_distribution<int> gold(0, 10);
-    if(type==Dungeon::ENEMY){
+    if(type==Enemy_Type::ENEMY){
         return (gold(generator));
     }
-    else if(type==Dungeon::ROOM_BOSS){
+    else if(type==Enemy_Type::ROOM_BOSS){
         return (gold(generator)*gold(generator));
     }
-    else if(type==Dungeon::LEVEL_BOSS){
+    else if(type==Enemy_Type::LEVEL_BOSS){
         return (gold(generator)*30);
     }
-    else if(type==Dungeon::FINAL_BOSS){
+    else if(type==Enemy_Type::FINAL_BOSS){
         return (gold(generator)*100);
     }
     return 0;

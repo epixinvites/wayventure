@@ -18,4 +18,7 @@ void draw_doors(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Level Cur
 
 void draw_inventory(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, const Player &user, const std::vector<Item *> &items_copy, unsigned int page_num, unsigned int csr_pos, bool is_blacksmith_mode=false, bool is_inventory_modifier_mode=false);
 
-void redraw_everything(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Csr csr_pos, const Player &user, Level Current, const std::vector<Monster> &monsters);
+void draw_loot_box(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, const std::vector<std::pair<int, int>> &loot_in_room);
+
+void redraw_main_dungeon(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Csr csr_pos, const Player &user, Level current, const std::vector<Monster> &monsters, const std::vector<std::pair<int, int>> &loot_in_room);
+

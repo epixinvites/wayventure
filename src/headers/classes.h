@@ -13,7 +13,7 @@ enum class Type{
     NONE, ALL, HELMET, CHESTPLATE, GREAVES, BOOTS, SHIELD, WEAPON
 };
 
-enum class Dungeon{
+enum class Enemy_Type{
     NONE, ENEMY, ROOM_BOSS, LEVEL_BOSS, MINI_BOSS, FINAL_BOSS
 };
 
@@ -40,22 +40,71 @@ struct Time{
     long time_to_seconds() const;
 };
 
+struct Level{
+    int lvl=1, x=1, y=1;
+
+    void reset(int sig){
+        if(sig==0){
+            x=1;
+            y=1;
+        }
+        if(sig==1){
+            x=5;
+            y=5;
+        }
+    }
+
+    Level(int lvl, int x, int y):lvl{lvl}, x{x}, y{y}{};
+
+    bool operator==(const Level &other) const;
+
+    template<class Archive>
+    void serialize(Archive &archive){archive(lvl, x, y);}
+};
+
 struct Monster{
     int x, y; // x cords and y cords
-    Dungeon type; // 'e' for enemy, 'b' for boss
+    Enemy_Type type; // 'e' for enemy, 'b' for boss
     template<class Archive>
     void serialize(Archive &archive){archive(x, y, type);}
 };
 
-struct Csr{
-    int first=1, second=1;
-
-    template<class Archive>
-    void serialize(Archive &archive){archive(first, second);}
-};
-
 struct Monster_Stats{ // base stats
     int hp=150, attk=60, def=0;
+};
+
+struct Csr{
+    int x=1, y=1;
+
+    template<class Archive>
+    void serialize(Archive &archive){archive(x, y);}
+};
+
+struct LootData{
+    int id = 0;
+    Level dungeon_position;
+    Csr room_position;
+};
+
+struct TrapData{
+    int id = 0;
+    int x=0, y=0;
+    bool is_activated=false;
+};
+
+struct StaircaseData{
+    int id = 0;
+    int x=0, y=0;
+    int behaviour=0; // 0: None, 1: Down, 2: Up
+};
+
+struct RoomData{
+    Level id;
+    std::vector<Monster> enemy_data;
+    std::vector<TrapData> trap_data;
+    std::vector<StaircaseData> staircase;
+    std::vector<std::pair<int, int>> loot_in_room;
+    std::vector<std::pair<int, int>> doors;
 };
 
 struct Item{
@@ -217,26 +266,6 @@ public:
     void serialize(Archive &archive){archive(steps, saturation, hydration, gold, cur_hp, cur_shield, inv);}
 };
 
-struct Level{
-    int lvl, x, y;
-
-    void reset(int sig){
-        if(sig==0){
-            x=1;
-            y=1;
-        }
-        if(sig==1){
-            x=5;
-            y=5;
-        }
-    }
-
-    Level(int lvl, int x, int y):lvl{lvl}, x{x}, y{y}{};
-
-    template<class Archive>
-    void serialize(Archive &archive){archive(lvl, x, y);}
-};
-
 struct Bartender{
     double relation=50;
 
@@ -294,7 +323,7 @@ struct Miner{
         int number_of_miners=0;
         double loot_multiplier=0;
 
-        bool is_job_finished() const;
+        [[nodiscard]] bool is_job_finished() const;
 
         template<class Archive>
         void serialize(Archive &archive){archive(total_job_duration, has_active_job, job_start, number_of_miners, loot_multiplier);}
@@ -318,7 +347,7 @@ struct Archaeologist{
         bool has_active_job=false;
         std::chrono::time_point<std::chrono::steady_clock> job_start;
 
-        bool is_job_finished() const;
+        [[nodiscard]] bool is_job_finished() const;
 
         template<class Archive>
         void serialize(Archive &archive){archive(total_job_duration, decryption_amount, has_active_job, job_start);}
@@ -346,6 +375,17 @@ struct Npc{
 
     template<class Archive>
     void serialize(Archive &archive){archive(bartender, farmer, bank, chest, gear_merchant, mysterious_trader, miner, archaeologist);}
+};
+
+class Dungeon{
+public:
+    Csr csr_pos{1, 1};
+    Level current{1, 1, 1};
+    Npc npc;
+    std::vector<RoomData> room_data;
+    std::vector<LootData> loot_data;
+
+    void get_loot_in_room(const Level &current, std::vector<std::pair<int, int>> &loot_in_room);
 };
 
 struct No_Delete{
