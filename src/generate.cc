@@ -383,34 +383,49 @@ void reforge_item(unsigned int ancient_cores, unsigned int crystallium, Item *it
     // if(item.rarity==RARITY_ARTIFACT){ WIP: 50/50 to get special skills }
 }
 
-void generate_monsters(std::vector<Monster> &monsters, Level Current, Csr csr_pos){
+Monster generate_room_monsters(std::vector<Monster> &enemy_data, Level current, Csr csr_pos){
     std::random_device device;
     std::mt19937 generator(device());
     std::uniform_int_distribution<int> x_generator(1, 78);
     std::uniform_int_distribution<int> y_generator(1, 48);
     std::uniform_int_distribution<int> monster_type(1, 30);
-    std::uniform_int_distribution<int> amount(9, 18);
+    std::uniform_int_distribution<int> amount(15, 25);
+    auto check_if_monster_already_exist = [](const std::vector<Monster> &enemy_data, int x, int y){
+        if(!enemy_data.empty()){
+            for(const auto &i:enemy_data){
+                if(x==i.x&&y==i.y){
+                    return true;
+                }
+            }
+            return false;
+        }
+        return false;
+    };
     for(int i=0; i<amount(generator); i++){
         Monster tmp_monster;
         tmp_monster.x=x_generator(generator);
         tmp_monster.y=y_generator(generator);
-        if(Current.x==1&&Current.y==1&&Current.lvl>1){
-            if(tmp_monster.x==39&&tmp_monster.y==24){
-                i--;
-                continue;
-            }
-        }
-        if(Current.x==5&&Current.y==5&&Current.lvl<5){
-            if(tmp_monster.x==39&&tmp_monster.y==24){
-                i--;
-                continue;
-            }
+        if(check_if_monster_already_exist(enemy_data, tmp_monster.x, tmp_monster.y)){
+            i--;
+            continue;
         }
         if(tmp_monster.x==csr_pos.x&&tmp_monster.y==csr_pos.y){
             i--;
             continue;
         }
-        if(Current.lvl==1&&Current.x==1&&Current.y==1&&tmp_monster.x==1&&tmp_monster.y==48){
+        if(current.x==1&&current.y==1&&current.lvl>1){
+            if(tmp_monster.x==39&&tmp_monster.y==24){
+                i--;
+                continue;
+            }
+        }
+        if(current.x==5&&current.y==5&&current.lvl<5){
+            if(tmp_monster.x==39&&tmp_monster.y==24){
+                i--;
+                continue;
+            }
+        }
+        if(current.lvl==1&&current.x==1&&current.y==1&&tmp_monster.x==1&&tmp_monster.y==48){
             i--;
             continue;
         }
@@ -420,18 +435,20 @@ void generate_monsters(std::vector<Monster> &monsters, Level Current, Csr csr_po
         else{
             tmp_monster.type=Enemy_Type::ENEMY;
         }
+        // Generate monster stats
         monsters.push_back(tmp_monster);
     }
-    if(Current.x==5&&Current.y==5){
+    if(current.x==5&&current.y==5){
         Monster tmp_monster;
         tmp_monster.x=39;
         tmp_monster.y=24;
-        if(Current.lvl<5){
+        if(current.lvl<5){
             tmp_monster.type=Enemy_Type::LEVEL_BOSS;
         }
-        if(Current.lvl==5){
+        if(current.lvl==5){
             tmp_monster.type=Enemy_Type::FINAL_BOSS;
         }
+        // Generate monster stats
         monsters.push_back(tmp_monster);
     }
 }

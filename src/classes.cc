@@ -310,11 +310,36 @@ bool Level::operator==(const Level &other) const{
     return(this->lvl==other.lvl && this->x==other.x && this->y==other.y);
 }
 
-void Dungeon::get_loot_in_room(const Level &current, std::vector<std::pair<int, int>> &loot_in_room){
+void Dungeon::get_loot_in_room(const Level &current, std::vector<LootData> &loot_in_room){
     loot_in_room.clear();
     for(const auto &i:loot_data){
         if(i.dungeon_position==current){
-            loot_in_room.push_back({i.room_position.x, i.room_position.y});
+            loot_in_room.push_back(i);
+        }
+    }
+}
+
+Dungeon::Dungeon(){
+    for(int l = 1; l<=5; l++){
+        for(int x = 1; x<=5; x++){
+            for(int y = 1; y<=5; y++){
+                room_data.push_back(RoomData{{csr_pos}, {l, x, y}});
+            }
+        }
+    }
+}
+
+RoomData::RoomData(const Csr csr_pos, const Level &id):id{id}{
+    // Generate enemies along with their stats
+    // Generate stairs
+    // Generate doors
+    // Generate traps (WIP)
+}
+
+RoomData* Dungeon::get_pointer_of_room(const Level &current){
+    for(auto &i:room_data){
+        if(i.id==current){
+            return &i;
         }
     }
 }

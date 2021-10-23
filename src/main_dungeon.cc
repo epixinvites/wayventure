@@ -12,7 +12,11 @@ void refresh_lootbox(const std::atomic<bool> &terminate, std::atomic<bool> &requ
         dungeon_data.loot_data.clear();
         int amount_of_lootboxes=generate_random_number(20,50);
         for(int i = 0; i<amount_of_lootboxes; i++){
-            dungeon_data.loot_data.push_back({{generate_random_number(1,5),generate_random_number(1,5),generate_random_number(1,5)},{generate_random_number(1,78),generate_random_number(1,48)}});
+            LootData temp_data;
+            temp_data.id=i;
+            temp_data.dungeon_position={generate_random_number(1,5),generate_random_number(1,5),generate_random_number(1,5)};
+            temp_data.room_position={generate_random_number(1,78),generate_random_number(1,48)};
+            dungeon_data.loot_data.push_back(temp_data);
         }
         require_processing.store(true, std::memory_order_release);
         std::this_thread::sleep_for(std::chrono::minutes(5));
@@ -337,11 +341,12 @@ void drop_items_on_death(Player &user, Csr &csr_pos, Level &current){
 }
 
 void main_dungeon(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Dungeon &dungeon_data, Player &user, No_Delete &perm_config){
+    RoomData *cur_room = dungeon_data.get_pointer_of_room(dungeon_data.current);
     std::atomic<bool> terminate = false, require_processing = false;
     std::thread lootbox_refresh_thread (refresh_lootbox, std::ref(terminate), std::ref(require_processing), std::ref(dungeon_data));
     lootbox_refresh_thread.detach();
-    if(monsters.empty()){
-        generate_monsters(monsters, current, csr_pos);
+    if(cur_room->enemy_data.empty()){
+        generate_monsters(cur_room->enemy_data, cur_room->id, dungeon_data.csr_pos);
     }
     generate_doors(doors, current);
     redraw_main_dungeon(main_win, context, csr_pos, user, current, monsters, loot_in_room);

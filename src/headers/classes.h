@@ -21,6 +21,10 @@ constexpr char DEFAULT_SHOW_SELECTION='!';
 constexpr char SORT_TYPE_RARITY_ASCENDING='a';
 constexpr char SORT_TYPE_RARITY_DESCENDING='d';
 
+extern const int DUNGEON_LEVEL_MAX;
+extern const int DUNGEON_X_MAX;
+extern const int DUNGEON_Y_MAX;
+
 struct Time{
     long hours;
     unsigned int minutes;
@@ -62,15 +66,17 @@ struct Level{
     void serialize(Archive &archive){archive(lvl, x, y);}
 };
 
-struct Monster{
-    int x, y; // x cords and y cords
-    Enemy_Type type; // 'e' for enemy, 'b' for boss
-    template<class Archive>
-    void serialize(Archive &archive){archive(x, y, type);}
-};
-
 struct Monster_Stats{ // base stats
     int hp=150, attk=60, def=0;
+};
+
+struct Monster{
+    int id;
+    int x, y; // x cords and y cords
+    Enemy_Type type; // 'e' for enemy, 'b' for boss
+    Monster_Stats stats;
+    template<class Archive>
+    void serialize(Archive &archive){archive(id, x, y, type, stats);}
 };
 
 struct Csr{
@@ -81,21 +87,27 @@ struct Csr{
 };
 
 struct LootData{
-    int id = 0;
-    Level dungeon_position;
-    Csr room_position;
+    int id=0;
+    Level dungeon_position={1,1,1};
+    Csr room_position={1,1};
 };
 
 struct TrapData{
-    int id = 0;
     int x=0, y=0;
     bool is_activated=false;
+    int behaviour=0; // 0: Default
 };
 
 struct StaircaseData{
-    int id = 0;
+    int id=0;
     int x=0, y=0;
     int behaviour=0; // 0: None, 1: Down, 2: Up
+};
+
+struct DoorData{
+    int id=0;
+    int x=0, y=0;
+    int behaviour=0;
 };
 
 struct RoomData{
@@ -103,8 +115,10 @@ struct RoomData{
     std::vector<Monster> enemy_data;
     std::vector<TrapData> trap_data;
     std::vector<StaircaseData> staircase;
-    std::vector<std::pair<int, int>> loot_in_room;
-    std::vector<std::pair<int, int>> doors;
+    std::vector<LootData> loot_in_room;
+    std::vector<DoorData> door_data;
+
+    RoomData(const Csr csr_pos, const Level &id);
 };
 
 struct Item{
@@ -385,7 +399,11 @@ public:
     std::vector<RoomData> room_data;
     std::vector<LootData> loot_data;
 
-    void get_loot_in_room(const Level &current, std::vector<std::pair<int, int>> &loot_in_room);
+    Dungeon();
+
+    void get_loot_in_room(const Level &current, std::vector<LootData> &loot_in_room);
+
+    RoomData* get_pointer_of_room(const Level &current);
 };
 
 struct No_Delete{

@@ -6,7 +6,7 @@
 
 // For readability
 
-void generate_monsters(std::vector<Monster> &monsters, Level Current, Csr csr_pos);
+Monster generate_room_monsters(std::vector<Monster> &enemy_data, Level current, Csr csr_pos={0, 0});
 
 Item generate_loot_from_monster_type(Enemy_Type type);
 

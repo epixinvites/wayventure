@@ -7,7 +7,7 @@
 const auto modkeys=KMOD_CTRL | KMOD_SHIFT | KMOD_ALT;
 const std::string TILESET_FILE="src/res/alphabet.png";
 const tcod::TilesetPtr tileset=tcod::load_tilesheet(TILESET_FILE, {16, 16}, tcod::CHARMAP_CP437);
-const std::string save_file_version="1.1"; // DO NOT MODIFY
+const std::string save_file_version="0.2"; // DO NOT MODIFY
 const std::string username="Wayfarrer"; // Please don't put weird characters and keep the length under 30 characters. The program will grumble if you don't follow my instructions.
 
 // Tweak these colors if your eyes go ouch. You can play around with the colors and rebuild the program when you're ready.
@@ -27,6 +27,10 @@ static constexpr TCOD_ColorRGB MAGENTA{255, 0, 255}; // NPC (exclusive)
 
 // Don't touch any of these. For god's sake.
 const std::string empty_line="                                                                                ";
+
+extern const int DUNGEON_LEVEL_MAX=5;
+extern const int DUNGEON_X_MAX=5;
+extern const int DUNGEON_Y_MAX=5;
 
 void clear_and_draw_dialog(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, const std::string &dialog);
 
