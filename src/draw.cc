@@ -7,10 +7,10 @@ void clear_and_draw_dialog(tcod::ConsolePtr &main_win, tcod::ContextPtr &context
     context->present(*main_win);
 }
 
-void draw_level(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Level Current){
+void draw_level(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Level current){
     SDL_wclear_dialog_bar(main_win, context);
     std::stringstream ss;
-    ss << 'L' << Current.lvl << ' ' << Current.x << ':' << Current.y;
+    ss << 'L' << current.lvl << ' ' << current.x << ':' << current.y;
     tcod::print(*main_win, {0, 0}, ss.str(), &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
 //    context->present(*main_win);
 }
@@ -82,47 +82,29 @@ void draw_border(std::unique_ptr<TCOD_Console, tcod::ConsoleDeleter> &main_win, 
     }
 }
 
-void draw_doors(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Level Current){
-    if(Current.y>1){
-        TCOD_console_put_char_ex(main_win.get(), 39, 50, '+', BLACK, WHITE);
-    }
-    if(Current.y<5){
-        TCOD_console_put_char_ex(main_win.get(), 39, 1, '+', BLACK, WHITE);
-    }
-    if(Current.x>1){
-        TCOD_console_put_char_ex(main_win.get(), 0, 25, '+', BLACK, WHITE);
-    }
-    if(Current.x<5){
-        TCOD_console_put_char_ex(main_win.get(), 79, 25, '+', BLACK, WHITE);
-    }
-    if(Current.x==1&&Current.y==1&&Current.lvl==1){
-        TCOD_console_put_char_ex(main_win.get(), 1, 49, '<', WHITE, BLACK);
-    }
-    if(Current.x==1&&Current.y==1&&Current.lvl>1){
-        TCOD_console_put_char_ex(main_win.get(), 39, 25, '<', WHITE, BLACK);
-    }
-    if(Current.x==5&&Current.y==5&&Current.lvl<5){
-        TCOD_console_put_char_ex(main_win.get(), 39, 25, '>', WHITE, BLACK);
+void draw_doors(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, const std::vector<DoorData> &door_data){
+    for(const auto &i:door_data){
+        TCOD_console_put_char_ex(main_win.get(), i.x, i.y+1, '+', BLACK, WHITE);
     }
 }
 
-void draw_loot_box(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, const std::vector<std::pair<int, int>> &loot_in_room){
+void draw_loot_box(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, const std::vector<LootData> &loot_in_room){
     if(!loot_in_room.empty()){
         for(const auto &i:loot_in_room){
-            TCOD_console_put_char_ex(main_win.get(), i.first, i.second+1, 'o', YELLOW, BLACK);
+            TCOD_console_put_char_ex(main_win.get(), i.room_position.x, i.room_position.y+1, 'o', YELLOW, BLACK);
         }
     }
 }
 
-void redraw_main_dungeon(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Csr csr_pos, const Player &user, Level current, const std::vector<Monster> &monsters, const std::vector<std::pair<int, int>> &loot_in_room){
+void redraw_main_dungeon(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Csr csr_pos, const Player &user, const Dungeon &dungeon_data, const RoomData *cur_room){
     TCOD_console_clear(main_win.get());
-    draw_level(main_win, context, current);
+    draw_level(main_win, context, dungeon_data.current);
     draw_stats(main_win, context, user);
     draw_border(main_win, context);
-    draw_doors(main_win, context, current);
-    draw_loot_box(main_win, context, loot_in_room);
+    draw_doors(main_win, context, cur_room->door_data);
+    draw_loot_box(main_win, context, cur_room->loot_in_room);
     draw_player(main_win, context, csr_pos.x, csr_pos.y);
-    draw_monster(main_win, context, monsters);
+    draw_monster(main_win, context, cur_room->enemy_data);
     context->present(*main_win);
 }
 
