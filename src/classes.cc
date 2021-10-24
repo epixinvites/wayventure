@@ -1,4 +1,5 @@
 #include "headers/classes.h"
+#include "headers/generate.h"
 #include <cmath>
 #include <iostream>
 
@@ -307,7 +308,11 @@ Miscellaneous::Material_Rarity Miscellaneous::Material_Rarity::operator+=(const 
 }
 
 bool Level::operator==(const Level &other) const{
-    return(this->lvl==other.lvl && this->x==other.x && this->y==other.y);
+    return (this->lvl==other.lvl&&this->x==other.x&&this->y==other.y);
+}
+
+bool Level::operator!=(const Level &other) const{
+    return (this->lvl!=other.lvl||this->x!=other.x||this->y!=other.y);
 }
 
 void Dungeon::get_loot_in_room(const Level &current, std::vector<LootData> &loot_in_room){
@@ -330,9 +335,9 @@ Dungeon::Dungeon(){
 }
 
 RoomData::RoomData(const Csr csr_pos, const Level &id):id{id}{
-    // Generate enemies along with their stats
-    // Generate stairs
-    // Generate doors
+    generate_room_monsters(enemy_data, id, csr_pos);
+    generate_stairs(staircase_data, id);
+    generate_doors(door_data, id);
     // Generate traps (WIP)
 }
 

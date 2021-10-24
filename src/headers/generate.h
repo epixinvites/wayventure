@@ -18,7 +18,9 @@ bool return_chance(int chance);
 
 int generate_random_number(int range_lo, int range_hi);
 
-void generate_doors(std::vector<std::pair<int, int>> &doors, Level current);
+void generate_doors(std::vector<DoorData> &door_data, const Level current);
+
+void generate_stairs(std::vector<StaircaseData> &staircase_data, const Level current);
 
 int generate_gold(Enemy_Type type);
 

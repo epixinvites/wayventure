@@ -62,6 +62,8 @@ struct Level{
 
     bool operator==(const Level &other) const;
 
+    bool operator!=(const Level &other) const;
+
     template<class Archive>
     void serialize(Archive &archive){archive(lvl, x, y);}
 };
@@ -107,16 +109,16 @@ struct StaircaseData{
 struct DoorData{
     int id=0;
     int x=0, y=0;
-    int behaviour=0;
+    int behaviour=0; // 0: None, 1: Up, 2: Down, 3: Left, 4: Right
 };
 
 struct RoomData{
     Level id;
-    std::vector<Monster> enemy_data;
+    std::vector<Monster> enemy_data;// Completed
     std::vector<TrapData> trap_data;
-    std::vector<StaircaseData> staircase;
-    std::vector<LootData> loot_in_room;
-    std::vector<DoorData> door_data;
+    std::vector<StaircaseData> staircase_data; // Completed
+    std::vector<LootData> loot_in_room; // Completed
+    std::vector<DoorData> door_data; // Completed
 
     RoomData(const Csr csr_pos, const Level &id);
 };

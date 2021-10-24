@@ -436,6 +436,7 @@ Monster generate_room_monsters(std::vector<Monster> &enemy_data, const Level cur
     };
     for(int i=0; i<amount(generator); i++){
         Monster tmp_monster;
+        tmp_monster.id=(i+1);
         tmp_monster.x=x_generator(generator);
         tmp_monster.y=y_generator(generator);
         if(check_if_monster_already_exist(enemy_data, tmp_monster.x, tmp_monster.y)){
@@ -471,6 +472,7 @@ Monster generate_room_monsters(std::vector<Monster> &enemy_data, const Level cur
         Monster tmp_monster;
         tmp_monster.x=39;
         tmp_monster.y=24;
+        tmp_monster.id=enemy_data[enemy_data.size()-1].id
         if(current.lvl<DUNGEON_LEVEL_MAX){
             tmp_monster.type=Enemy_Type::LEVEL_BOSS;
         }
@@ -496,18 +498,52 @@ int generate_random_number(int range_lo, int range_hi){
     return numgenerator(generator);
 }
 
-void generate_doors(std::vector<std::pair<int, int>> &doors, Level current){
+void generate_doors(std::vector<DoorData> &door_data, const Level current){
+    int id = 0;
     if(current.y>1){ // {x , y}
-        doors.push_back({39, 49}); // bottom door
+        DoorData tmp;
+        tmp.x=39, tmp.y=49;
+        tmp.behaviour=2;
+        door_data.push_back(tmp);
     }
     if(current.y<DUNGEON_Y_MAX){
-        doors.push_back({39, 0}); // top door
+        DoorData tmp;
+        tmp.x=39, tmp.y=0;
+        tmp.behaviour=1;
+        door_data.push_back(tmp);
     }
     if(current.x>1){
-        doors.push_back({0, 24}); // left door
+        DoorData tmp;
+        tmp.x=0, tmp.y=24;
+        tmp.behaviour=3;
+        door_data.push_back(tmp);
     }
     if(current.x<DUNGEON_X_MAX){
-        doors.push_back({79, 24}); // right door
+        DoorData tmp;
+        tmp.x=79, tmp.y=24;
+        tmp.behaviour=4;
+        door_data.push_back(tmp);
+    }
+}
+
+void generate_stairs(std::vector<StaircaseData> &staircase_data, const Level current){
+    if(current.lvl<DUNGEON_LEVEL_MAX&&current.x==DUNGEON_X_MAX&&current.y==DUNGEON_Y_MAX){ // go down
+        StaircaseData tmp;
+        tmp.x=39, tmp.y=24;
+        tmp.behaviour=1;
+        staircase_data.push_back(tmp);
+    }
+    if(current.lvl>1&&current.x==1&&current.y==1){ // go up
+        StaircaseData tmp;
+        tmp.x=39, tmp.y=24;
+        tmp.behaviour=2;
+        staircase_data.push_back(tmp);
+    }
+    if(current.lvl==1&&current.x==1&&current.y==1){ // enter town
+        StaircaseData tmp;
+        tmp.x=1, tmp.y=48;
+        tmp.behaviour=2;
+        staircase_data.push_back(tmp);
     }
 }
 
