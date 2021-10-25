@@ -1,3 +1,21 @@
+// Wayventure, a complex old-school dungeon adventure.
+// Copyright (C) 2021 Zhi Ping Ooi
+//
+// This file is part of Wayventure.
+//
+// Wayventure is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 #pragma once
 
 #include <string>
@@ -20,10 +38,6 @@ enum class Enemy_Type{
 constexpr char DEFAULT_SHOW_SELECTION='!';
 constexpr char SORT_TYPE_RARITY_ASCENDING='a';
 constexpr char SORT_TYPE_RARITY_DESCENDING='d';
-
-extern const int DUNGEON_LEVEL_MAX;
-extern const int DUNGEON_X_MAX;
-extern const int DUNGEON_Y_MAX;
 
 struct Time{
     long hours;
@@ -58,6 +72,8 @@ struct Level{
         }
     }
 
+    Level()=default;
+
     Level(int lvl, int x, int y):lvl{lvl}, x{x}, y{y}{};
 
     bool operator==(const Level &other) const;
@@ -70,13 +86,17 @@ struct Level{
 
 struct Monster_Stats{ // base stats
     int hp=150, attk=60, def=0;
+
+    template<class Archive>
+    void serialize(Archive &archive){archive(hp, attk, def);}
 };
 
 struct Monster{
-    int id;
+    unsigned int id;
     int x, y; // x cords and y cords
     Enemy_Type type; // 'e' for enemy, 'b' for boss
     Monster_Stats stats;
+
     template<class Archive>
     void serialize(Archive &archive){archive(id, x, y, type, stats);}
 };
@@ -89,27 +109,39 @@ struct Csr{
 };
 
 struct LootData{
-    int id=0;
+    unsigned int id=0;
     Level dungeon_position={1,1,1};
     Csr room_position={1,1};
+
+    template<class Archive>
+    void serialize(Archive &archive){archive(id, dungeon_position, room_position);}
 };
 
 struct TrapData{
     int x=0, y=0;
     bool is_activated=false;
     int behaviour=0; // 0: Default
+
+    template<class Archive>
+    void serialize(Archive &archive){archive(x, y, is_activated, behaviour);}
 };
 
 struct StaircaseData{
-    int id=0;
+    unsigned int id=0;
     int x=0, y=0;
     int behaviour=0; // 0: None, 1: Down, 2: Up
+
+    template<class Archive>
+    void serialize(Archive &archive){archive(id, x, y, behaviour);}
 };
 
 struct DoorData{
-    int id=0;
+    unsigned int id=0;
     int x=0, y=0;
     int behaviour=0; // 0: None, 1: Up, 2: Down, 3: Left, 4: Right
+
+    template<class Archive>
+    void serialize(Archive &archive){archive(id, x, y, behaviour);}
 };
 
 struct RoomData{
@@ -120,7 +152,12 @@ struct RoomData{
     std::vector<LootData> loot_in_room; // Completed
     std::vector<DoorData> door_data; // Completed
 
+    RoomData()=default;
+
     RoomData(const Csr csr_pos, const Level &id);
+
+    template<class Archive>
+    void serialize(Archive &archive){archive(id, enemy_data, trap_data, staircase_data, loot_in_room, door_data);}
 };
 
 struct Item{
@@ -227,8 +264,6 @@ struct Inventory{
     Food food;
     Water water;
     Miscellaneous misc;
-
-    unsigned long long int get_inventory_largest_id();
 
     Item *get_pointer_to_item_with_id(unsigned long long int id);
 
@@ -401,11 +436,16 @@ public:
     std::vector<RoomData> room_data;
     std::vector<LootData> loot_data;
 
-    Dungeon();
+    Dungeon()=default;
+
+    void init_rooms();
 
     void get_loot_in_room(const Level &current, std::vector<LootData> &loot_in_room);
 
     RoomData* get_pointer_of_room(const Level &current);
+
+    template<class Archive>
+    void serialize(Archive &archive){archive(csr_pos, current, npc, room_data, loot_data);}
 };
 
 struct No_Delete{
@@ -428,4 +468,31 @@ struct No_Delete{
 
 std::ostream &operator<<(std::ostream &os, const Time &time);
 
+template <typename T> unsigned long long int get_largest_id(const std::vector<T> &data){
+    unsigned long long int id=0;
+    for(const auto &i:data){
+        if(i.id>id){
+            id=i.id;
+        }
+    }
+    return id;
+}
 
+template <typename T> bool delete_item_with_id(std::vector<T> &data, unsigned long long int id){
+    for(auto it = data.begin(); it != data.end(); it++){
+        if(it->id==id){
+            data.erase(it);
+            return true;
+        }
+    }
+    return false;
+}
+
+template <typename T> T* get_pointer_with_id(std::vector<T> &data, unsigned long long int id){
+    for(auto &i:data){
+        if(i.id==id){
+            return &i;
+        }
+    }
+    return nullptr;
+}

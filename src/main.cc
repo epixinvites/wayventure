@@ -1,3 +1,21 @@
+// Wayventure, a complex old-school dungeon adventure.
+// Copyright (C) 2021 Zhi Ping Ooi
+//
+// This file is part of Wayventure.
+//
+// Wayventure is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 #include <iostream>
 #include <random>
 #include <thread>
@@ -332,7 +350,7 @@ void init_data(Dungeon &dungeon_data, Player &user, No_Delete &perm_config){
         throw std::runtime_error("Nope. Nopenopenopenope. You didn't follow my instructions.");
     }
     std::ifstream ifile("save/user.save", std::ios::binary);
-    if(!is_empty(ifile)){
+    if(std::filesystem::exists(std::filesystem::path("save/user.save"))){
         cereal::PortableBinaryInputArchive retrieve(ifile);
         retrieve(dungeon_data, user, perm_config, version_check);
         if(save_file_version!=version_check){
@@ -343,6 +361,12 @@ void init_data(Dungeon &dungeon_data, Player &user, No_Delete &perm_config){
         std::filesystem::remove("save/user.save.1");
         std::filesystem::copy("save/user.save", "save/user.save.1");
     }
+    else{
+        dungeon_data.init_rooms();
+        std::ofstream ofile("save/user.save", std::ios::trunc | std::ios::binary);
+        cereal::PortableBinaryOutputArchive archive(ofile);
+        archive(dungeon_data, user, perm_config, save_file_version);
+    }
 }
 
 void save_data(const Dungeon &dungeon_data, Player &user, const No_Delete &perm_config){
@@ -352,27 +376,54 @@ void save_data(const Dungeon &dungeon_data, Player &user, const No_Delete &perm_
     archive(dungeon_data, user, perm_config, save_file_version);
 }
 
-void print_starting_screen(tcod::ConsolePtr &main_win, tcod::ContextPtr &context){
+void print_start_menu(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, const std::vector<std::string> &logo, unsigned int csr_pos){
+    TCOD_console_clear(main_win.get());
+    int win_iterator=10;
+    for(const auto &i:logo){
+        tcod::print(*main_win, {9, win_iterator}, i, &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+        win_iterator++;
+    }
+    tcod::print(*main_win, {40, 25}, "A complex dungeon crawler with endless possibilities...", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_CENTER);
+    tcod::print(*main_win, {40, 33}, "-Press any key to continue-", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_CENTER);
+    print_bold_with_condition_ex(main_win, context, "[Load Savefile]", WHITE, BLACK, 40, 38, TCOD_CENTER, csr_pos==0);
+    print_bold_with_condition_ex(main_win, context, "[Return]", WHITE, BLACK, 40, 40, TCOD_CENTER, csr_pos==1);
+    print_bold_with_condition_ex(main_win, context, "[Create new Savefile] (WIP)", WHITE, BLACK, 40, 42, TCOD_CENTER, csr_pos==2);
+    context->present(*main_win);
+}
+
+void starting_screen(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player &user, Dungeon &dungeon_data, No_Delete &perm_config){
     std::ifstream ascii_wayfarer("src/res/wayfarer.txt");
     if(!ascii_wayfarer){
         end_program(-1, "wayfarer.txt not found!");
         return;
     }
-    int win_iterator=10;
+    std::vector<std::string> logo;
     std::string line;
     while(std::getline(ascii_wayfarer, line)){
-        tcod::print(*main_win, {7, win_iterator}, line, &WHITE, &FULL_BLACK, TCOD_BKGND_SET, TCOD_LEFT);
-        win_iterator++;
+        logo.push_back(line);
     }
-    tcod::print(*main_win, {37, 25}, "A complex dungeon crawler with endless possibilities...", &WHITE, &FULL_BLACK, TCOD_BKGND_SET, TCOD_CENTER);
-    tcod::print(*main_win, {35, 33}, "-Press any key to continue-", &WHITE, &FULL_BLACK, TCOD_BKGND_SET, TCOD_CENTER);
-    context->present(*main_win);
     ascii_wayfarer.close();
     int ch;
+    unsigned int csr_pos=0;
+    print_start_menu(main_win, context, logo, csr_pos);
     while(true){
         ch=SDL_getch(main_win, context);
-        if(ch>0&&ch<128){
-            break;
+        if((ch=='w'||ch==SDLK_UP)&&csr_pos>0){
+            csr_pos--;
+            print_start_menu(main_win, context, logo, csr_pos);
+        }
+        else if((ch=='s'||ch==SDLK_DOWN)&&csr_pos<2){
+            csr_pos++;
+            print_start_menu(main_win, context, logo, csr_pos);
+        }
+        else if(ch==SDLK_RETURN){
+            if(csr_pos==0){
+                init_data(dungeon_data, user, perm_config);
+                return;
+            }
+            else if(csr_pos==1){
+                std::exit(1);
+            }
         }
     }
 }
@@ -397,6 +448,8 @@ void init(){
     tcod::ContextPtr context=tcod::new_context(params);
     TCOD_console_set_default_foreground(main_win.get(), WHITE);
     TCOD_console_set_default_background(main_win.get(), BLACK);
+    // Print starting screen
+    starting_screen(main_win, context, user, dungeon_data, perm_config);
     // Get data from save files (if present)
     init_data(dungeon_data, user, perm_config);
     // Start timer thread to refresh jobs
@@ -404,7 +457,6 @@ void init(){
     std::thread refresh_timer(job_thread, std::ref(dungeon_data.npc.miner), std::ref(dungeon_data.npc.archaeologist), std::ref(terminate));
     refresh_timer.detach();
     // Start main dungeon
-    print_starting_screen(main_win, context);
     main_dungeon(main_win, context, dungeon_data, user, perm_config);
     // Terminate thread
     terminate.store(true, std::memory_order_release);

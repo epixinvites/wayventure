@@ -1,3 +1,21 @@
+// Wayventure, a complex old-school dungeon adventure.
+// Copyright (C) 2021 Zhi Ping Ooi
+//
+// This file is part of Wayventure.
+//
+// Wayventure is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 #include "headers/classes.h"
 #include "headers/generate.h"
 #include <cmath>
@@ -133,16 +151,6 @@ void Item::initialize_item(){
     original.crit_dmg=crit_dmg;
 }
 
-unsigned long long int Inventory::get_inventory_largest_id(){
-    unsigned long long int largest_id=0;
-    for(const auto &i: item){
-        if(i.id>largest_id){
-            largest_id=i.id;
-        }
-    }
-    return largest_id;
-}
-
 Item *Inventory::get_pointer_to_item_with_id(unsigned long long int id){
     for(auto &i: item){
         if(i.id==id){
@@ -157,7 +165,7 @@ void Player::delete_item_with_id(unsigned long long int id){
 }
 
 void Player::add_item(Item input){
-    input.id=inv.get_inventory_largest_id()+1;
+    input.id=get_largest_id(inv.item)+1;
     inv.item.push_back(input);
     for(int i=0; i<inv.item.size(); i++){ // loops through every single item and finds all items that is_equipped
         if(inv.item[i].is_equipped){
@@ -193,7 +201,7 @@ void Player::remove_item(Item *address){
         }
     }
     inv.item.erase(inv.item.begin()+pos);
-//    equip=Equipped();
+    equip=Equipped();
     for(int i=0; i<inv.item.size(); i++){ // loops through every single item and finds all items that is_equipped
         if(inv.item[i].is_equipped){
             if(inv.item[i].type==Type::HELMET){
@@ -324,7 +332,7 @@ void Dungeon::get_loot_in_room(const Level &current, std::vector<LootData> &loot
     }
 }
 
-Dungeon::Dungeon(){
+void Dungeon::init_rooms(){
     for(int l = 1; l<=5; l++){
         for(int x = 1; x<=5; x++){
             for(int y = 1; y<=5; y++){
@@ -347,4 +355,5 @@ RoomData* Dungeon::get_pointer_of_room(const Level &current){
             return &i;
         }
     }
+    return nullptr;
 }

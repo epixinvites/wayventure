@@ -1,3 +1,21 @@
+// Wayventure, a complex old-school dungeon adventure.
+// Copyright (C) 2021 Zhi Ping Ooi
+//
+// This file is part of Wayventure.
+//
+// Wayventure is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 #pragma once
 
 #include "classes.h"
@@ -28,9 +46,9 @@ static constexpr TCOD_ColorRGB MAGENTA{255, 0, 255}; // NPC (exclusive)
 // Don't touch any of these. For god's sake.
 const std::string empty_line="                                                                                ";
 
-extern const int DUNGEON_LEVEL_MAX=5;
-extern const int DUNGEON_X_MAX=5;
-extern const int DUNGEON_Y_MAX=5;
+const int DUNGEON_LEVEL_MAX=5;
+const int DUNGEON_X_MAX=5;
+const int DUNGEON_Y_MAX=5;
 
 void clear_and_draw_dialog(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, const std::string &dialog);
 
@@ -55,6 +73,8 @@ long long int get_llint(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, c
 unsigned long long int get_ullint(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, const std::string &dialogue);
 
 void print_bold_with_condition(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, const std::string &output, const TCOD_ColorRGB &foreground, int line, bool is_bold);
+
+void print_bold_with_condition_ex(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, const std::string &output, const TCOD_ColorRGB &foreground, const TCOD_ColorRGB &background, int x, int y, TCOD_alignment_t alignment, bool is_bold);
 
 void end_program(int sig);
 

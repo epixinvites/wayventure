@@ -1,3 +1,21 @@
+// Wayventure, a complex old-school dungeon adventure.
+// Copyright (C) 2021 Zhi Ping Ooi
+//
+// This file is part of Wayventure.
+//
+// Wayventure is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 #include "headers/generate.h"
 
 Rarity generate_loot_rarity(Enemy_Type type){
@@ -416,7 +434,7 @@ Monster_Stats create_monster(const Level current, const Enemy_Type type){
     return monster;
 }
 
-Monster generate_room_monsters(std::vector<Monster> &enemy_data, const Level current, const Csr csr_pos){
+void generate_room_monsters(std::vector<Monster> &enemy_data, const Level current, const Csr csr_pos){
     std::random_device device;
     std::mt19937 generator(device());
     std::uniform_int_distribution<int> x_generator(1, 78);
@@ -436,7 +454,7 @@ Monster generate_room_monsters(std::vector<Monster> &enemy_data, const Level cur
     };
     for(int i=0; i<amount(generator); i++){
         Monster tmp_monster;
-        tmp_monster.id=(i+1);
+        tmp_monster.id=get_largest_id(enemy_data)+1;
         tmp_monster.x=x_generator(generator);
         tmp_monster.y=y_generator(generator);
         if(check_if_monster_already_exist(enemy_data, tmp_monster.x, tmp_monster.y)){
@@ -472,7 +490,7 @@ Monster generate_room_monsters(std::vector<Monster> &enemy_data, const Level cur
         Monster tmp_monster;
         tmp_monster.x=39;
         tmp_monster.y=24;
-        tmp_monster.id=enemy_data[enemy_data.size()-1].id
+        tmp_monster.id=get_largest_id(enemy_data)+1;
         if(current.lvl<DUNGEON_LEVEL_MAX){
             tmp_monster.type=Enemy_Type::LEVEL_BOSS;
         }
@@ -499,7 +517,7 @@ int generate_random_number(int range_lo, int range_hi){
 }
 
 void generate_doors(std::vector<DoorData> &door_data, const Level current){
-    int id = 0;
+    unsigned int id = 0;
     if(current.y>1){ // {x , y}
         DoorData tmp;
         tmp.x=39, tmp.y=49;
