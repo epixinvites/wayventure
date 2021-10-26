@@ -32,7 +32,7 @@ void draw_monster(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, const s
 
 void draw_border(std::unique_ptr<TCOD_Console, tcod::ConsoleDeleter> &main_win, std::unique_ptr<TCOD_Context, tcod::ContextDeleter> &context);
 
-void draw_doors(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, const std::vector<DoorData> &door_data);
+void draw_doors(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, const std::vector<DoorData> &door_data, const std::vector<StaircaseData> &stair_data);
 
 void draw_inventory(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, const Player &user, const std::vector<Item *> &items_copy, unsigned int page_num, unsigned int csr_pos, bool is_blacksmith_mode=false, bool is_inventory_modifier_mode=false);
 

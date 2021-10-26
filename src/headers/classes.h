@@ -22,6 +22,9 @@
 #include <vector>
 #include <map>
 #include <chrono>
+#include <atomic>
+#include <libtcod.h>
+#include <SDL2/SDL.h>
 
 enum class Rarity{
     NONE, ALL, COMMON, UNCOMMON, RARE, EPIC, LEGENDARY, ARTIFACT,
@@ -80,6 +83,10 @@ struct Level{
 
     bool operator!=(const Level &other) const;
 
+    bool operator<=(const Level &other) const;
+
+    bool operator>=(const Level &other) const;
+
     template<class Archive>
     void serialize(Archive &archive){archive(lvl, x, y);}
 };
@@ -102,7 +109,9 @@ struct Monster{
 };
 
 struct Csr{
-    int x=1, y=1;
+    int x=1, y=1; // csr_pos starts at {0, 1} until {49, 50}
+
+    Csr convert_to_screen_pos(int input_x, int input_y);
 
     template<class Archive>
     void serialize(Archive &archive){archive(x, y);}
@@ -127,18 +136,24 @@ struct TrapData{
 };
 
 struct StaircaseData{
+    enum class Behaviour{
+        NONE, DOWN, UP
+    };
     unsigned int id=0;
     int x=0, y=0;
-    int behaviour=0; // 0: None, 1: Down, 2: Up
+    Behaviour behaviour=Behaviour::NONE; // 0: None, 1: Down, 2: Up
 
     template<class Archive>
     void serialize(Archive &archive){archive(id, x, y, behaviour);}
 };
 
 struct DoorData{
+    enum class Behaviour{
+        NONE, UP, DOWN, LEFT, RIGHT
+    };
     unsigned int id=0;
     int x=0, y=0;
-    int behaviour=0; // 0: None, 1: Up, 2: Down, 3: Left, 4: Right
+    Behaviour behaviour=Behaviour::NONE; // 0: None, 1: Up, 2: Down, 3: Left, 4: Right
 
     template<class Archive>
     void serialize(Archive &archive){archive(id, x, y, behaviour);}
@@ -464,6 +479,26 @@ struct No_Delete{
     void serialize(Archive &archive){
         archive(default_show_type_type, default_show_rarity_type, default_sort_rarity_method, show_current_item_compared_to_equipped, only_show_equipped, keep_changes_persistent);
     }
+};
+
+class Thread_Flags{
+public:
+    std::atomic<bool> terminate = false;
+    std::atomic<bool> main_dungeon_require_update = false;
+
+    void update_flag(std::atomic<bool> &flag, bool value);
+
+    bool get_flag(std::atomic<bool> &flag);
+};
+
+class Screen_Char_Data{
+private:
+    int char_code;
+    TCOD_ColorRGB foreground;
+    TCOD_ColorRGB background;
+
+public:
+    void get_char_at(tcod::ConsolePtr &main_win, int x, int y);
 };
 
 std::ostream &operator<<(std::ostream &os, const Time &time);

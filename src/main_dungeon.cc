@@ -24,25 +24,7 @@
 #include "headers/generate.h"
 #include "headers/mode.h"
 #include "headers/main.h"
-
-void refresh_lootbox(const std::atomic<bool> &terminate, std::atomic<bool> &require_processing, Dungeon &dungeon_data){
-    if(!dungeon_data.loot_data.empty()){
-        std::this_thread::sleep_for(std::chrono::minutes(5));
-    }
-    while(!terminate.load(std::memory_order_acquire)){
-        dungeon_data.loot_data.clear();
-        int amount_of_lootboxes=generate_random_number(20,50);
-        for(int i = 0; i<amount_of_lootboxes; i++){
-            LootData temp_data;
-            temp_data.id=i;
-            temp_data.dungeon_position={generate_random_number(1,5),generate_random_number(1,5),generate_random_number(1,5)};
-            temp_data.room_position={generate_random_number(1,78),generate_random_number(1,48)};
-            dungeon_data.loot_data.push_back(temp_data);
-        }
-        require_processing.store(true, std::memory_order_release);
-        std::this_thread::sleep_for(std::chrono::minutes(5));
-    }
-}
+#include "headers/threads.h"
 
 bool check_position_for_monsters(const std::vector<Monster> &monsters, int x, int y){
     for(const auto &i:monsters){
@@ -71,7 +53,7 @@ int check_monster_id(const std::vector<Monster> &monsters, int x, int y){
     return 0;
 }
 
-void char_move(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, int ch, Csr &csr_pos, const std::vector<Monster> &monsters, const std::vector<LootData> &loot_in_room, const std::vector<DoorData> &door_data, Player &user, Npc &npc, Level current){
+void char_move(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, int ch, Csr &csr_pos, const std::vector<Monster> &monsters, const std::vector<LootData> &loot_in_room, Player &user, Npc &npc, Level current){
     bool require_move=false;
     if((ch=='a'||ch==SDLK_LEFT)&&csr_pos.x>1&&!check_position_for_monsters(monsters, csr_pos.x-1, csr_pos.y)&&!check_surroundings_for_obstacles(loot_in_room, csr_pos.x-1, csr_pos.y)){
         TCOD_console_put_char_ex(main_win.get(), csr_pos.x, csr_pos.y+1, ' ', WHITE, BLACK);
@@ -105,8 +87,6 @@ void char_move(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, int ch, Cs
             npc.bank.interest_next_applied+=50000;
             npc.bank.saved_gold*=npc.bank.storage_interest;
         }
-        draw_loot_box(main_win, context, loot_in_room);
-        draw_doors(main_win, context, door_data);
         draw_player(main_win, context, csr_pos.x, csr_pos.y);
         draw_stats(main_win, context, user);
         context->present(*main_win);
@@ -344,22 +324,20 @@ void drop_items_on_death(Player &user, Csr &csr_pos, Level &current){
     current=Level(1,1,1);
 }
 
-void main_dungeon(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Dungeon &dungeon_data, Player &user, No_Delete &perm_config){
+void main_dungeon(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Dungeon &dungeon_data, Player &user, No_Delete &perm_config, Thread_Flags &thread_flags){
     RoomData *cur_room = dungeon_data.get_pointer_of_room(dungeon_data.current);
-    std::atomic<bool> terminate = false, require_processing = false;
-    std::thread lootbox_refresh_thread (refresh_lootbox, std::ref(terminate), std::ref(require_processing), std::ref(dungeon_data));
-    lootbox_refresh_thread.detach();
+    dungeon_data.get_loot_in_room(cur_room->id, cur_room->loot_in_room);
     redraw_main_dungeon(main_win, context, dungeon_data.csr_pos, user, dungeon_data, cur_room);
     int ch;
     while(true){
-        if(require_processing.load(std::memory_order_acquire)){
+        if(thread_flags.get_flag(thread_flags.main_dungeon_require_update)){
             dungeon_data.get_loot_in_room(cur_room->id, cur_room->loot_in_room);
-            require_processing.store(false, std::memory_order_release);
+            thread_flags.update_flag(thread_flags.main_dungeon_require_update, false);
             redraw_main_dungeon(main_win, context, dungeon_data.csr_pos, user, dungeon_data, cur_room);
         }
         ch=SDL_getch(main_win, context);
         if(ch=='w'||ch=='a'||ch=='s'||ch=='d'||ch==SDLK_LEFT||ch==SDLK_RIGHT||ch==SDLK_DOWN||ch==SDLK_UP){
-            char_move(main_win, context, ch, dungeon_data.csr_pos, cur_room->enemy_data, cur_room->loot_in_room, cur_room->door_data, user, dungeon_data.npc, cur_room->id);
+            char_move(main_win, context, ch, dungeon_data.csr_pos, cur_room->enemy_data, cur_room->loot_in_room, user, dungeon_data.npc, cur_room->id);
         }
         else if(ch=='z'){
             move_door(dungeon_data, cur_room->door_data);
@@ -374,7 +352,7 @@ void main_dungeon(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Dungeon
             if(attack_status.first&&!attack_status.second){ // If dead return to main menu
                 end_program(1);
                 drop_items_on_death(user, dungeon_data.csr_pos, dungeon_data.current);
-                save_data(dungeon_data, user, perm_config);
+                thread_flags.update_flag(thread_flags.terminate, true);
                 return;
             }
             else if(attack_status.first&&attack_status.second){ // If win redraw dungeon and move on
@@ -389,8 +367,7 @@ void main_dungeon(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Dungeon
 //            else if(current.lvl==1&&current.x==1&&current.y==1&&csr_pos.x==1&&csr_pos.y==48){
 //                bar_mode(main_win, context, user, npc, perm_config);
 //            }
-//            dungeon_data.get_loot_in_room(current, loot_in_room);
-//            redraw_main_dungeon(main_win, context, dungeon_data.csr_pos, user, dungeon_data, cur_room);
+//            return;
 //        }
         else if(ch=='i'){
             if(!user.inv.item.empty()){
@@ -408,7 +385,7 @@ void main_dungeon(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Dungeon
         else if(ch=='.'){
             if(user.cur_hp<user.ori_hp){
                 user.saturation-=1;
-                user.cur_hp+=(user.ori_hp*0.015);
+                user.cur_hp+=(user.ori_hp*0.03);
             }
             if(user.cur_hp>user.ori_hp){
                 user.cur_hp=user.ori_hp;
@@ -427,24 +404,21 @@ void main_dungeon(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Dungeon
         else if(ch=='q'){
             if(SDL_getch_y_or_n(main_win, context, "Do you really wish to quit? [y] to quit, any other key to abort.")){
                 end_program(0);
-                save_data(dungeon_data, user, perm_config);
-                terminate.store(true, std::memory_order_release);
+                thread_flags.update_flag(thread_flags.terminate, true);
                 return;
             }
             redraw_main_dungeon(main_win, context, dungeon_data.csr_pos, user, dungeon_data, cur_room);
         }
         if(user.saturation<=0){
             drop_items_on_death(user, dungeon_data.csr_pos, dungeon_data.current);
-            save_data(dungeon_data, user, perm_config);
             end_program(2);
-            terminate.store(true, std::memory_order_release);
+            thread_flags.update_flag(thread_flags.terminate, true);
             return;
         }
         if(user.hydration<=0){
             drop_items_on_death(user, dungeon_data.csr_pos, dungeon_data.current);
-            save_data(dungeon_data, user, perm_config);
             end_program(3);
-            terminate.store(true, std::memory_order_release);
+            thread_flags.update_flag(thread_flags.terminate, true);
             return;
         }
     }

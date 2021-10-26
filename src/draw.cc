@@ -100,9 +100,19 @@ void draw_border(std::unique_ptr<TCOD_Console, tcod::ConsoleDeleter> &main_win, 
     }
 }
 
-void draw_doors(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, const std::vector<DoorData> &door_data){
+void draw_doors(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, const std::vector<DoorData> &door_data, const std::vector<StaircaseData> &stair_data){
     for(const auto &i:door_data){
         TCOD_console_put_char_ex(main_win.get(), i.x, i.y+1, '+', BLACK, WHITE);
+    }
+    if(!stair_data.empty()){
+        for(const auto &i:stair_data){
+            if(i.behaviour==StaircaseData::Behaviour::UP){
+                TCOD_console_put_char_ex(main_win.get(), i.x, i.y+1, '<', WHITE, BLACK);
+            }
+            else if(i.behaviour==StaircaseData::Behaviour::DOWN){
+                TCOD_console_put_char_ex(main_win.get(), i.x, i.y+1, '>', WHITE, BLACK);
+            }
+        }
     }
 }
 
@@ -119,7 +129,7 @@ void redraw_main_dungeon(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, 
     draw_level(main_win, context, dungeon_data.current);
     draw_stats(main_win, context, user);
     draw_border(main_win, context);
-    draw_doors(main_win, context, cur_room->door_data);
+    draw_doors(main_win, context, cur_room->door_data, cur_room->staircase_data);
     draw_loot_box(main_win, context, cur_room->loot_in_room);
     draw_player(main_win, context, csr_pos.x, csr_pos.y);
     draw_monster(main_win, context, cur_room->enemy_data);

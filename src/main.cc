@@ -30,6 +30,7 @@
 #include "headers/generate.h"
 #include "headers/mode.h"
 #include "headers/dungeon.h"
+#include "headers/threads.h"
 #include <cereal/archives/portable_binary.hpp>
 #include <cereal/types/vector.hpp>
 #include <cereal/types/string.hpp>
@@ -234,77 +235,6 @@ unsigned long long int get_ullint(tcod::ConsolePtr &main_win, tcod::ContextPtr &
     }
 }
 
-void job_thread(Miner &miner, Archaeologist &archaeologist, const std::atomic<bool> &terminate){
-    while(!terminate.load(std::memory_order_acquire)){
-        if(miner.job.has_active_job&&miner.job.is_job_finished()){
-            miner.loot.mysterious_piece+=(((20*miner.job.number_of_miners)+generate_random_number(0, 2*miner.job.number_of_miners))*miner.job.loot_multiplier)*((500+miner.skill_level)/500);
-            miner.loot.mysterious_artifact+=(((4*miner.job.number_of_miners)+generate_random_number(0, miner.job.number_of_miners))*miner.job.loot_multiplier)*((500+miner.skill_level)/500);
-            miner.skill_level+=(miner.job.number_of_miners+generate_random_number(0, miner.job.number_of_miners))/pow(1.02,miner.skill_level);
-            if(miner.skill_level>250.0){
-                miner.skill_level=250.0;
-            }
-            miner.job=Miner::Job_Details();
-        }
-        if(archaeologist.job.has_active_job&&archaeologist.job.is_job_finished()){
-            // Material 0, 5, 20, 50, 100, 225
-            for(int i=0; i<archaeologist.job.decryption_amount.mysterious_piece; i++){
-                if(archaeologist.skill_level<250.0){
-                    archaeologist.skill_level+=(1/pow(1.04,miner.skill_level));
-                }
-                if(return_chance(static_cast<int>(75+((miner.skill_level)/10)))){
-                    continue;
-                }
-                int chance=generate_random_number(0, miner.skill_level);
-                if(chance<5){
-                    archaeologist.loot_storage.materials.common++;
-                }
-                else if(chance<20){
-                    archaeologist.loot_storage.materials.uncommon++;
-                }
-                else if(chance<50){
-                    archaeologist.loot_storage.materials.rare++;
-                }
-                else if(chance<100){
-                    archaeologist.loot_storage.materials.epic++;
-                }
-                else if(chance<225){
-                    archaeologist.loot_storage.materials.legendary++;
-                }
-                else{
-                    archaeologist.loot_storage.materials.artifact++;
-                }
-
-            }
-            // Cores 0, 75, 150, 225
-            for(int i=0; i<archaeologist.job.decryption_amount.mysterious_artifact; i++){
-                if(archaeologist.skill_level<250.0){
-                    archaeologist.skill_level+=(4/pow(1.04,miner.skill_level));
-                }
-                if(return_chance(static_cast<int>(50+((miner.skill_level)/5)))){
-                    continue;
-                }
-                int chance=generate_random_number(0, miner.skill_level);
-                if(chance<75){
-                    archaeologist.loot_storage.cores.crystal_core++;
-                }
-                else if(chance<150){
-                    archaeologist.loot_storage.cores.crystallium++;
-                }
-                else if(chance<225){
-                    archaeologist.loot_storage.cores.mysterious_shard++;
-                }
-                else{
-                    archaeologist.loot_storage.cores.ancient_core++;
-                }
-
-            }
-            archaeologist.job=Archaeologist::Job_Details();
-        }
-        std::this_thread::sleep_for(std::chrono::seconds(1));
-    }
-    return;
-}
-
 void end_program(int sig){
     if(sig==0){
         std::cout << "Nya~" << std::endl;
@@ -338,10 +268,6 @@ void end_program(int sig, const std::string &error){
         std::cerr << error << std::endl;
         return;
     }
-}
-
-bool is_empty(std::ifstream &p_file){
-    return p_file.peek()==std::ifstream::traits_type::eof();
 }
 
 void init_data(Dungeon &dungeon_data, Player &user, No_Delete &perm_config){
@@ -433,6 +359,7 @@ void init(){
     Player user;
     No_Delete perm_config;
     Dungeon dungeon_data;
+    Thread_Flags thread_flags;
     user.inv.misc.heal_amount=10;
     // libtcod initialization
     tcod::ConsolePtr main_win=tcod::new_console(80, 56);
@@ -450,18 +377,19 @@ void init(){
     TCOD_console_set_default_background(main_win.get(), BLACK);
     // Print starting screen
     starting_screen(main_win, context, user, dungeon_data, perm_config);
-    // Get data from save files (if present)
-    init_data(dungeon_data, user, perm_config);
-    // Start timer thread to refresh jobs
-    std::atomic<bool> terminate = false;
-    std::thread refresh_timer(job_thread, std::ref(dungeon_data.npc.miner), std::ref(dungeon_data.npc.archaeologist), std::ref(terminate));
+    // Start threads
+    std::thread refresh_timer(job_thread, std::ref(dungeon_data.npc.miner), std::ref(dungeon_data.npc.archaeologist), std::ref(thread_flags.terminate));
+    std::thread lootbox_refresh_thread (refresh_lootbox, std::ref(thread_flags.terminate), std::ref(thread_flags.main_dungeon_require_update), std::ref(dungeon_data));
     refresh_timer.detach();
+    lootbox_refresh_thread.detach();
     // Start main dungeon
-    main_dungeon(main_win, context, dungeon_data, user, perm_config);
-    // Terminate thread
-    terminate.store(true, std::memory_order_release);
+    while(!thread_flags.get_flag(thread_flags.terminate)){
+        main_dungeon(main_win, context, dungeon_data, user, perm_config, thread_flags);
+    }
     // Terminate libtcod
     TCOD_quit();
+    // Save data
+    save_data(dungeon_data, user, perm_config);
 }
 
 int main(int argc, char *argv[]){

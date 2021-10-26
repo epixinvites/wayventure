@@ -16,6 +16,10 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#pragma once
+#include <atomic>
+#include "classes.h"
 
-void main_dungeon(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Dungeon &dungeon_data, Player &user, No_Delete &perm_config, Thread_Flags &thread_flags);
+void refresh_lootbox(const std::atomic<bool> &terminate, std::atomic<bool> &require_processing, Dungeon &dungeon_data);
+
+void job_thread(Miner &miner, Archaeologist &archaeologist, const std::atomic<bool> &terminate);
+

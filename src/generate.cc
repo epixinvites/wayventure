@@ -521,25 +521,25 @@ void generate_doors(std::vector<DoorData> &door_data, const Level current){
     if(current.y>1){ // {x , y}
         DoorData tmp;
         tmp.x=39, tmp.y=49;
-        tmp.behaviour=2;
+        tmp.behaviour=DoorData::Behaviour::DOWN;
         door_data.push_back(tmp);
     }
     if(current.y<DUNGEON_Y_MAX){
         DoorData tmp;
         tmp.x=39, tmp.y=0;
-        tmp.behaviour=1;
+        tmp.behaviour=DoorData::Behaviour::UP;
         door_data.push_back(tmp);
     }
     if(current.x>1){
         DoorData tmp;
         tmp.x=0, tmp.y=24;
-        tmp.behaviour=3;
+        tmp.behaviour=DoorData::Behaviour::LEFT;
         door_data.push_back(tmp);
     }
     if(current.x<DUNGEON_X_MAX){
         DoorData tmp;
         tmp.x=79, tmp.y=24;
-        tmp.behaviour=4;
+        tmp.behaviour=DoorData::Behaviour::RIGHT;
         door_data.push_back(tmp);
     }
 }
@@ -548,19 +548,19 @@ void generate_stairs(std::vector<StaircaseData> &staircase_data, const Level cur
     if(current.lvl<DUNGEON_LEVEL_MAX&&current.x==DUNGEON_X_MAX&&current.y==DUNGEON_Y_MAX){ // go down
         StaircaseData tmp;
         tmp.x=39, tmp.y=24;
-        tmp.behaviour=1;
+        tmp.behaviour=StaircaseData::Behaviour::DOWN;
         staircase_data.push_back(tmp);
     }
     if(current.lvl>1&&current.x==1&&current.y==1){ // go up
         StaircaseData tmp;
         tmp.x=39, tmp.y=24;
-        tmp.behaviour=2;
+        tmp.behaviour=StaircaseData::Behaviour::UP;
         staircase_data.push_back(tmp);
     }
     if(current.lvl==1&&current.x==1&&current.y==1){ // enter town
         StaircaseData tmp;
         tmp.x=1, tmp.y=48;
-        tmp.behaviour=2;
+        tmp.behaviour=StaircaseData::Behaviour::UP;
         staircase_data.push_back(tmp);
     }
 }

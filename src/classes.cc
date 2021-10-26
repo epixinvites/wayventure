@@ -323,6 +323,14 @@ bool Level::operator!=(const Level &other) const{
     return (this->lvl!=other.lvl||this->x!=other.x||this->y!=other.y);
 }
 
+bool Level::operator<=(const Level &other) const{
+    return (this->lvl<=other.lvl&&this->x<=other.x&&this->y<=other.y);
+}
+
+bool Level::operator>=(const Level &other) const{
+    return (this->lvl>=other.lvl&&this->x>=other.x&&this->y>=other.y);
+}
+
 void Dungeon::get_loot_in_room(const Level &current, std::vector<LootData> &loot_in_room){
     loot_in_room.clear();
     for(const auto &i:loot_data){
@@ -356,4 +364,22 @@ RoomData* Dungeon::get_pointer_of_room(const Level &current){
         }
     }
     return nullptr;
+}
+
+void Thread_Flags::update_flag(std::atomic<bool> &flag, bool value){
+    flag.store(value, std::memory_order_release);
+}
+
+bool Thread_Flags::get_flag(std::atomic<bool> &flag){
+    return flag.load(std::memory_order_acquire);
+}
+
+void Screen_Char_Data::get_char_at(tcod::ConsolePtr &main_win, int x, int y){
+    char_code = TCOD_console_get_char(main_win.get(), x, y);
+    foreground = TCOD_console_get_char_foreground(main_win.get(), x, y);
+    background = TCOD_console_get_char_background(main_win.get(), x, y);
+}
+
+Csr Csr::convert_to_screen_pos(int input_x, int input_y){
+    return {input_x, input_y+1};
 }
