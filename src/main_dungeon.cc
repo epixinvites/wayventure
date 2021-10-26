@@ -252,19 +252,22 @@ void move_door(Dungeon &dungeon_data, const std::vector<DoorData> &door_data){
     }
 }
 
-bool move_staircase(Level &current, Csr csr_pos){
-    if(current.lvl<5&&current.x==5&&current.y==5){ // go down
-        if(csr_pos.x==39&&csr_pos.y==24){
-            current.lvl++;
-            current.reset(0);
-            return true;
-        }
+bool move_staircase(const std::vector<StaircaseData> &staircase_data, Level &level, Csr csr_pos){
+    if(staircase_data.empty()){
+        return false;
     }
-    if(current.lvl>1&&current.x==1&&current.y==1){ // go up
-        if(csr_pos.x==39&&csr_pos.y==24){
-            current.lvl--;
-            current.reset(1);
-            return true;
+    for(const auto &i:staircase_data){
+        if(i.x==csr_pos.x&&i.y==csr_pos.y){
+            if(i.behaviour==StaircaseData::Behaviour::UP){
+                level.lvl--;
+                level.x=DUNGEON_X_MAX, level.y=DUNGEON_Y_MAX;
+                return true;
+            }
+            else if(i.behaviour==StaircaseData::Behaviour::DOWN){
+                level.lvl++;
+                level.x=1, level.y=1;
+                return true;
+            }
         }
     }
     return false;
@@ -360,15 +363,14 @@ void main_dungeon(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Dungeon
                 redraw_main_dungeon(main_win, context, dungeon_data.csr_pos, user, dungeon_data, cur_room);
             }
         }
-//        else if(ch=='c'){
-//            if(move_staircase(current, csr_pos)){
-//                generate_doors(doors, current);
-//            }
-//            else if(current.lvl==1&&current.x==1&&current.y==1&&csr_pos.x==1&&csr_pos.y==48){
-//                bar_mode(main_win, context, user, npc, perm_config);
-//            }
-//            return;
-//        }
+        else if(ch=='c'){
+            if(move_staircase(cur_room->staircase_data, dungeon_data.current, dungeon_data.csr_pos)){
+                if(dungeon_data.current==Level{0, DUNGEON_X_MAX, DUNGEON_Y_MAX}){
+                    dungeon_data.csr_pos={78, 1};
+                }
+                return;
+            }
+        }
         else if(ch=='i'){
             if(!user.inv.item.empty()){
                 inventory_mode(main_win, context, user, perm_config);
@@ -394,7 +396,6 @@ void main_dungeon(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Dungeon
         }
         else if(ch=='S'){
             save_data(dungeon_data, user, perm_config);
-            redraw_main_dungeon(main_win, context, dungeon_data.csr_pos, user, dungeon_data, cur_room);
             clear_and_draw_dialog(main_win, context, "Data saved successfully!");
         }
         else if(ch=='H'){

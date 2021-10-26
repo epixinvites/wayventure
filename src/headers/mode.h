@@ -22,7 +22,7 @@
 #include "classes.h"
 #include "main.h"
 
-struct SortAscending{
+struct Sort_Ascending{
     std::unordered_map<Rarity, int> priority{{Rarity::ARTIFACT,  0},
                                              {Rarity::LEGENDARY, 1},
                                              {Rarity::EPIC,      2},
@@ -43,7 +43,7 @@ struct SortAscending{
     }
 } const sort_ascending;
 
-struct SortDescending{
+struct Sort_Descending{
     std::unordered_map<Rarity, int> priority{{Rarity::ARTIFACT,  0},
                                              {Rarity::LEGENDARY, 1},
                                              {Rarity::EPIC,      2},
@@ -89,7 +89,7 @@ void print_description(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, co
 
 void inventory_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player &user, No_Delete &perm_config);
 
-void bar_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player &user, Npc &npc, No_Delete &perm_config);
+void town_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player &user, Dungeon &dungeon_data, No_Delete &perm_config, Thread_Flags &thread_flags);
 
 void reforge_repair_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player &user, No_Delete &perm_config);
 

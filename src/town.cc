@@ -1009,10 +1009,9 @@ void archaeologist_interface(tcod::ConsolePtr &main_win, tcod::ContextPtr &conte
     }
 }
 
-void bar_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player &user, Npc &npc, No_Delete &perm_config){
-    Csr csr_pos{78, 1};
-    refresh_gear_merchant_store(npc.gear_merchant, user.steps);
-    refresh_mysterious_merchant_store(npc.mysterious_trader, user.steps);
+void town_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player &user, Dungeon &dungeon_data, No_Delete &perm_config, Thread_Flags &thread_flags){
+    refresh_gear_merchant_store(dungeon_data.npc.gear_merchant, user.steps);
+    refresh_mysterious_merchant_store(dungeon_data.npc.mysterious_trader, user.steps);
     std::ifstream pub_layout_file("src/res/bar_layout.txt");
     std::vector<std::string> pub_layout; // {50,80}
     for(int i=0; i<50; i++){
@@ -1020,65 +1019,76 @@ void bar_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player &use
         std::getline(pub_layout_file, line);
         pub_layout.push_back(line);
     }
-    redraw_bar(main_win, context, user, npc.gear_merchant, pub_layout, csr_pos);
+    redraw_bar(main_win, context, user, dungeon_data.npc.gear_merchant, pub_layout, dungeon_data.csr_pos);
     int ch;
     while(true){
         ch=SDL_getch(main_win, context);
         if(ch=='w'||ch=='a'||ch=='s'||ch=='d'||ch==SDLK_LEFT||ch==SDLK_RIGHT||ch==SDLK_DOWN||ch==SDLK_UP){
-            char_move(ch, main_win, context, user, csr_pos, pub_layout);
+            char_move(ch, main_win, context, user, dungeon_data.csr_pos, pub_layout);
         }
         else if(ch=='x'){
-            char target=search_surroundings(pub_layout, csr_pos.x, csr_pos.y);
+            char target=search_surroundings(pub_layout, dungeon_data.csr_pos.x, dungeon_data.csr_pos.y);
             if(target=='M'){
-                mysterious_trader_interface(main_win, context, user, npc.mysterious_trader);
-                redraw_bar(main_win, context, user, npc.gear_merchant, pub_layout, csr_pos);
+                mysterious_trader_interface(main_win, context, user, dungeon_data.npc.mysterious_trader);
+                redraw_bar(main_win, context, user, dungeon_data.npc.gear_merchant, pub_layout, dungeon_data.csr_pos);
             }
             else if(target=='B'){
-                bartender_interface(main_win, context, npc.bartender, user);
-                redraw_bar(main_win, context, user, npc.gear_merchant, pub_layout, csr_pos);
+                bartender_interface(main_win, context, dungeon_data.npc.bartender, user);
+                redraw_bar(main_win, context, user, dungeon_data.npc.gear_merchant, pub_layout, dungeon_data.csr_pos);
             }
             else if(target=='F'){
-                farmer_interface(main_win, context, npc.farmer, user);
-                redraw_bar(main_win, context, user, npc.gear_merchant, pub_layout, csr_pos);
+                farmer_interface(main_win, context, dungeon_data.npc.farmer, user);
+                redraw_bar(main_win, context, user, dungeon_data.npc.gear_merchant, pub_layout, dungeon_data.csr_pos);
             }
             else if(target=='G'){
-                gear_merchant_interface(main_win, context, npc.gear_merchant, user, perm_config);
-                redraw_bar(main_win, context, user, npc.gear_merchant, pub_layout, csr_pos);
+                gear_merchant_interface(main_win, context, dungeon_data.npc.gear_merchant, user, perm_config);
+                redraw_bar(main_win, context, user, dungeon_data.npc.gear_merchant, pub_layout, dungeon_data.csr_pos);
             }
             else if(target=='T'){
-                bank_interface(main_win, context, perm_config, user, npc.chest, npc.bank);
-                redraw_bar(main_win, context, user, npc.gear_merchant, pub_layout, csr_pos);
+                bank_interface(main_win, context, perm_config, user, dungeon_data.npc.chest, dungeon_data.npc.bank);
+                redraw_bar(main_win, context, user, dungeon_data.npc.gear_merchant, pub_layout, dungeon_data.csr_pos);
             }
             else if(target=='S'){
                 reforge_repair_mode(main_win, context, user, perm_config);
-                redraw_bar(main_win, context, user, npc.gear_merchant, pub_layout, csr_pos);
+                redraw_bar(main_win, context, user, dungeon_data.npc.gear_merchant, pub_layout, dungeon_data.csr_pos);
             }
             else if(target=='I'){
-                miner_hire_interface(main_win, context, user, npc.miner, npc.archaeologist);
-                redraw_bar(main_win, context, user, npc.gear_merchant, pub_layout, csr_pos);
+                miner_hire_interface(main_win, context, user, dungeon_data.npc.miner, dungeon_data.npc.archaeologist);
+                redraw_bar(main_win, context, user, dungeon_data.npc.gear_merchant, pub_layout, dungeon_data.csr_pos);
             }
             else if(target=='A'){
-                archaeologist_interface(main_win, context, npc.archaeologist, user);
-                redraw_bar(main_win, context, user, npc.gear_merchant, pub_layout, csr_pos);
+                archaeologist_interface(main_win, context, dungeon_data.npc.archaeologist, user);
+                redraw_bar(main_win, context, user, dungeon_data.npc.gear_merchant, pub_layout, dungeon_data.csr_pos);
             }
         }
         else if(ch=='c'){
-            if(csr_pos.x==78&&csr_pos.y==1){
+            if(dungeon_data.csr_pos.x==78&&dungeon_data.csr_pos.y==1){
+                dungeon_data.csr_pos={1, 48};
+                dungeon_data.current={1,1,1};
                 return;
             }
         }
         else if(ch=='i'){
             if(!user.inv.item.empty()){
                 inventory_mode(main_win, context, user, perm_config);
-                redraw_bar(main_win, context, user, npc.gear_merchant, pub_layout, csr_pos);
+                redraw_bar(main_win, context, user, dungeon_data.npc.gear_merchant, pub_layout, dungeon_data.csr_pos);
             }
         }
         else if(ch=='e'){
             eat_drink_mode(main_win, context, user);
-            redraw_bar(main_win, context, user, npc.gear_merchant, pub_layout, csr_pos);
+            redraw_bar(main_win, context, user, dungeon_data.npc.gear_merchant, pub_layout, dungeon_data.csr_pos);
         }
         else if(ch=='q'){
-            return;
+            if(SDL_getch_y_or_n(main_win, context, "Do you really wish to quit? [y] to quit, any other key to abort.")){
+                end_program(0);
+                thread_flags.update_flag(thread_flags.terminate, true);
+                return;
+            }
+            redraw_bar(main_win, context, user, dungeon_data.npc.gear_merchant, pub_layout, dungeon_data.csr_pos);
+        }
+        else if(ch=='S'){
+            save_data(dungeon_data, user, perm_config);
+            clear_and_draw_dialog(main_win, context, "Data saved successfully!");
         }
     }
 }

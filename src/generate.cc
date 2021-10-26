@@ -440,7 +440,7 @@ void generate_room_monsters(std::vector<Monster> &enemy_data, const Level curren
     std::uniform_int_distribution<int> x_generator(1, 78);
     std::uniform_int_distribution<int> y_generator(1, 48);
     std::uniform_int_distribution<int> monster_type(1, 30);
-    std::uniform_int_distribution<int> amount(15, 25);
+    std::uniform_int_distribution<int> amount(10*(1+(current.lvl/25.0)), 15*(1+(current.lvl/25.0)));
     auto check_if_monster_already_exist = [](const std::vector<Monster> &enemy_data, int x, int y){
         if(!enemy_data.empty()){
             for(const auto &i:enemy_data){

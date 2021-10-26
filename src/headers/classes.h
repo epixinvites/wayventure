@@ -64,17 +64,6 @@ struct Time{
 struct Level{
     int lvl=1, x=1, y=1;
 
-    void reset(int sig){
-        if(sig==0){
-            x=1;
-            y=1;
-        }
-        if(sig==1){
-            x=5;
-            y=5;
-        }
-    }
-
     Level()=default;
 
     Level(int lvl, int x, int y):lvl{lvl}, x{x}, y{y}{};

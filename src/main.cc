@@ -26,11 +26,10 @@
 #include <atomic>
 #include "headers/main.h"
 #include "headers/classes.h"
-#include "headers/draw.h"
-#include "headers/generate.h"
 #include "headers/mode.h"
 #include "headers/dungeon.h"
 #include "headers/threads.h"
+#include "headers/keymap.h"
 #include <cereal/archives/portable_binary.hpp>
 #include <cereal/types/vector.hpp>
 #include <cereal/types/string.hpp>
@@ -52,7 +51,12 @@ int SDL_getch(tcod::ConsolePtr &main_win, tcod::ContextPtr &context){
         }
         if(event.type==SDL_KEYDOWN){
             if(event.key.keysym.mod & KMOD_SHIFT){
-                return toupper(event.key.keysym.sym);
+                try{
+                    return us_qwerty_map.at(event.key.keysym.sym);
+                }
+                catch(const std::out_of_range){
+                    return event.key.keysym.sym;
+                }
             }
             else if(event.key.keysym.mod & KMOD_CTRL){
                 if(event.key.keysym.sym=='r'){
@@ -148,7 +152,7 @@ std::string get_string(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, co
         else if(ch==SDLK_ESCAPE){ // KEY_ESC
             return original;
         }
-        else if((ch>0&&ch<128)&&input.length()<30&&(isdigit(ch)||isalpha(ch)||isblank(ch))){
+        else if((ch>0&&ch<128)&&input.length()<30){
             input.push_back(ch);
         }
         std::stringstream ss;
@@ -384,7 +388,12 @@ void init(){
     lootbox_refresh_thread.detach();
     // Start main dungeon
     while(!thread_flags.get_flag(thread_flags.terminate)){
-        main_dungeon(main_win, context, dungeon_data, user, perm_config, thread_flags);
+        if(dungeon_data.current>=Level{1,1,1}&&dungeon_data.current<=Level{DUNGEON_LEVEL_MAX, DUNGEON_X_MAX, DUNGEON_Y_MAX}){
+            main_dungeon(main_win, context, dungeon_data, user, perm_config, thread_flags);
+        }
+        else if(dungeon_data.current==Level{0, DUNGEON_X_MAX, DUNGEON_Y_MAX}){
+            town_mode(main_win, context, user, dungeon_data, perm_config, thread_flags);
+        }
     }
     // Terminate libtcod
     TCOD_quit();
