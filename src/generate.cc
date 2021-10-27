@@ -154,9 +154,13 @@ Item generate_loot(Rarity loot_rarity){
     std::mt19937 generator(device());
     std::uniform_int_distribution<int> deviation(-25, 25);
     std::uniform_int_distribution<int> bonus_stats(1, 100);
+    std::uniform_int_distribution<int> durability_generator(1, 50);
     std::string name;
     int hp=0, attk=0, def=0, shield=0, crit_chance=0, crit_dmg=0;
-    double durability=bonus_stats(generator);
+    double durability=durability_generator(generator)*rarity_bonus(loot_rarity);
+    if(durability>100){
+        durability=100;
+    }
     if(loot_type==Type::CHESTPLATE){ // chestplate
         hp=(100+deviation(generator))*rarity_value(loot_rarity);
         if(bonus_stats(generator)<=3*rarity_bonus(loot_rarity)){

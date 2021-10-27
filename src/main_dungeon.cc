@@ -26,6 +26,11 @@
 #include "headers/main.h"
 #include "headers/threads.h"
 
+struct Char_Move_Data{
+    int status=0;
+    Csr csr_pos={0, 0};
+};
+
 bool check_position_for_monsters(const std::vector<Monster> &monsters, int x, int y){
     for(const auto &i:monsters){
         if(x==i.x&&y==i.y){
@@ -53,44 +58,122 @@ int check_monster_id(const std::vector<Monster> &monsters, int x, int y){
     return 0;
 }
 
-void char_move(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, int ch, Csr &csr_pos, const std::vector<Monster> &monsters, const std::vector<LootData> &loot_in_room, Player &user, Npc &npc, Level current){
+bool check_position_for_doors(const std::vector<DoorData> &door_data, int x, int y){
+    for(const auto &i:door_data){
+        if(x==i.x&&y==i.y){
+            return true;
+        }
+    }
+    return false;
+}
+
+bool check_position_for_staircase(const std::vector<StaircaseData> &staircase_data, int x, int y){
+    for(const auto &i:staircase_data){
+        if(x==i.x&&y==i.y){
+            return true;
+        }
+    }
+    return false;
+}
+
+Char_Move_Data char_move(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, int ch, Csr &csr_pos, RoomData *cur_room, Player &user, Npc &npc){
+    Char_Move_Data data;
     bool require_move=false;
-    if((ch=='a'||ch==SDLK_LEFT)&&csr_pos.x>1&&!check_position_for_monsters(monsters, csr_pos.x-1, csr_pos.y)&&!check_surroundings_for_obstacles(loot_in_room, csr_pos.x-1, csr_pos.y)){
-        TCOD_console_put_char_ex(main_win.get(), csr_pos.x, csr_pos.y+1, ' ', WHITE, BLACK);
-        csr_pos.x--;
-        require_move=true;
+    if(ch=='a'||ch==SDLK_LEFT){
+        if(check_position_for_monsters(cur_room->enemy_data, csr_pos.x-1, csr_pos.y)){
+            data.status=1;
+            data.csr_pos={csr_pos.x-1, csr_pos.y};
+        }
+        else if(check_position_for_doors(cur_room->door_data, csr_pos.x-1, csr_pos.y)){
+            data.status=2;
+            data.csr_pos={csr_pos.x-1, csr_pos.y};
+        }
+        else if(check_position_for_staircase(cur_room->staircase_data, csr_pos.x-1, csr_pos.y)){
+            data.status=3;
+            data.csr_pos={csr_pos.x-1, csr_pos.y};
+        }
+        else if(csr_pos.x>1&&!check_surroundings_for_obstacles(cur_room->loot_in_room, csr_pos.x-1, csr_pos.y)){
+            TCOD_console_put_char_ex(main_win.get(), csr_pos.x, csr_pos.y+1, ' ', WHITE, BLACK);
+            csr_pos.x--;
+            require_move=true;
+        }
     }
-    else if((ch=='d'||ch==SDLK_RIGHT)&&csr_pos.x<78&&!check_position_for_monsters(monsters, csr_pos.x+1, csr_pos.y)&&!check_surroundings_for_obstacles(loot_in_room, csr_pos.x+1, csr_pos.y)){
-        TCOD_console_put_char_ex(main_win.get(), csr_pos.x, csr_pos.y+1, ' ', WHITE, BLACK);
-        csr_pos.x++;
-        require_move=true;
+    else if(ch=='d'||ch==SDLK_RIGHT){ // csr_pos.x+1, csr_pos.y
+        if(check_position_for_monsters(cur_room->enemy_data, csr_pos.x+1, csr_pos.y)){
+            data.status=1;
+            data.csr_pos={csr_pos.x+1, csr_pos.y};
+        }
+        else if(check_position_for_doors(cur_room->door_data, csr_pos.x+1, csr_pos.y)){
+            data.status=2;
+            data.csr_pos={csr_pos.x+1, csr_pos.y};
+        }
+        else if(check_position_for_staircase(cur_room->staircase_data, csr_pos.x+1, csr_pos.y)){
+            data.status=3;
+            data.csr_pos={csr_pos.x+1, csr_pos.y};
+        }
+        else if(csr_pos.x<78&&!check_surroundings_for_obstacles(cur_room->loot_in_room, csr_pos.x+1, csr_pos.y)){
+            TCOD_console_put_char_ex(main_win.get(), csr_pos.x, csr_pos.y+1, ' ', WHITE, BLACK);
+            csr_pos.x++;
+            require_move=true;
+        }
     }
-    else if((ch=='w'||ch==SDLK_UP)&&csr_pos.y>1&&!check_position_for_monsters(monsters, csr_pos.x, csr_pos.y-1)&&!check_surroundings_for_obstacles(loot_in_room, csr_pos.x, csr_pos.y-1)){
-        TCOD_console_put_char_ex(main_win.get(), csr_pos.x, csr_pos.y+1, ' ', WHITE, BLACK);
-        csr_pos.y--;
-        require_move=true;
+    else if(ch=='w'||ch==SDLK_UP){ // csr_pos.x, csr_pos.y-1
+        if(check_position_for_monsters(cur_room->enemy_data, csr_pos.x, csr_pos.y-1)){
+            data.status=1;
+            data.csr_pos={csr_pos.x, csr_pos.y-1};
+        }
+        else if(check_position_for_doors(cur_room->door_data, csr_pos.x, csr_pos.y-1)){
+            data.status=2;
+            data.csr_pos={csr_pos.x, csr_pos.y-1};
+        }
+        else if(check_position_for_staircase(cur_room->staircase_data, csr_pos.x, csr_pos.y-1)){
+            data.status=3;
+            data.csr_pos={csr_pos.x, csr_pos.y-1};
+        }
+        else if(csr_pos.y>1&&!check_surroundings_for_obstacles(cur_room->loot_in_room, csr_pos.x, csr_pos.y-1)){
+            TCOD_console_put_char_ex(main_win.get(), csr_pos.x, csr_pos.y+1, ' ', WHITE, BLACK);
+            csr_pos.y--;
+            require_move=true;
+        }
     }
-    else if((ch=='s'||ch==SDLK_DOWN)&&csr_pos.y<48&&!check_position_for_monsters(monsters, csr_pos.x, csr_pos.y+1)&&!check_surroundings_for_obstacles(loot_in_room, csr_pos.x, csr_pos.y+1)){
-        TCOD_console_put_char_ex(main_win.get(), csr_pos.x, csr_pos.y+1, ' ', WHITE, BLACK);
-        csr_pos.y++;
-        require_move=true;
+    else if(ch=='s'||ch==SDLK_DOWN){ // csr_pos.x, csr_pos.y+1
+        if(check_position_for_monsters(cur_room->enemy_data, csr_pos.x, csr_pos.y+1)){
+            data.status=1;
+            data.csr_pos={csr_pos.x, csr_pos.y+1};
+        }
+        else if(check_position_for_doors(cur_room->door_data, csr_pos.x, csr_pos.y+1)){
+            data.status=2;
+            data.csr_pos={csr_pos.x, csr_pos.y+1};
+        }
+        else if(check_position_for_staircase(cur_room->staircase_data, csr_pos.x, csr_pos.y+1)){
+            data.status=3;
+            data.csr_pos={csr_pos.x, csr_pos.y+1};
+        }
+        else if(csr_pos.y<48&&!check_surroundings_for_obstacles(cur_room->loot_in_room, csr_pos.x, csr_pos.y+1)){
+            TCOD_console_put_char_ex(main_win.get(), csr_pos.x, csr_pos.y+1, ' ', WHITE, BLACK);
+            csr_pos.y++;
+            require_move=true;
+        }
     }
     if(require_move){
         user.steps++;
-        if(user.steps%25==0){
+        if(user.steps%35==0){
             user.hydration--;
         }
-        if(user.steps%35==0){
+        if(user.steps%50==0){
             user.saturation--;
         }
         if(user.steps==npc.bank.interest_next_applied){
             npc.bank.interest_next_applied+=50000;
             npc.bank.saved_gold*=npc.bank.storage_interest;
         }
+        draw_doors(main_win, context, cur_room->door_data, cur_room->staircase_data);
+        draw_monster(main_win, context, cur_room->enemy_data);
         draw_player(main_win, context, csr_pos.x, csr_pos.y);
         draw_stats(main_win, context, user);
         context->present(*main_win);
     }
+    return data;
 }
 
 void process_gear(Player &user, Item *&processed_item, int damage){
@@ -176,15 +259,13 @@ bool player_battle(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player
                 tcod::print(*main_win, {0, 1}, "Press any key to keep and [r] to trash", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
                 draw_stats(main_win, context, user);
                 print_description(main_win, context, &loot, 1);
-
                 ch=SDL_getch(main_win, context);
                 while(!(ch>0&&ch<128)){
                     ch=SDL_getch(main_win, context);
                 }
-                if(ch=='r'){
-                    return true;
+                if(ch!='r'){
+                    user.add_item(loot);
                 }
-                user.add_item(loot);
                 return true;
             }
         }
@@ -227,50 +308,44 @@ std::pair<bool, bool> attack_monster(tcod::ConsolePtr &main_win, tcod::ContextPt
     return attack_status;
 }
 
-void move_door(Dungeon &dungeon_data, const std::vector<DoorData> &door_data){
+void move_door(Dungeon &dungeon_data, const std::vector<DoorData> &door_data, int x, int y){
     for(int i=0; i<door_data.size(); i++){
-        if(door_data[i].x==dungeon_data.csr_pos.x&&door_data[i].y==dungeon_data.csr_pos.y-1){
-            dungeon_data.current.y++;
-            dungeon_data.csr_pos={39, 48};
-            break;
-        }
-        else if(door_data[i].x==dungeon_data.csr_pos.x&&door_data[i].y==dungeon_data.csr_pos.y+1){
-            dungeon_data.current.y--;
-            dungeon_data.csr_pos={39, 1};
-            break;
-        }
-        else if(door_data[i].x==dungeon_data.csr_pos.x+1&&door_data[i].y==dungeon_data.csr_pos.y){
-            dungeon_data.current.x++;
-            dungeon_data.csr_pos={1, 24};
-            break;
-        }
-        else if(door_data[i].x==dungeon_data.csr_pos.x-1&&door_data[i].y==dungeon_data.csr_pos.y){
-            dungeon_data.current.x--;
-            dungeon_data.csr_pos={78, 24};
-            break;
+        if(door_data[i].x==x&&door_data[i].y==y){
+            switch(door_data[i].behaviour){
+                case DoorData::Behaviour::UP:
+                    dungeon_data.current.y++;
+                    dungeon_data.csr_pos={39, 48};
+                    break;
+                case DoorData::Behaviour::DOWN:
+                    dungeon_data.current.y--;
+                    dungeon_data.csr_pos={39, 1};
+                    break;
+                case DoorData::Behaviour::LEFT:
+                    dungeon_data.current.x--;
+                    dungeon_data.csr_pos={78, 24};
+                    break;
+                case DoorData::Behaviour::RIGHT:
+                    dungeon_data.current.x++;
+                    dungeon_data.csr_pos={1, 24};
+                    break;
+            }
         }
     }
 }
 
-bool move_staircase(const std::vector<StaircaseData> &staircase_data, Level &level, Csr csr_pos){
-    if(staircase_data.empty()){
-        return false;
-    }
+void move_staircase(const std::vector<StaircaseData> &staircase_data, Level &level, Csr csr_pos){
     for(const auto &i:staircase_data){
         if(i.x==csr_pos.x&&i.y==csr_pos.y){
             if(i.behaviour==StaircaseData::Behaviour::UP){
                 level.lvl--;
                 level.x=DUNGEON_X_MAX, level.y=DUNGEON_Y_MAX;
-                return true;
             }
             else if(i.behaviour==StaircaseData::Behaviour::DOWN){
                 level.lvl++;
                 level.x=1, level.y=1;
-                return true;
             }
         }
     }
-    return false;
 }
 
 void print_food(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player &user){
@@ -332,7 +407,7 @@ void main_dungeon(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Dungeon
     dungeon_data.get_loot_in_room(cur_room->id, cur_room->loot_in_room);
     redraw_main_dungeon(main_win, context, dungeon_data.csr_pos, user, dungeon_data, cur_room);
     int ch;
-    while(true){
+    while(!thread_flags.get_flag(thread_flags.terminate)){
         if(thread_flags.get_flag(thread_flags.main_dungeon_require_update)){
             dungeon_data.get_loot_in_room(cur_room->id, cur_room->loot_in_room);
             thread_flags.update_flag(thread_flags.main_dungeon_require_update, false);
@@ -340,33 +415,33 @@ void main_dungeon(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Dungeon
         }
         ch=SDL_getch(main_win, context);
         if(ch=='w'||ch=='a'||ch=='s'||ch=='d'||ch==SDLK_LEFT||ch==SDLK_RIGHT||ch==SDLK_DOWN||ch==SDLK_UP){
-            char_move(main_win, context, ch, dungeon_data.csr_pos, cur_room->enemy_data, cur_room->loot_in_room, user, dungeon_data.npc, cur_room->id);
-        }
-        else if(ch=='z'){
-            move_door(dungeon_data, cur_room->door_data);
-            if(cur_room->id!=dungeon_data.current){
-                cur_room = dungeon_data.get_pointer_of_room(dungeon_data.current);
+            Char_Move_Data data = char_move(main_win, context, ch, dungeon_data.csr_pos, cur_room, user, dungeon_data.npc);
+            if(data.status==1){
+                std::pair<bool, bool> attack_status=attack_monster(main_win, context, cur_room->enemy_data, dungeon_data.csr_pos, user);
+                if(attack_status.first){
+                    if(attack_status.second){
+                        user.cur_shield=user.ori_shield;
+                        redraw_main_dungeon(main_win, context, dungeon_data.csr_pos, user, dungeon_data, cur_room);
+                    }
+                    else{
+                        end_program(1);
+                        drop_items_on_death(user, dungeon_data.csr_pos, dungeon_data.current);
+                        thread_flags.update_flag(thread_flags.terminate, true);
+                        return;
+                    }
+                }
+            }
+            else if(data.status==2){
+                move_door(dungeon_data, cur_room->door_data, data.csr_pos.x, data.csr_pos.y);
+                cur_room=dungeon_data.get_pointer_of_room(dungeon_data.current);
                 dungeon_data.get_loot_in_room(cur_room->id, cur_room->loot_in_room);
                 redraw_main_dungeon(main_win, context, dungeon_data.csr_pos, user, dungeon_data, cur_room);
             }
-        }
-        else if(ch=='x'){
-            std::pair<bool, bool> attack_status=attack_monster(main_win, context, cur_room->enemy_data, dungeon_data.csr_pos, user);
-            if(attack_status.first&&!attack_status.second){ // If dead return to main menu
-                end_program(1);
-                drop_items_on_death(user, dungeon_data.csr_pos, dungeon_data.current);
-                thread_flags.update_flag(thread_flags.terminate, true);
-                return;
-            }
-            else if(attack_status.first&&attack_status.second){ // If win redraw dungeon and move on
-                user.cur_shield=user.ori_shield;
-                redraw_main_dungeon(main_win, context, dungeon_data.csr_pos, user, dungeon_data, cur_room);
-            }
-        }
-        else if(ch=='c'){
-            if(move_staircase(cur_room->staircase_data, dungeon_data.current, dungeon_data.csr_pos)){
+            else if(data.status==3){
+                move_staircase(cur_room->staircase_data, dungeon_data.current, data.csr_pos);
                 if(dungeon_data.current==Level{0, DUNGEON_X_MAX, DUNGEON_Y_MAX}){
-                    dungeon_data.csr_pos={78, 1};
+                    dungeon_data.old_pos=dungeon_data.csr_pos;
+                    dungeon_data.csr_pos={78, 2};
                 }
                 return;
             }
@@ -392,6 +467,7 @@ void main_dungeon(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Dungeon
             if(user.cur_hp>user.ori_hp){
                 user.cur_hp=user.ori_hp;
             }
+            std::this_thread::sleep_for(std::chrono::milliseconds(500));
             redraw_main_dungeon(main_win, context, dungeon_data.csr_pos, user, dungeon_data, cur_room);
         }
         else if(ch=='S'){

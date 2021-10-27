@@ -340,6 +340,7 @@ struct Bank{
     unsigned long long int saved_gold=0;
     double storage_interest=1.02; // Compound Interest (Increases according to money saved)
     unsigned long long int interest_next_applied=0; // Last time interest was applied
+    unsigned long long int initial_gold_store_time=0;
     template<class Archive>
     void serialize(Archive &archive){archive(saved_gold, storage_interest, interest_next_applied);}
 };
@@ -435,6 +436,7 @@ struct Npc{
 class Dungeon{
 public:
     Csr csr_pos{1, 1};
+    Csr old_pos{0, 0};
     Level current{1, 1, 1};
     Npc npc;
     std::vector<RoomData> room_data;
@@ -449,7 +451,7 @@ public:
     RoomData* get_pointer_of_room(const Level &current);
 
     template<class Archive>
-    void serialize(Archive &archive){archive(csr_pos, current, npc, room_data, loot_data);}
+    void serialize(Archive &archive){archive(csr_pos, old_pos, current, npc, room_data, loot_data);}
 };
 
 struct No_Delete{

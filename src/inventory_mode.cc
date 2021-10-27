@@ -861,6 +861,7 @@ void salvage_item(Player &user, Item *item){
 }
 
 void inventory_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player &user, No_Delete &perm_config){
+    bool is_modifier_called = false;
     std::vector<Item *> items_copy;
     unsigned int page_num=0;
     int csr_pos=0;
@@ -925,7 +926,12 @@ void inventory_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Playe
                     else if(csr_pos==0&&page_num>0){
                         page_num--;
                     }
-                    process_copy(user.inv.item, items_copy, perm_config);
+                    if(is_modifier_called){
+                        process_copy(user.inv.item, items_copy, perm_config);
+                    }
+                    else{
+                        init_copy(user.inv.item, items_copy);
+                    }
                 }
             }
             draw_inventory(main_win, context, user, items_copy, page_num, csr_pos);
@@ -942,6 +948,7 @@ void inventory_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Playe
 }
 
 void reforge_repair_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player &user, No_Delete &perm_config){
+    bool is_modifier_called = false;
     std::vector<Item *> items_copy;
     init_copy(user.inv.item, items_copy);
     if(perm_config.keep_changes_persistent){
@@ -1099,7 +1106,12 @@ void reforge_repair_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, 
                     else if(csr_pos==0&&page_num>0){
                         page_num--;
                     }
-                    process_copy(user.inv.item, items_copy, perm_config);
+                    if(is_modifier_called){
+                        process_copy(user.inv.item, items_copy, perm_config);
+                    }
+                    else{
+                        init_copy(user.inv.item, items_copy);
+                    }
                     draw_inventory(main_win, context, user, items_copy, page_num, csr_pos, true);
                 }
                 else{
@@ -1118,7 +1130,12 @@ void reforge_repair_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, 
                     else if(csr_pos==0&&page_num>0){
                         page_num--;
                     }
-                    process_copy(user.inv.item, items_copy, perm_config);
+                    if(is_modifier_called){
+                        process_copy(user.inv.item, items_copy, perm_config);
+                    }
+                    else{
+                        init_copy(user.inv.item, items_copy);
+                    }
                     draw_inventory(main_win, context, user, items_copy, page_num, csr_pos, true);
                     clear_and_draw_dialog(main_win, context, "[System] Salvage success");
                 }

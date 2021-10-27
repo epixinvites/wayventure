@@ -458,10 +458,13 @@ void bank_interface(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, No_De
                 case 4:{
                     unsigned long long int input=get_ullint(main_win, context, "Please enter a valid amount of gold to store: ");
                     if(input<=user.gold&&input>0){
+                        if(bank.initial_gold_store_time==0){
+                            bank.initial_gold_store_time=user.steps;
+                        }
                         user.gold-=input;
                         bank.saved_gold+=input;
                         if(bank.interest_next_applied==0){
-                            bank.interest_next_applied=50000;
+                            bank.interest_next_applied=50000+(bank.initial_gold_store_time%50000);
                         }
                         draw_bank_menu(main_win, context, chest, bank, csr_pos, user.steps);
                         draw_stats(main_win, context, user);
@@ -477,6 +480,10 @@ void bank_interface(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, No_De
                     if(input<=bank.saved_gold&&input>0){
                         bank.saved_gold-=input;
                         user.gold+=input;
+                        if(bank.saved_gold==0){
+                            bank.initial_gold_store_time=0;
+                            bank.interest_next_applied=0;
+                        }
                         draw_bank_menu(main_win, context, chest, bank, csr_pos, user.steps);
                         draw_stats(main_win, context, user);
                         clear_and_draw_dialog(main_win, context, "Transfer Successful!");
@@ -1021,7 +1028,7 @@ void town_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player &us
     }
     redraw_bar(main_win, context, user, dungeon_data.npc.gear_merchant, pub_layout, dungeon_data.csr_pos);
     int ch;
-    while(true){
+    while(!thread_flags.get_flag(thread_flags.terminate)){
         ch=SDL_getch(main_win, context);
         if(ch=='w'||ch=='a'||ch=='s'||ch=='d'||ch==SDLK_LEFT||ch==SDLK_RIGHT||ch==SDLK_DOWN||ch==SDLK_UP){
             char_move(ch, main_win, context, user, dungeon_data.csr_pos, pub_layout);
@@ -1063,7 +1070,7 @@ void town_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player &us
         }
         else if(ch=='c'){
             if(dungeon_data.csr_pos.x==78&&dungeon_data.csr_pos.y==1){
-                dungeon_data.csr_pos={1, 48};
+                dungeon_data.csr_pos=dungeon_data.old_pos;
                 dungeon_data.current={1,1,1};
                 return;
             }
