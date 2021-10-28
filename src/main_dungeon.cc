@@ -402,6 +402,63 @@ void drop_items_on_death(Player &user, Csr &csr_pos, Level &current){
     current=Level(1,1,1);
 }
 
+bool search_for_lootbox(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Dungeon &dungeon_data, RoomData *cur_room, Player &User, Csr &csr_pos){
+    for(const auto &i:dungeon_data.loot_data){
+        if(i.dungeon_position==cur_room->id){
+            if((i.room_position.x==csr_pos.x+1&&i.room_position.y==csr_pos.y)||(i.room_position.x==csr_pos.x-1&&i.room_position.y==csr_pos.y)||(i.room_position.x==csr_pos.x&&i.room_position.y==csr_pos.y+1)||(i.room_position.x==csr_pos.x&&i.room_position.y==csr_pos.y-1)){
+                // Generate loot box
+                // Generate food/water/gold/gear
+                SDL_wclear_main_win(main_win, context);
+                int line = 1;
+                int bread_amount=generate_random_number(1,4); // Generate 1-3 pieces of bread
+                int water_amount=generate_random_number(1,2); // Generate 1-3 pieces of water
+                if(bread_amount==1){
+                    tcod::print(*main_win, {0, line}, "You obtained 1 piece of bread", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+                }
+                else{
+                    tcod::print(*main_win, {0, line}, "You obtained "+std::to_string(bread_amount)+" pieces of bread", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+                }
+                User.inv.food.bread += bread_amount;
+                if(User.inv.food.bread>8){
+                    User.inv.food.bread=8;
+                }
+                line++;
+                if(water_amount==1){
+                    tcod::print(*main_win, {0, line}, "You obtained 1 bottle of water", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+                }
+                else{
+                    tcod::print(*main_win, {0, line}, "You obtained "+std::to_string(water_amount)+" bottles of water", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+                }
+                line++;
+                User.inv.water.water += water_amount;
+                if(User.inv.water.water>8){
+                    User.inv.water.water=8;
+                }
+                if(return_chance(50)){ // Drop 5-15 gold
+                    int gold = generate_random_number(5, 15);
+                    tcod::print(*main_win, {0, line}, "You obtained "+std::to_string(gold)+" gold pieces", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+                    User.gold+=gold;
+                    line++;
+                }
+                if(return_chance(20)){ // Drop gear
+                    Item loot=generate_loot_from_monster_type(Enemy_Type::ROOM_BOSS);
+                    print_description(main_win, context, &loot, line);
+                    User.add_item(loot);
+                }
+                clear_and_draw_dialog(main_win, context, "Press any key to continue");
+                int ch = SDL_getch(main_win, context);
+                while(!(ch>0&&ch<128)){
+                    ch = SDL_getch(main_win, context);
+                }
+                delete_item_with_id(dungeon_data.loot_data, i.id);
+                dungeon_data.get_loot_in_room(cur_room->id, cur_room->loot_in_room);
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
 void main_dungeon(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Dungeon &dungeon_data, Player &user, No_Delete &perm_config, Thread_Flags &thread_flags){
     RoomData *cur_room = dungeon_data.get_pointer_of_room(dungeon_data.current);
     dungeon_data.get_loot_in_room(cur_room->id, cur_room->loot_in_room);
@@ -444,6 +501,11 @@ void main_dungeon(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Dungeon
                     dungeon_data.csr_pos={78, 2};
                 }
                 return;
+            }
+        }
+        else if(ch=='x'){
+            if(search_for_lootbox(main_win, context, dungeon_data, cur_room, user, dungeon_data.csr_pos)){
+                redraw_main_dungeon(main_win, context, dungeon_data.csr_pos, user, dungeon_data, cur_room);
             }
         }
         else if(ch=='i'){

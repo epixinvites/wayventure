@@ -1,5 +1,7 @@
 # Welcome to Wayventure's development branch!
 
+### NOTE: The project is currently halted for a month or two while I study deeper into C++
+
 ### Please only try to compile the released versions, I usually commit broken code
 
 ### Join our family!

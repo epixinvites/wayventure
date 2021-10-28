@@ -27,10 +27,10 @@ void refresh_lootbox(const std::atomic<bool> &terminate, std::atomic<bool> &requ
     }
     while(!terminate.load(std::memory_order_acquire)){
         dungeon_data.loot_data.clear();
-        int amount_of_lootboxes=generate_random_number(20,50);
+        int amount_of_lootboxes=generate_random_number(3*DUNGEON_LEVEL_MAX, 5*DUNGEON_LEVEL_MAX);
         for(int i = 0; i<amount_of_lootboxes; i++){
             LootData temp_data;
-            temp_data.id=i;
+            temp_data.id=i+1;
             temp_data.dungeon_position={generate_random_number(1,5),generate_random_number(1,5),generate_random_number(1,5)};
             temp_data.room_position={generate_random_number(1,78),generate_random_number(1,48)};
             dungeon_data.loot_data.push_back(temp_data);
