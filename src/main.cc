@@ -293,6 +293,7 @@ void init_data(Dungeon &dungeon_data, Player &user, No_Delete &perm_config){
     }
     else{
         dungeon_data.init_rooms();
+        user.inv.misc.heal_amount=10;
         std::ofstream ofile("save/user.save", std::ios::trunc | std::ios::binary);
         cereal::PortableBinaryOutputArchive archive(ofile);
         archive(dungeon_data, user, perm_config, save_file_version);
@@ -364,7 +365,6 @@ void init(){
     No_Delete perm_config;
     Dungeon dungeon_data;
     Thread_Flags thread_flags;
-    user.inv.misc.heal_amount=10;
     // libtcod initialization
     tcod::ConsolePtr main_win=tcod::new_console(80, 56);
     TCOD_ContextParams params{};

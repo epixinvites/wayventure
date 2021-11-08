@@ -21,7 +21,7 @@ If you're proficient in C++ and use Linux, I've prepared a cmake script for easi
 I sincerely apologize for the inconvinience you have to go through to test my program.
 ## Issues/Feature Requests
 Please open an issue if you found any bugs or simply just want to give suggestions about the gameplay!
-- For upcoming releases/features please refer [here](https://app.simplenote.com/p/kkFf1V), and for current TODOs please refer to our [kanban board](https://app.gitkraken.com/glo/board/YVe6OSzWtwBMT89r).
+- For current TODOs please refer to our [kanban board](https://app.gitkraken.com/glo/board/YVe6OSzWtwBMT89r).
 
 (Due to the heavy development this game is currently undergoing, I will only be writing the Wiki after I've released all the base features)
 ## Credits
