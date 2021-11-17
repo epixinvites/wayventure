@@ -13,7 +13,7 @@
 *Sorry for the low framerate, I had to compress the GIF*
 
 ### Installation instructions:
-Dependencies for compilation: A C++ compiler, [libtcod (Version 1.19.0-alpha)](https://github.com/libtcod/libtcod), [SDL2 (Version 2.0.16)](https://www.libsdl.org/download-2.0.php)  
+Dependencies for compilation: A C++ compiler, [libtcod (Version 1.19.0)](https://github.com/libtcod/libtcod), [SDL2 (Version 2.0.16)](https://www.libsdl.org/download-2.0.php)  
 I apologize for not being able to statically compile it since I can't figure out why it is SegFaulting. If you are able to statically compile the entire program, please open an issue or discussion and share how you managed it. Thanks!
 
 If you're proficient in C++ and use Linux, I've prepared a cmake script for easier compiling.
