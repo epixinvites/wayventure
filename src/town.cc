@@ -68,7 +68,7 @@ void refresh_mysterious_merchant_store(Merchant &mysterious_trader, long long in
     }
 }
 
-void draw_gear_merchant_store(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Item &cur, int x, int y){
+void draw_gear_merchant_store(tcod::Console &main_win, tcod::ContextPtr &context, Item &cur, int x, int y){
     switch(cur.rarity){
         case Rarity::COMMON:
             TCOD_console_put_char_ex(main_win.get(), x, y, '/', WHITE, BLACK);
@@ -85,10 +85,12 @@ void draw_gear_merchant_store(tcod::ConsolePtr &main_win, tcod::ContextPtr &cont
         case Rarity::LEGENDARY:
             TCOD_console_put_char_ex(main_win.get(), x, y, '/', YELLOW, BLACK);
             break;
+        default:
+            break;
     }
 }
 
-void redraw_bar(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player &user, Merchant &gear_merchant, std::vector<std::string> pub_layout, Csr csr_pos){
+void redraw_bar(tcod::Console &main_win, tcod::ContextPtr &context, Player &user, Merchant &gear_merchant, std::vector<std::string> pub_layout, Csr csr_pos){
     SDL_wclear_main_win(main_win, context);
     SDL_wclear_dialog_bar(main_win, context);
     int gear_output_count=0;
@@ -126,8 +128,8 @@ void redraw_bar(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player &u
     TCOD_console_put_char_ex(main_win.get(), 78, 2, '>', WHITE, BLACK);
     draw_player(main_win, context, csr_pos.x, csr_pos.y);
     draw_stats(main_win, context, user);
-    tcod::print(*main_win, {0, 0}, "Town", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
-    context->present(*main_win);
+    tcod::print(main_win, {0, 0}, "Town", WHITE, BLACK);
+    context->present(main_win);
 }
 
 char search_surroundings(std::vector<std::string> pub_layout, int x, int y){
@@ -146,29 +148,29 @@ char search_surroundings(std::vector<std::string> pub_layout, int x, int y){
     return '0';
 }
 
-void draw_bartender_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, const Bartender &bartender, Player &user, bool refresh_everything=true){
+void draw_bartender_mode(tcod::Console &main_win, tcod::ContextPtr &context, const Bartender &bartender, Player &user, bool refresh_everything=true){
     SDL_wclear_main_win(main_win, context);
     if(refresh_everything){
         draw_stats(main_win, context, user);
         clear_and_draw_dialog(main_win, context, "[System] Welcome to the Bar!");
     }
-    tcod::print(*main_win, {0, 3}, "[Bartender] How can I serve you today?", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+    tcod::print(main_win, {0, 3}, "[Bartender] How can I serve you today?", WHITE, BLACK);
     std::stringstream output;
-    tcod::print(*main_win, {0, 5}, "1. A bottle of water (Bottle included)", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+    tcod::print(main_win, {0, 5}, "1. A bottle of water (Bottle included)", WHITE, BLACK);
     output << "Price: " << 5+50*((100.0-bartender.relation)/100.0);
-    tcod::print(*main_win, {0, 6}, output.str(), &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
-    tcod::print(*main_win, {0, 8}, "2. A can of sparking juice", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+    tcod::print(main_win, {0, 6}, output.str(), WHITE, BLACK);
+    tcod::print(main_win, {0, 8}, "2. A can of sparking juice", WHITE, BLACK);
     output.str(std::string());
     output << "Price: " << 20+100*((100.0-bartender.relation)/100.0);
-    tcod::print(*main_win, {0, 9}, output.str(), &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+    tcod::print(main_win, {0, 9}, output.str(), WHITE, BLACK);
     output.str(std::string());
-    tcod::print(*main_win, {0, 13}, "Backpack:", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+    tcod::print(main_win, {0, 13}, "Backpack:", WHITE, BLACK);
     output << "Water:" << user.inv.water.water << "/8" << " Sparking Juice:" << user.inv.water.sparkling_juice << "/10";
-    tcod::print(*main_win, {0, 14}, output.str(), &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
-    context->present(*main_win);
+    tcod::print(main_win, {0, 14}, output.str(), WHITE, BLACK);
+    context->present(main_win);
 }
 
-void bartender_interface(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Bartender &bartender, Player &user){
+void bartender_interface(tcod::Console &main_win, tcod::ContextPtr &context, Bartender &bartender, Player &user){
     draw_bartender_mode(main_win, context, bartender, user);
     int ch;
     while(true){
@@ -233,33 +235,33 @@ void bartender_interface(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, 
     }
 }
 
-void draw_farmer_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, const Farmer &farmer, Player &user, bool refresh_everything=true){
+void draw_farmer_mode(tcod::Console &main_win, tcod::ContextPtr &context, const Farmer &farmer, Player &user, bool refresh_everything=true){
     SDL_wclear_main_win(main_win, context);
     if(refresh_everything){
         draw_stats(main_win, context, user);
         clear_and_draw_dialog(main_win, context, "[Farmer] Welcome to my farm!");
     }
-    tcod::print(*main_win, {0, 3}, "[Farmer] What brings you here today?", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+    tcod::print(main_win, {0, 3}, "[Farmer] What brings you here today?", WHITE, BLACK);
     std::stringstream output;
-    tcod::print(*main_win, {0, 5}, "1. A piece of bread", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+    tcod::print(main_win, {0, 5}, "1. A piece of bread", WHITE, BLACK);
     output << "Price: " << 5+50*((100.0-farmer.relation)/100.0);
-    tcod::print(*main_win, {0, 6}, output.str(), &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
-    tcod::print(*main_win, {0, 8}, "2. A packet of waffles", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+    tcod::print(main_win, {0, 6}, output.str(), WHITE, BLACK);
+    tcod::print(main_win, {0, 8}, "2. A packet of waffles", WHITE, BLACK);
     output.str(std::string());
     output << "Price: " << 20+100*((100.0-farmer.relation)/100.0);
-    tcod::print(*main_win, {0, 9}, output.str(), &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+    tcod::print(main_win, {0, 9}, output.str(), WHITE, BLACK);
     output.str(std::string());
-    tcod::print(*main_win, {0, 11}, "3. An energy bar", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+    tcod::print(main_win, {0, 11}, "3. An energy bar", WHITE, BLACK);
     output << "Price: " << 50+150*((100.0-farmer.relation)/100.0);
-    tcod::print(*main_win, {0, 12}, output.str(), &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+    tcod::print(main_win, {0, 12}, output.str(), WHITE, BLACK);
     output.str(std::string());
-    tcod::print(*main_win, {0, 16}, "Backpack:", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+    tcod::print(main_win, {0, 16}, "Backpack:", WHITE, BLACK);
     output << "Bread:" << user.inv.food.bread << "/8" << " Waffles:" << user.inv.food.waffle << "/10" << " Energy Bar:" << user.inv.food.energy_bar << "/10";
-    tcod::print(*main_win, {0, 17}, output.str(), &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
-    context->present(*main_win);
+    tcod::print(main_win, {0, 17}, output.str(), WHITE, BLACK);
+    context->present(main_win);
 }
 
-void farmer_interface(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Farmer &farmer, Player &user){
+void farmer_interface(tcod::Console &main_win, tcod::ContextPtr &context, Farmer &farmer, Player &user){
     draw_farmer_mode(main_win, context, farmer, user);
     int ch;
     while(true){
@@ -351,7 +353,7 @@ void farmer_interface(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Far
     }
 }
 
-void char_move(int ch, tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player &user, Csr &csr_pos, const std::vector<std::string> &pub_layout){
+void char_move(int ch, tcod::Console &main_win, tcod::ContextPtr &context, Player &user, Csr &csr_pos, const std::vector<std::string> &pub_layout){
     Csr original_pos=csr_pos;
     if((ch=='a'||ch==SDLK_LEFT)&&csr_pos.x>1&&pub_layout[csr_pos.y][csr_pos.x-1]==' '){
         csr_pos.x--;
@@ -370,23 +372,23 @@ void char_move(int ch, tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Pl
         TCOD_console_put_char_ex(main_win.get(), 78, 2, '>', WHITE, BLACK);
     }
     draw_player(main_win, context, csr_pos.x, csr_pos.y);
-    context->present(*main_win);
+    context->present(main_win);
 }
 
-void draw_menu_selections(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, int line, bool is_bold, std::string output){
+void draw_menu_selections(tcod::Console &main_win, tcod::ContextPtr &context, int line, bool is_bold, std::string output){
     if(is_bold){
-        tcod::print(*main_win, {0, line}, output, &BLACK, &WHITE, TCOD_BKGND_SET, TCOD_LEFT);
+        tcod::print(main_win, {0, line}, output, BLACK, WHITE);
     }
     else{
-        tcod::print(*main_win, {0, line}, output, &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+        tcod::print(main_win, {0, line}, output, WHITE, BLACK);
     }
 }
 
-void draw_bank_menu(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Chest &chest, Bank &bank, unsigned int csr_pos, unsigned long long int steps){
+void draw_bank_menu(tcod::Console &main_win, tcod::ContextPtr &context, Chest &chest, Bank &bank, unsigned int csr_pos, unsigned long long int steps){
     SDL_wclear_main_win(main_win, context);
     SDL_wclear_dialog_bar(main_win, context);
-    tcod::print(*main_win, {0, 0}, "Bank Menu", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
-    tcod::print(*main_win, {0, 1}, "[Kiosk] How can we help you?", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+    tcod::print(main_win, {0, 0}, "Bank Menu", WHITE, BLACK);
+    tcod::print(main_win, {0, 1}, "[Kiosk] How can we help you?", WHITE, BLACK);
     draw_menu_selections(main_win, context, 3, csr_pos==0, "[Store Gears]");
     draw_menu_selections(main_win, context, 4, csr_pos==1, "[Retrieve Gears]");
     draw_menu_selections(main_win, context, 6, csr_pos==2, "[Store Materials and Blueprints]");
@@ -395,22 +397,22 @@ void draw_bank_menu(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Chest
     draw_menu_selections(main_win, context, 10, csr_pos==5, "[Retrieve Gold]");
     // Draw bank stats
     if(!chest.gear_storage.empty()){
-        tcod::print(*main_win, {0, 47}, "Total Gear stored: ["+std::to_string(chest.gear_storage.size())+"]", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+        tcod::print(main_win, {0, 47}, "Total Gear stored: ["+std::to_string(chest.gear_storage.size())+"]", WHITE, BLACK);
     }
     else{
-        tcod::print(*main_win, {0, 47}, "Total Gear stored: ["+std::to_string(chest.gear_storage.size())+"]", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+        tcod::print(main_win, {0, 47}, "Total Gear stored: ["+std::to_string(chest.gear_storage.size())+"]", WHITE, BLACK);
     }
-    tcod::print(*main_win, {0, 48}, "Total Gold stored: ["+std::to_string(bank.saved_gold)+"]", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+    tcod::print(main_win, {0, 48}, "Total Gold stored: ["+std::to_string(bank.saved_gold)+"]", WHITE, BLACK);
     if(bank.interest_next_applied>0){
-        tcod::print(*main_win, {0, 49}, "Next Interest Compound in: ["+std::to_string(bank.interest_next_applied-steps)+"] moves", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+        tcod::print(main_win, {0, 49}, "Next Interest Compound in: ["+std::to_string(bank.interest_next_applied-steps)+"] moves", WHITE, BLACK);
     }
     else{
-        tcod::print(*main_win, {0, 49}, "Next Interest Compound in: [Invalid] moves", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+        tcod::print(main_win, {0, 49}, "Next Interest Compound in: [Invalid] moves", WHITE, BLACK);
     }
-    context->present(*main_win);
+    context->present(main_win);
 }
 
-void bank_interface(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, No_Delete &perm_config, Player &user, Chest &chest, Bank &bank){
+void bank_interface(tcod::Console &main_win, tcod::ContextPtr &context, No_Delete &perm_config, Player &user, Chest &chest, Bank &bank){
     unsigned int csr_pos=0;
     int ch;
     draw_bank_menu(main_win, context, chest, bank, csr_pos, user.steps);
@@ -500,18 +502,18 @@ void bank_interface(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, No_De
     }
 }
 
-void draw_gear_merchant(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, unsigned int csr_pos){
+void draw_gear_merchant(tcod::Console &main_win, tcod::ContextPtr &context, unsigned int csr_pos){
     SDL_wclear_main_win(main_win, context);
     SDL_wclear_dialog_bar(main_win, context);
-    tcod::print(*main_win, {0, 0}, "Gear Shop", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
-    tcod::print(*main_win, {0, 1}, "[Merchant] How can I help you?", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+    tcod::print(main_win, {0, 0}, "Gear Shop", WHITE, BLACK);
+    tcod::print(main_win, {0, 1}, "[Merchant] How can I help you?", WHITE, BLACK);
     draw_menu_selections(main_win, context, 3, csr_pos==0, "[Buy Gears]");
     draw_menu_selections(main_win, context, 4, csr_pos==1, "[Sell Gears]");
     draw_menu_selections(main_win, context, 6, csr_pos==2, "[Buy Materials/Blueprints/First Aid Kits]");
-    context->present(*main_win);
+    context->present(main_win);
 }
 
-void gear_merchant_interface(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Merchant &gear_merchant, Player &user, No_Delete &perm_config){
+void gear_merchant_interface(tcod::Console &main_win, tcod::ContextPtr &context, Merchant &gear_merchant, Player &user, No_Delete &perm_config){
     unsigned int csr_pos=0;
     int ch;
     draw_gear_merchant(main_win, context, csr_pos);
@@ -562,22 +564,22 @@ void gear_merchant_interface(tcod::ConsolePtr &main_win, tcod::ContextPtr &conte
     }
 }
 
-void draw_mysterious_trader_menu(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, unsigned int csr_pos){
+void draw_mysterious_trader_menu(tcod::Console &main_win, tcod::ContextPtr &context, unsigned int csr_pos){
     SDL_wclear_main_win(main_win, context);
     SDL_wclear_dialog_bar(main_win, context);
-    tcod::print(*main_win, {0, 0}, "Mysterious Hut", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
-    tcod::print(*main_win, {0, 1}, "[Mysterious Trader] ...", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+    tcod::print(main_win, {0, 0}, "Mysterious Hut", WHITE, BLACK);
+    tcod::print(main_win, {0, 1}, "[Mysterious Trader] ...", WHITE, BLACK);
     draw_menu_selections(main_win, context, 3, csr_pos==0, "[Exchange items for Artifact Materials]");
-    tcod::print(*main_win, {0, 4}, "- 5 Legendary Material", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
-    tcod::print(*main_win, {0, 5}, "- 1 Ancient Core", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+    tcod::print(main_win, {0, 4}, "- 5 Legendary Material", WHITE, BLACK);
+    tcod::print(main_win, {0, 5}, "- 1 Ancient Core", WHITE, BLACK);
     draw_menu_selections(main_win, context, 7, csr_pos==1, "[Exchange items for Ancient Cores]");
-    tcod::print(*main_win, {0, 8}, "- 1 Mysterious Shard", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
-    tcod::print(*main_win, {0, 9}, "- 1 Crystallium", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+    tcod::print(main_win, {0, 8}, "- 1 Mysterious Shard", WHITE, BLACK);
+    tcod::print(main_win, {0, 9}, "- 1 Crystallium", WHITE, BLACK);
     draw_menu_selections(main_win, context, 11, csr_pos==2, "[Exchange gears for Artifact Gears]");
-    context->present(*main_win);
+    context->present(main_win);
 }
 
-void mysterious_trader_interface(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player &user, Merchant &mysterious_trader){
+void mysterious_trader_interface(tcod::Console &main_win, tcod::ContextPtr &context, Player &user, Merchant &mysterious_trader){
     unsigned int csr_pos=0;
     int ch;
     draw_mysterious_trader_menu(main_win, context, csr_pos);
@@ -643,34 +645,34 @@ void mysterious_trader_interface(tcod::ConsolePtr &main_win, tcod::ContextPtr &c
     }
 }
 
-void miner_hire_menu(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, const Miner &miner, unsigned int csr_pos){
+void miner_hire_menu(tcod::Console &main_win, tcod::ContextPtr &context, const Miner &miner, unsigned int csr_pos){
     SDL_wclear_main_win(main_win, context);
     SDL_wclear_dialog_bar(main_win, context);
-    tcod::print(*main_win, {0, 0}, "Miner's Inn", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
-    tcod::print(*main_win, {0, 1}, "[Innkeeper] Ay matey, what brings you here today?", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+    tcod::print(main_win, {0, 0}, "Miner's Inn", WHITE, BLACK);
+    tcod::print(main_win, {0, 1}, "[Innkeeper] Ay matey, what brings you here today?", WHITE, BLACK);
     int line=3;
     draw_menu_selections(main_win, context, line, csr_pos==0, "[Hire Miners]");
     line+=2;
     draw_menu_selections(main_win, context, line, csr_pos==1, "[Accumulated Loot]");
-    context->present(*main_win);
+    context->present(main_win);
 }
 
-void draw_miner_hire_selections(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Miner &miner, unsigned int csr_pos, int ideal_payment, int actual_payment){
+void draw_miner_hire_selections(tcod::Console &main_win, tcod::ContextPtr &context, Miner &miner, unsigned int csr_pos, int ideal_payment, int actual_payment){
     SDL_wclear_main_win(main_win, context);
-    tcod::print(*main_win, {0, 1}, "Hire Miners", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+    tcod::print(main_win, {0, 1}, "Hire Miners", WHITE, BLACK);
     draw_menu_selections(main_win, context, 3, csr_pos==0, "Amount of Miners: "+std::to_string(miner.job.number_of_miners));
     std::stringstream payment_string;
     payment_string << "Payment [" << ideal_payment << "]: " << actual_payment;
     draw_menu_selections(main_win, context, 5, csr_pos==1, payment_string.str());
     std::stringstream time_string;
     time_string << "Total duration: " << Time{miner.job.original_job_duration.time_to_seconds()*static_cast<long long int>((1000-miner.skill_level)/1000)};
-    tcod::print(*main_win, {0, 7}, time_string.str(), &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+    tcod::print(main_win, {0, 7}, time_string.str(), WHITE, BLACK);
     draw_menu_selections(main_win, context, 9, csr_pos==2, "[Done]");
     draw_menu_selections(main_win, context, 10, csr_pos==3, "[Cancel]");
     clear_and_draw_dialog(main_win, context, "Miner's Inn");
 }
 
-void miner_hire_selection(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Miner &miner, Player &user){
+void miner_hire_selection(tcod::Console &main_win, tcod::ContextPtr &context, Miner &miner, Player &user){
     unsigned int csr_pos=0;
     int actual_payment=0, ideal_payment=0;
     int ch;
@@ -744,21 +746,21 @@ void miner_hire_selection(tcod::ConsolePtr &main_win, tcod::ContextPtr &context,
     }
 }
 
-void print_mysterious_loot(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Miner &miner, const unsigned &csr_pos){
+void print_mysterious_loot(tcod::Console &main_win, tcod::ContextPtr &context, Miner &miner, const unsigned &csr_pos){
     SDL_wclear_main_win(main_win, context);
-    tcod::print(*main_win, {0, 1}, "[Keeper] How are you doing today?", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+    tcod::print(main_win, {0, 1}, "[Keeper] How are you doing today?", WHITE, BLACK);
     std::stringstream ss;
     ss << "Mysterious Piece: " << miner.loot.mysterious_piece;
-    tcod::print(*main_win, {0, 3}, ss.str(), &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+    tcod::print(main_win, {0, 3}, ss.str(), WHITE, BLACK);
     ss.str(std::string());
     ss << "Mysterious Artifact: " << miner.loot.mysterious_artifact;
-    tcod::print(*main_win, {0, 5}, ss.str(), &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+    tcod::print(main_win, {0, 5}, ss.str(), WHITE, BLACK);
     draw_menu_selections(main_win, context, 7, csr_pos==0, "[Cancel]");
     draw_menu_selections(main_win, context, 8, csr_pos==1, "[Transfer to Archaeologist]");
     clear_and_draw_dialog(main_win, context, "Miner's Storage");
 }
 
-void show_miner_loot(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Miner &miner, Archaeologist &archaeologist){
+void show_miner_loot(tcod::Console &main_win, tcod::ContextPtr &context, Miner &miner, Archaeologist &archaeologist){
     unsigned csr_pos=0;
     int ch;
     print_mysterious_loot(main_win, context, miner, csr_pos);
@@ -789,7 +791,7 @@ void show_miner_loot(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Mine
     }
 }
 
-void miner_hire_interface(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player &user, Miner &miner, Archaeologist &archaeologist){
+void miner_hire_interface(tcod::Console &main_win, tcod::ContextPtr &context, Player &user, Miner &miner, Archaeologist &archaeologist){
     unsigned int csr_pos=0;
     miner_hire_menu(main_win, context, miner, csr_pos);
     int ch;
@@ -827,11 +829,11 @@ void miner_hire_interface(tcod::ConsolePtr &main_win, tcod::ContextPtr &context,
     }
 }
 
-void draw_archaeologist_decryption_menu(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Archaeologist &archaeologist, unsigned int csr_pos, long long int ideal_payment, long long int actual_payment){
+void draw_archaeologist_decryption_menu(tcod::Console &main_win, tcod::ContextPtr &context, Archaeologist &archaeologist, unsigned int csr_pos, long long int ideal_payment, long long int actual_payment){
     SDL_wclear_main_win(main_win, context);
     SDL_wclear_dialog_bar(main_win, context);
-    tcod::print(*main_win, {0, 0}, "Archaeologist's Working Site", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
-    tcod::print(*main_win, {0, 1}, "[System] Decryption Menu", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+    tcod::print(main_win, {0, 0}, "Archaeologist's Working Site", WHITE, BLACK);
+    tcod::print(main_win, {0, 1}, "[System] Decryption Menu", WHITE, BLACK);
     std::stringstream ss;
     ss << "Mysterious Piece (Materials)[Max: " << archaeologist.raw_storage.mysterious_piece << "]: " << archaeologist.job.decryption_amount.mysterious_piece;
     draw_menu_selections(main_win, context, 3, csr_pos==0, ss.str());
@@ -843,13 +845,13 @@ void draw_archaeologist_decryption_menu(tcod::ConsolePtr &main_win, tcod::Contex
     draw_menu_selections(main_win, context, 7, csr_pos==2, ss.str());
     ss.str(std::string());
     ss << "Total duration: " << Time{((archaeologist.job.decryption_amount.mysterious_artifact*archaeologist.job.decrypt_artifact_duration.time_to_seconds()+archaeologist.job.decryption_amount.mysterious_piece*archaeologist.job.decrypt_piece_duration.time_to_seconds())*static_cast<long long int>(500-archaeologist.skill_level)/500)};
-    tcod::print(*main_win, {0,9}, ss.str(), &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+    tcod::print(main_win, {0,9}, ss.str(), WHITE, BLACK);
     draw_menu_selections(main_win, context, 11, csr_pos==3, "[Start decryption]");
     draw_menu_selections(main_win, context, 12, csr_pos==4, "[Cancel]");
-    context->present(*main_win);
+    context->present(main_win);
 }
 
-void archaeologist_decryption_menu(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Archaeologist &archaeologist, Player &user){
+void archaeologist_decryption_menu(tcod::Console &main_win, tcod::ContextPtr &context, Archaeologist &archaeologist, Player &user){
     unsigned csr_pos=0;
     long long int ideal_payment=0, actual_payment=0;
     int ch;
@@ -913,41 +915,41 @@ void archaeologist_decryption_menu(tcod::ConsolePtr &main_win, tcod::ContextPtr 
     }
 }
 
-void draw_archaeologist_menu(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, unsigned int csr_pos){
+void draw_archaeologist_menu(tcod::Console &main_win, tcod::ContextPtr &context, unsigned int csr_pos){
     SDL_wclear_main_win(main_win, context);
     SDL_wclear_dialog_bar(main_win, context);
-    tcod::print(*main_win, {0, 0}, "Archaeologist's Working Site", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
-    tcod::print(*main_win, {0, 1}, "[Archaeologist] State your request.", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+    tcod::print(main_win, {0, 0}, "Archaeologist's Working Site", WHITE, BLACK);
+    tcod::print(main_win, {0, 1}, "[Archaeologist] State your request.", WHITE, BLACK);
     draw_menu_selections(main_win, context, 3, csr_pos==0, "[Decrypt stored artifacts/pieces]");
     draw_menu_selections(main_win, context, 5, csr_pos==1, "[Storage]");
-    context->present(*main_win);
+    context->present(main_win);
 }
 
-void draw_archaeologist_storage(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Archaeologist &archaeologist, unsigned int csr_pos){
+void draw_archaeologist_storage(tcod::Console &main_win, tcod::ContextPtr &context, Archaeologist &archaeologist, unsigned int csr_pos){
     SDL_wclear_main_win(main_win, context);
-    tcod::print(*main_win, {0, 0}, "Storage Area", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
-    tcod::print(*main_win, {0, 1}, "Processed loot: ", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
-    tcod::print(*main_win, {0, 2}, "Cores:", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
-    tcod::print(*main_win, {0, 3}, "Ancient Cores: "+std::to_string(archaeologist.loot_storage.cores.ancient_core), &DARK_RED, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
-    tcod::print(*main_win, {0, 4}, "Mysterious Shard: "+std::to_string(archaeologist.loot_storage.cores.mysterious_shard), &DARK_RED, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
-    tcod::print(*main_win, {0, 5}, "Crystallium: "+std::to_string(archaeologist.loot_storage.cores.crystallium), &YELLOW, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
-    tcod::print(*main_win, {0, 6}, "Crystal Cores: "+std::to_string(archaeologist.loot_storage.cores.crystal_core), &PURPLE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
-    tcod::print(*main_win, {0, 8}, "Materials:", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
-    tcod::print(*main_win, {0, 9}, "Common: "+std::to_string(archaeologist.loot_storage.materials.common), &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
-    tcod::print(*main_win, {0, 10}, "Uncommon: "+std::to_string(archaeologist.loot_storage.materials.uncommon), &GREEN, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
-    tcod::print(*main_win, {0, 11}, "Rare: "+std::to_string(archaeologist.loot_storage.materials.rare), &BLUE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
-    tcod::print(*main_win, {0, 12}, "Epic: "+std::to_string(archaeologist.loot_storage.materials.epic), &PURPLE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
-    tcod::print(*main_win, {0, 13}, "Legendary: "+std::to_string(archaeologist.loot_storage.materials.legendary), &YELLOW, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
-    tcod::print(*main_win, {0, 14}, "Artifact: "+std::to_string(archaeologist.loot_storage.materials.artifact), &DARK_RED, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
-    tcod::print(*main_win, {0, 16}, "Raw loot: ", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
-    tcod::print(*main_win, {0, 17}, "Mysterious pieces: "+std::to_string(archaeologist.raw_storage.mysterious_piece), &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
-    tcod::print(*main_win, {0, 18}, "Mysterious artifacts: "+std::to_string(archaeologist.raw_storage.mysterious_artifact), &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+    tcod::print(main_win, {0, 0}, "Storage Area", WHITE, BLACK);
+    tcod::print(main_win, {0, 1}, "Processed loot: ", WHITE, BLACK);
+    tcod::print(main_win, {0, 2}, "Cores:", WHITE, BLACK);
+    tcod::print(main_win, {0, 3}, "Ancient Cores: "+std::to_string(archaeologist.loot_storage.cores.ancient_core), DARK_RED, BLACK);
+    tcod::print(main_win, {0, 4}, "Mysterious Shard: "+std::to_string(archaeologist.loot_storage.cores.mysterious_shard), DARK_RED, BLACK);
+    tcod::print(main_win, {0, 5}, "Crystallium: "+std::to_string(archaeologist.loot_storage.cores.crystallium), YELLOW, BLACK);
+    tcod::print(main_win, {0, 6}, "Crystal Cores: "+std::to_string(archaeologist.loot_storage.cores.crystal_core), PURPLE, BLACK);
+    tcod::print(main_win, {0, 8}, "Materials:", WHITE, BLACK);
+    tcod::print(main_win, {0, 9}, "Common: "+std::to_string(archaeologist.loot_storage.materials.common), WHITE, BLACK);
+    tcod::print(main_win, {0, 10}, "Uncommon: "+std::to_string(archaeologist.loot_storage.materials.uncommon), GREEN, BLACK);
+    tcod::print(main_win, {0, 11}, "Rare: "+std::to_string(archaeologist.loot_storage.materials.rare), BLUE, BLACK);
+    tcod::print(main_win, {0, 12}, "Epic: "+std::to_string(archaeologist.loot_storage.materials.epic), PURPLE, BLACK);
+    tcod::print(main_win, {0, 13}, "Legendary: "+std::to_string(archaeologist.loot_storage.materials.legendary), YELLOW, BLACK);
+    tcod::print(main_win, {0, 14}, "Artifact: "+std::to_string(archaeologist.loot_storage.materials.artifact), DARK_RED, BLACK);
+    tcod::print(main_win, {0, 16}, "Raw loot: ", WHITE, BLACK);
+    tcod::print(main_win, {0, 17}, "Mysterious pieces: "+std::to_string(archaeologist.raw_storage.mysterious_piece), WHITE, BLACK);
+    tcod::print(main_win, {0, 18}, "Mysterious artifacts: "+std::to_string(archaeologist.raw_storage.mysterious_artifact), WHITE, BLACK);
     draw_menu_selections(main_win, context, 20, csr_pos==0, "[Retrieve all processed loot]");
     draw_menu_selections(main_win, context, 21, csr_pos==1, "[Return]");
-    context->present(*main_win);
+    context->present(main_win);
 }
 
-void archaeologist_storage_interface(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Archaeologist &archaeologist, Player &user){
+void archaeologist_storage_interface(tcod::Console &main_win, tcod::ContextPtr &context, Archaeologist &archaeologist, Player &user){
     unsigned csr_pos=0;
     int ch;
     draw_archaeologist_storage(main_win, context, archaeologist, csr_pos);
@@ -978,7 +980,7 @@ void archaeologist_storage_interface(tcod::ConsolePtr &main_win, tcod::ContextPt
     }
 }
 
-void archaeologist_interface(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Archaeologist &archaeologist, Player &user){
+void archaeologist_interface(tcod::Console &main_win, tcod::ContextPtr &context, Archaeologist &archaeologist, Player &user){
     unsigned csr_pos=0;
     int ch;
     draw_archaeologist_menu(main_win, context, csr_pos);
@@ -1016,7 +1018,7 @@ void archaeologist_interface(tcod::ConsolePtr &main_win, tcod::ContextPtr &conte
     }
 }
 
-void town_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player &user, Dungeon &dungeon_data, No_Delete &perm_config, Thread_Flags &thread_flags){
+void town_mode(tcod::Console &main_win, tcod::ContextPtr &context, Player &user, Dungeon &dungeon_data, No_Delete &perm_config, Thread_Flags &thread_flags){
     refresh_gear_merchant_store(dungeon_data.npc.gear_merchant, user.steps);
     refresh_mysterious_merchant_store(dungeon_data.npc.mysterious_trader, user.steps);
     std::ifstream pub_layout_file("src/res/bar_layout.txt");

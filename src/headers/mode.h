@@ -81,19 +81,19 @@ static const std::map<std::string, unsigned long long int> trader_prices{
         {"weapon_blueprint",     5},
         {"first_aid_kit",        10}};
 
-void draw_base(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, int y, unsigned int size, unsigned int page, bool is_blacksmith_mode, bool is_inventory_modifier_mode);
+void draw_base(tcod::Console &main_win, tcod::ContextPtr &context, int y, unsigned int size, unsigned int page, bool is_blacksmith_mode, bool is_inventory_modifier_mode);
 
-void print_item(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, const Item *cur_item, int line, bool is_selected);
+void print_item(tcod::Console &main_win, tcod::ContextPtr &context, const Item *cur_item, int line, bool is_selected);
 
-void print_description(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, const Item *cur_item, int line);
+void print_description(tcod::Console &main_win, tcod::ContextPtr &context, const Item *cur_item, int line);
 
-void inventory_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player &user, No_Delete &perm_config);
+void inventory_mode(tcod::Console &main_win, tcod::ContextPtr &context, Player &user, No_Delete &perm_config);
 
-void town_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player &user, Dungeon &dungeon_data, No_Delete &perm_config, Thread_Flags &thread_flags);
+void town_mode(tcod::Console &main_win, tcod::ContextPtr &context, Player &user, Dungeon &dungeon_data, No_Delete &perm_config, Thread_Flags &thread_flags);
 
-void reforge_repair_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player &user, No_Delete &perm_config);
+void reforge_repair_mode(tcod::Console &main_win, tcod::ContextPtr &context, Player &user, No_Delete &perm_config);
 
-void eat_drink_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player &user);
+void eat_drink_mode(tcod::Console &main_win, tcod::ContextPtr &context, Player &user);
 
 bool decrease_amount(unsigned long long int &original, unsigned int amount);
 
@@ -101,34 +101,34 @@ bool remove_misc_item(Miscellaneous &user, unsigned int csr_pos, unsigned int am
 
 void add_misc_item(Miscellaneous &user, unsigned int csr_pos, unsigned int amount);
 
-void print_misc_item(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Miscellaneous &user, unsigned int csr_pos);
+void print_misc_item(tcod::Console &main_win, tcod::ContextPtr &context, Miscellaneous &user, unsigned int csr_pos);
 
-void show_misc_items(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Miscellaneous &user);
+void show_misc_items(tcod::Console &main_win, tcod::ContextPtr &context, Miscellaneous &user);
 
 bool unequip_item(Player &user, Item *cur_item);
 
-void help_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, std::string mode);
+void help_mode(tcod::Console &main_win, tcod::ContextPtr &context, std::string mode);
 
 void init_copy(std::vector<Item> &original, std::vector<Item *> &items_copy);
 
 void process_copy(std::vector<Item> &original, std::vector<Item *> &items_copy, No_Delete &perm_config);
 
-void inventory_storage(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player &user, No_Delete &perm_config, Chest &chest);
+void inventory_storage(tcod::Console &main_win, tcod::ContextPtr &context, Player &user, No_Delete &perm_config, Chest &chest);
 
-void inventory_retrieve(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player &user, No_Delete &perm_config, Chest &chest);
+void inventory_retrieve(tcod::Console &main_win, tcod::ContextPtr &context, Player &user, No_Delete &perm_config, Chest &chest);
 
-void inventory_modifier_selection(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, No_Delete &perm_config, std::vector<Item> original_copy, std::vector<Item *> &items_copy);
+void inventory_modifier_selection(tcod::Console &main_win, tcod::ContextPtr &context, No_Delete &perm_config, std::vector<Item> original_copy, std::vector<Item *> &items_copy);
 
-void show_merchant_items(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Merchant &gear_merchant, Player &user);
+void show_merchant_items(tcod::Console &main_win, tcod::ContextPtr &context, Merchant &gear_merchant, Player &user);
 
-void sell_items_to_merchant(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Merchant &gear_merchant, Player &user, No_Delete &perm_config);
+void sell_items_to_merchant(tcod::Console &main_win, tcod::ContextPtr &context, Merchant &gear_merchant, Player &user, No_Delete &perm_config);
 
-void store_misc_items(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Miscellaneous &user, Chest &chest);
+void store_misc_items(tcod::Console &main_win, tcod::ContextPtr &context, Miscellaneous &user, Chest &chest);
 
-void retrieve_misc_items(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Miscellaneous &user, Chest &chest);
+void retrieve_misc_items(tcod::Console &main_win, tcod::ContextPtr &context, Miscellaneous &user, Chest &chest);
 
 int calculate_price(const Item &cur, double relationship, bool player_sell=false);
 
-void trader_misc_menu(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player &user, Merchant &gear_merchant);
+void trader_misc_menu(tcod::Console &main_win, tcod::ContextPtr &context, Player &user, Merchant &gear_merchant);
 
-void mysterious_trader_items(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player &user, Merchant &mysterious_merchant);
+void mysterious_trader_items(tcod::Console &main_win, tcod::ContextPtr &context, Player &user, Merchant &mysterious_merchant);

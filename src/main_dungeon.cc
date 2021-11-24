@@ -76,7 +76,7 @@ bool check_position_for_staircase(const std::vector<StaircaseData> &staircase_da
     return false;
 }
 
-Char_Move_Data char_move(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, int ch, Csr &csr_pos, RoomData *cur_room, Player &user, Npc &npc){
+Char_Move_Data char_move(tcod::Console &main_win, tcod::ContextPtr &context, int ch, Csr &csr_pos, RoomData *cur_room, Player &user, Npc &npc){
     Char_Move_Data data;
     bool require_move=false;
     if(ch=='a'||ch==SDLK_LEFT){
@@ -171,7 +171,7 @@ Char_Move_Data char_move(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, 
         draw_monster(main_win, context, cur_room->enemy_data);
         draw_player(main_win, context, csr_pos.x, csr_pos.y);
         draw_stats(main_win, context, user);
-        context->present(*main_win);
+        context->present(main_win);
     }
     return data;
 }
@@ -230,7 +230,7 @@ std::pair<std::string, std::string> calculate_damage(Player &user, Monster_Stats
     return {first.str(), second.str()};
 }
 
-bool player_battle(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player &user, Monster *monster_data){
+bool player_battle(tcod::Console &main_win, tcod::ContextPtr &context, Player &user, Monster *monster_data){
     std::pair<std::string, std::string> log;
     int ch;
     while(true){
@@ -241,11 +241,11 @@ bool player_battle(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player
         draw_stats(main_win, context, user);
         user_output << username << "~ HP:" << user.cur_hp << " Defence:" << user.def << " Shield:" << user.cur_shield << " Heal:" << user.inv.misc.heal_amount;
         enemy_output << "Enemy~ HP:" << monster_data->stats.hp << " Attk:" << monster_data->stats.attk << " Def:" << monster_data->stats.def;
-        tcod::print(*main_win, {1, 49}, user_output.str(), &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
-        tcod::print(*main_win, {1, 2}, enemy_output.str(), &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
-        tcod::print(*main_win, {39, 25}, log.first, &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_CENTER);
-        tcod::print(*main_win, {39, 26}, log.second, &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_CENTER);
-        context->present(*main_win);
+        tcod::print(main_win, {1, 49}, user_output.str(), WHITE, BLACK);
+        tcod::print(main_win, {1, 2}, enemy_output.str(), WHITE, BLACK);
+        tcod::print(main_win, {39, 25}, log.first, WHITE, BLACK, TCOD_CENTER, TCOD_BKGND_SET);
+        tcod::print(main_win, {39, 26}, log.second, WHITE, BLACK, TCOD_CENTER, TCOD_BKGND_SET);
+        context->present(main_win);
         ch=SDL_getch(main_win, context);
         if(ch=='1'){
             log=calculate_damage(user, monster_data->stats);
@@ -256,7 +256,7 @@ bool player_battle(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player
                 user.gold+=generate_gold(monster_data->type);
                 Item loot=generate_loot_from_monster_type(monster_data->type);
                 SDL_wclear_main_win(main_win, context);
-                tcod::print(*main_win, {0, 1}, "Press any key to keep and [r] to trash", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+                tcod::print(main_win, {0, 1}, "Press any key to keep and [r] to trash", WHITE, BLACK);
                 draw_stats(main_win, context, user);
                 print_description(main_win, context, &loot, 1);
                 ch=SDL_getch(main_win, context);
@@ -278,7 +278,7 @@ bool player_battle(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player
     }
 }
 
-std::pair<bool, bool> attack_monster(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, std::vector<Monster> &monsters, Csr csr_pos, Player &user){
+std::pair<bool, bool> attack_monster(tcod::Console &main_win, tcod::ContextPtr &context, std::vector<Monster> &monsters, Csr csr_pos, Player &user){
     std::pair<bool, bool> attack_status{false, false}; // .first = if surroundings have monsters, .y is_alive
     unsigned int id = 0;
     if(check_position_for_monsters(monsters, csr_pos.x-1, csr_pos.y)){
@@ -328,6 +328,8 @@ void move_door(Dungeon &dungeon_data, const std::vector<DoorData> &door_data, in
                     dungeon_data.current.x++;
                     dungeon_data.csr_pos={1, 24};
                     break;
+                default:
+                    break;
             }
         }
     }
@@ -348,28 +350,28 @@ void move_staircase(const std::vector<StaircaseData> &staircase_data, Level &lev
     }
 }
 
-void print_food(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player &user){
+void print_food(tcod::Console &main_win, tcod::ContextPtr &context, Player &user){
     SDL_wclear_main_win(main_win, context);
     std::stringstream ss;
     ss << "[1] Bread (30 Saturation Points): " << user.inv.food.bread;
-    tcod::print(*main_win, {0, 1}, ss.str(), &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+    tcod::print(main_win, {0, 1}, ss.str(), WHITE, BLACK);
     ss.str(std::string());
     ss << "[2] Waffle (50 Saturation Points): " << user.inv.food.waffle;
-    tcod::print(*main_win, {0, 2}, ss.str(), &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+    tcod::print(main_win, {0, 2}, ss.str(), WHITE, BLACK);
     ss.str(std::string());
     ss << "[3] Energy Bar (100 Saturation Points): " << user.inv.food.energy_bar;
-    tcod::print(*main_win, {0, 3}, ss.str(), &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+    tcod::print(main_win, {0, 3}, ss.str(), WHITE, BLACK);
     ss.str(std::string());
     ss << "[4] Water (50 Hydration Points): " << user.inv.water.water;
-    tcod::print(*main_win, {0, 4}, ss.str(), &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+    tcod::print(main_win, {0, 4}, ss.str(), WHITE, BLACK);
     ss.str(std::string());
     ss << "[5] Sparkling Water (100 Hydration Points): " << user.inv.water.sparkling_juice;
-    tcod::print(*main_win, {0, 5}, ss.str(), &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+    tcod::print(main_win, {0, 5}, ss.str(), WHITE, BLACK);
     ss.str(std::string());
-    context->present(*main_win);
+    context->present(main_win);
 }
 
-void eat_drink_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player &user){
+void eat_drink_mode(tcod::Console &main_win, tcod::ContextPtr &context, Player &user){
     int ch;
     while(true){
         print_food(main_win, context, user);
@@ -402,7 +404,7 @@ void drop_items_on_death(Player &user, Csr &csr_pos, Level &current){
     current=Level(1,1,1);
 }
 
-bool search_for_lootbox(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Dungeon &dungeon_data, RoomData *cur_room, Player &User, Csr &csr_pos){
+bool search_for_lootbox(tcod::Console &main_win, tcod::ContextPtr &context, Dungeon &dungeon_data, RoomData *cur_room, Player &User, Csr &csr_pos){
     for(const auto &i:dungeon_data.loot_data){
         if(i.dungeon_position==cur_room->id){
             if((i.room_position.x==csr_pos.x+1&&i.room_position.y==csr_pos.y)||(i.room_position.x==csr_pos.x-1&&i.room_position.y==csr_pos.y)||(i.room_position.x==csr_pos.x&&i.room_position.y==csr_pos.y+1)||(i.room_position.x==csr_pos.x&&i.room_position.y==csr_pos.y-1)){
@@ -413,10 +415,10 @@ bool search_for_lootbox(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, D
                 int bread_amount=generate_random_number(1,4); // Generate 1-3 pieces of bread
                 int water_amount=generate_random_number(1,2); // Generate 1-3 pieces of water
                 if(bread_amount==1){
-                    tcod::print(*main_win, {0, line}, "You obtained 1 piece of bread", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+                    tcod::print(main_win, {0, line}, "You obtained 1 piece of bread", WHITE, BLACK);
                 }
                 else{
-                    tcod::print(*main_win, {0, line}, "You obtained "+std::to_string(bread_amount)+" pieces of bread", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+                    tcod::print(main_win, {0, line}, "You obtained "+std::to_string(bread_amount)+" pieces of bread", WHITE, BLACK);
                 }
                 User.inv.food.bread += bread_amount;
                 if(User.inv.food.bread>8){
@@ -424,10 +426,10 @@ bool search_for_lootbox(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, D
                 }
                 line++;
                 if(water_amount==1){
-                    tcod::print(*main_win, {0, line}, "You obtained 1 bottle of water", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+                    tcod::print(main_win, {0, line}, "You obtained 1 bottle of water", WHITE, BLACK);
                 }
                 else{
-                    tcod::print(*main_win, {0, line}, "You obtained "+std::to_string(water_amount)+" bottles of water", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+                    tcod::print(main_win, {0, line}, "You obtained "+std::to_string(water_amount)+" bottles of water", WHITE, BLACK);
                 }
                 line++;
                 User.inv.water.water += water_amount;
@@ -436,7 +438,7 @@ bool search_for_lootbox(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, D
                 }
                 if(return_chance(50)){ // Drop 5-15 gold
                     int gold = generate_random_number(5, 15);
-                    tcod::print(*main_win, {0, line}, "You obtained "+std::to_string(gold)+" gold pieces", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+                    tcod::print(main_win, {0, line}, "You obtained "+std::to_string(gold)+" gold pieces", WHITE, BLACK);
                     User.gold+=gold;
                     line++;
                 }
@@ -459,7 +461,7 @@ bool search_for_lootbox(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, D
     return false;
 }
 
-void main_dungeon(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Dungeon &dungeon_data, Player &user, No_Delete &perm_config, Thread_Flags &thread_flags){
+void main_dungeon(tcod::Console &main_win, tcod::ContextPtr &context, Dungeon &dungeon_data, Player &user, No_Delete &perm_config, Thread_Flags &thread_flags){
     RoomData *cur_room = dungeon_data.get_pointer_of_room(dungeon_data.current);
     dungeon_data.get_loot_in_room(cur_room->id, cur_room->loot_in_room);
     redraw_main_dungeon(main_win, context, dungeon_data.csr_pos, user, dungeon_data, cur_room);

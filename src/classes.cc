@@ -374,7 +374,7 @@ bool Thread_Flags::get_flag(std::atomic<bool> &flag){
     return flag.load(std::memory_order_acquire);
 }
 
-void Screen_Char_Data::get_char_at(tcod::ConsolePtr &main_win, int x, int y){
+void Screen_Char_Data::get_char_at(tcod::Console &main_win, int x, int y){
     char_code = TCOD_console_get_char(main_win.get(), x, y);
     foreground = TCOD_console_get_char_foreground(main_win.get(), x, y);
     background = TCOD_console_get_char_background(main_win.get(), x, y);

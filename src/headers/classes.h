@@ -489,7 +489,7 @@ private:
     TCOD_ColorRGB background;
 
 public:
-    void get_char_at(tcod::ConsolePtr &main_win, int x, int y);
+    void get_char_at(tcod::Console &main_win, int x, int y);
 };
 
 std::ostream &operator<<(std::ostream &os, const Time &time);

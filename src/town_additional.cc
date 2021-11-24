@@ -66,140 +66,140 @@ int calculate_price(const Item &cur, double relationship, bool player_sell){
     return price;
 }
 
-void print_item_description_1(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, const Item *cur_item, int &line){
-    tcod::print(*main_win, {0, line+1}, "Name: ", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
-    tcod::print(*main_win, {6, line+1}, cur_item->name, &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
-    tcod::print(*main_win, {0, line+2}, "Rarity: ", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+void print_item_description_1(tcod::Console &main_win, tcod::ContextPtr &context, const Item *cur_item, int &line){
+    tcod::print(main_win, {0, line+1}, "Name: ", WHITE, BLACK);
+    tcod::print(main_win, {6, line+1}, cur_item->name, WHITE, BLACK);
+    tcod::print(main_win, {0, line+2}, "Rarity: ", WHITE, BLACK);
     switch(cur_item->rarity){
         case Rarity::COMMON:
-            tcod::print(*main_win, {8, line+2}, "Common", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+            tcod::print(main_win, {8, line+2}, "Common", WHITE, BLACK);
             break;
         case Rarity::UNCOMMON:
-            tcod::print(*main_win, {8, line+2}, "Uncommon", &GREEN, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+            tcod::print(main_win, {8, line+2}, "Uncommon", GREEN, BLACK);
             break;
         case Rarity::RARE:
-            tcod::print(*main_win, {8, line+2}, "Rare", &BLUE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+            tcod::print(main_win, {8, line+2}, "Rare", BLUE, BLACK);
             break;
         case Rarity::EPIC:
-            tcod::print(*main_win, {8, line+2}, "Epic", &PURPLE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+            tcod::print(main_win, {8, line+2}, "Epic", PURPLE, BLACK);
             break;
         case Rarity::LEGENDARY:
-            tcod::print(*main_win, {8, line+2}, "Legendary", &YELLOW, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+            tcod::print(main_win, {8, line+2}, "Legendary", YELLOW, BLACK);
             break;
         case Rarity::ARTIFACT:
-            tcod::print(*main_win, {8, line+2}, "Artifact", &DARK_RED, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+            tcod::print(main_win, {8, line+2}, "Artifact", DARK_RED, BLACK);
             break;
         default:
-            tcod::print(*main_win, {8, line+2}, "-ERROR-", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+            tcod::print(main_win, {8, line+2}, "-ERROR-", WHITE, BLACK);
             break;
     }
     line+=2;
-    tcod::print(*main_win, {0, line+1}, "Type: ", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+    tcod::print(main_win, {0, line+1}, "Type: ", WHITE, BLACK);
     switch(cur_item->type){
         case Type::HELMET:
-            tcod::print(*main_win, {6, line+1}, "Helmet", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+            tcod::print(main_win, {6, line+1}, "Helmet", WHITE, BLACK);
             break;
         case Type::CHESTPLATE:
-            tcod::print(*main_win, {6, line+1}, "Chestplate", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+            tcod::print(main_win, {6, line+1}, "Chestplate", WHITE, BLACK);
             break;
         case Type::GREAVES:
-            tcod::print(*main_win, {6, line+1}, "Greaves", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+            tcod::print(main_win, {6, line+1}, "Greaves", WHITE, BLACK);
             break;
         case Type::BOOTS:
-            tcod::print(*main_win, {6, line+1}, "Boots", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+            tcod::print(main_win, {6, line+1}, "Boots", WHITE, BLACK);
             break;
         case Type::SHIELD:
-            tcod::print(*main_win, {6, line+1}, "Shield", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+            tcod::print(main_win, {6, line+1}, "Shield", WHITE, BLACK);
             break;
         case Type::WEAPON:
-            tcod::print(*main_win, {6, line+1}, "Weapon", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+            tcod::print(main_win, {6, line+1}, "Weapon", WHITE, BLACK);
             break;
         default:
-            tcod::print(*main_win, {6, line+1}, "-ERROR-", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+            tcod::print(main_win, {6, line+1}, "-ERROR-", WHITE, BLACK);
             return;
     }
     line++;
 }
 
-void print_item_description_2(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, const Item *cur_item, int &line){
+void print_item_description_2(tcod::Console &main_win, tcod::ContextPtr &context, const Item *cur_item, int &line){
     std::stringstream ss;
-    tcod::print(*main_win, {0, line+1}, ("Durability: "+std::to_string(cur_item->durability)+"%"), &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+    tcod::print(main_win, {0, line+1}, ("Durability: "+std::to_string(cur_item->durability)+"%"), WHITE, BLACK);
     line++;
     if(cur_item->uses>0){
-        tcod::print(*main_win, {0, line+1}, ("Uses: "+std::to_string(cur_item->uses)), &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+        tcod::print(main_win, {0, line+1}, ("Uses: "+std::to_string(cur_item->uses)), WHITE, BLACK);
         line++;
     }
     if(cur_item->calibration>0){
-        tcod::print(*main_win, {0, line+1}, ("Calibration Level: "+std::to_string(cur_item->calibration)), &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+        tcod::print(main_win, {0, line+1}, ("Calibration Level: "+std::to_string(cur_item->calibration)), WHITE, BLACK);
         line++;
     }
     if(cur_item->enhancement>0){
-        tcod::print(*main_win, {0, line+1}, ("Enhancement: "+std::to_string(cur_item->enhancement)), &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+        tcod::print(main_win, {0, line+1}, ("Enhancement: "+std::to_string(cur_item->enhancement)), WHITE, BLACK);
         line++;
     }
     if(cur_item->hp>0){
-        tcod::print(*main_win, {0, line+1}, ("Health: "+std::to_string(cur_item->hp)), &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+        tcod::print(main_win, {0, line+1}, ("Health: "+std::to_string(cur_item->hp)), WHITE, BLACK);
         line++;
     }
     if(cur_item->attk>0){
-        tcod::print(*main_win, {0, line+1}, ("Damage: "+std::to_string(cur_item->attk)), &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+        tcod::print(main_win, {0, line+1}, ("Damage: "+std::to_string(cur_item->attk)), WHITE, BLACK);
         line++;
     }
     if(cur_item->def>0){
-        tcod::print(*main_win, {0, line+1}, ("Defence: "+std::to_string(cur_item->def)), &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+        tcod::print(main_win, {0, line+1}, ("Defence: "+std::to_string(cur_item->def)), WHITE, BLACK);
         line++;
     }
     if(cur_item->shield>0){
-        tcod::print(*main_win, {0, line+1}, ("Shield: "+std::to_string(cur_item->shield)), &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+        tcod::print(main_win, {0, line+1}, ("Shield: "+std::to_string(cur_item->shield)), WHITE, BLACK);
         line++;
     }
     if(cur_item->crit_chance>0){
-        tcod::print(*main_win, {0, line+1}, ("Critical Chance: "+std::to_string(cur_item->crit_chance)+"%"), &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+        tcod::print(main_win, {0, line+1}, ("Critical Chance: "+std::to_string(cur_item->crit_chance)+"%"), WHITE, BLACK);
         line++;
     }
     if(cur_item->crit_dmg>0){
-        tcod::print(*main_win, {0, line+1}, ("Critical Damage: "+std::to_string(cur_item->crit_dmg)+"%"), &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+        tcod::print(main_win, {0, line+1}, ("Critical Damage: "+std::to_string(cur_item->crit_dmg)+"%"), WHITE, BLACK);
         line++;
     }
 }
 
-void print_trader_item_description(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, const Item *cur_item, int line, int price, bool is_locked){
+void print_trader_item_description(tcod::Console &main_win, tcod::ContextPtr &context, const Item *cur_item, int line, int price, bool is_locked){
     if(is_locked){
-        tcod::print(*main_win, {0, line+1}, "[Locked]", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+        tcod::print(main_win, {0, line+1}, "[Locked]", WHITE, BLACK);
         line++;
     }
     print_item_description_1(main_win, context, cur_item, line);
-    tcod::print(*main_win, {0, line+1}, "Price: "+std::to_string(price), &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+    tcod::print(main_win, {0, line+1}, "Price: "+std::to_string(price), WHITE, BLACK);
     line++;
     print_item_description_2(main_win, context, cur_item, line);
-    context->present(*main_win);
+    context->present(main_win);
 }
 
-void print_mysterious_trader_item_description(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, const Item *cur_item, int line, double quality_points){
+void print_mysterious_trader_item_description(tcod::Console &main_win, tcod::ContextPtr &context, const Item *cur_item, int line, double quality_points){
     print_item_description_1(main_win, context, cur_item, line);
-    tcod::print(*main_win, {0, line+1}, "Quality Points: "+std::to_string(quality_points), &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+    tcod::print(main_win, {0, line+1}, "Quality Points: "+std::to_string(quality_points), WHITE, BLACK);
     line++;
     print_item_description_2(main_win, context, cur_item, line);
-    context->present(*main_win);
+    context->present(main_win);
 }
 
-void print_sell_item_description(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, const Item *cur_item, int line, int price){
+void print_sell_item_description(tcod::Console &main_win, tcod::ContextPtr &context, const Item *cur_item, int line, int price){
     print_item_description_1(main_win, context, cur_item, line);
-    tcod::print(*main_win, {0, line+1}, "Equipped: ", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+    tcod::print(main_win, {0, line+1}, "Equipped: ", WHITE, BLACK);
     if(cur_item->is_equipped){
-        tcod::print(*main_win, {10, line+1}, "true", &GREEN, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+        tcod::print(main_win, {10, line+1}, "true", GREEN, BLACK);
     }
     if(!cur_item->is_equipped){
-        tcod::print(*main_win, {10, line+1}, "false", &LIGHT_RED, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+        tcod::print(main_win, {10, line+1}, "false", LIGHT_RED, BLACK);
     }
     line++;
-    tcod::print(*main_win, {0, line+1}, "Price: "+std::to_string(price), &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+    tcod::print(main_win, {0, line+1}, "Price: "+std::to_string(price), WHITE, BLACK);
     line++;
     print_item_description_2(main_win, context, cur_item, line);
-    context->present(*main_win);
+    context->present(main_win);
 }
 
-void draw_trader_items(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, const Player &user, const std::vector<Item *> &items_copy, unsigned int page_num, unsigned int csr_pos, int price, bool is_locked=false){
+void draw_trader_items(tcod::Console &main_win, tcod::ContextPtr &context, const Player &user, const std::vector<Item *> &items_copy, unsigned int page_num, unsigned int csr_pos, int price, bool is_locked=false){
     SDL_wclear_main_win(main_win, context);
     SDL_wclear_stats_bar(main_win, context);
     draw_stats(main_win, context, user);
@@ -210,7 +210,7 @@ void draw_trader_items(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, co
     print_trader_item_description(main_win, context, items_copy[page_num*30+csr_pos], 35, price, is_locked);
 }
 
-void draw_mysterious_trader_items(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, const std::vector<Item *> &items_copy, unsigned int csr_pos, double quality_points){
+void draw_mysterious_trader_items(tcod::Console &main_win, tcod::ContextPtr &context, const std::vector<Item *> &items_copy, unsigned int csr_pos, double quality_points){
     SDL_wclear_main_win(main_win, context);
     SDL_wclear_stats_bar(main_win, context);
     draw_base(main_win, context, 34, items_copy.size(), 0, false, false);
@@ -220,7 +220,7 @@ void draw_mysterious_trader_items(tcod::ConsolePtr &main_win, tcod::ContextPtr &
     print_mysterious_trader_item_description(main_win, context, items_copy[csr_pos], 35, quality_points);
 }
 
-void draw_sell_items(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, const Player &user, const std::vector<Item *> &items_copy, unsigned int page_num, unsigned int csr_pos, int price){
+void draw_sell_items(tcod::Console &main_win, tcod::ContextPtr &context, const Player &user, const std::vector<Item *> &items_copy, unsigned int page_num, unsigned int csr_pos, int price){
     SDL_wclear_main_win(main_win, context);
     SDL_wclear_stats_bar(main_win, context);
     draw_stats(main_win, context, user);
@@ -231,7 +231,7 @@ void draw_sell_items(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, cons
     print_sell_item_description(main_win, context, items_copy[page_num*30+csr_pos], 35, price);
 }
 
-void store_misc_items(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Miscellaneous &user, Chest &chest){
+void store_misc_items(tcod::Console &main_win, tcod::ContextPtr &context, Miscellaneous &user, Chest &chest){
     unsigned int csr_pos=0;
     clear_and_draw_dialog(main_win, context, "[Inventory] Miscallaneous items:");
     int ch;
@@ -262,7 +262,7 @@ void store_misc_items(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Mis
     }
 }
 
-void retrieve_misc_items(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Miscellaneous &user, Chest &chest){
+void retrieve_misc_items(tcod::Console &main_win, tcod::ContextPtr &context, Miscellaneous &user, Chest &chest){
     unsigned int csr_pos=0;
     clear_and_draw_dialog(main_win, context, "[Storage] Miscallaneous items:");
     int ch;
@@ -293,7 +293,7 @@ void retrieve_misc_items(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, 
     }
 }
 
-void inventory_storage(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player &user, No_Delete &perm_config, Chest &chest){
+void inventory_storage(tcod::Console &main_win, tcod::ContextPtr &context, Player &user, No_Delete &perm_config, Chest &chest){
     std::vector<Item *> items_copy;
     unsigned int page_num=0;
     int csr_pos=0;
@@ -358,7 +358,7 @@ void inventory_storage(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Pl
     }
 }
 
-void inventory_retrieve(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player &user, No_Delete &perm_config, Chest &chest){
+void inventory_retrieve(tcod::Console &main_win, tcod::ContextPtr &context, Player &user, No_Delete &perm_config, Chest &chest){
     std::vector<Item *> items_copy;
     unsigned int page_num=0;
     int csr_pos=0;
@@ -418,7 +418,7 @@ void inventory_retrieve(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, P
     }
 }
 
-void show_merchant_items(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Merchant &gear_merchant, Player &user){
+void show_merchant_items(tcod::Console &main_win, tcod::ContextPtr &context, Merchant &gear_merchant, Player &user){
     unsigned int page_num=0;
     int csr_pos=0;
     std::vector<Item> original_copy;
@@ -433,12 +433,12 @@ void show_merchant_items(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, 
         ch=SDL_getch(main_win, context);
         if((ch=='s'||ch==SDLK_DOWN)&&((csr_pos+page_num*30)<items_copy.size()-1&&csr_pos<29)){
             csr_pos++;
-            tcod::print(*main_win, {0, 39}, empty_line, &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+            tcod::print(main_win, {0, 39}, empty_line, WHITE, BLACK);
             draw_trader_items(main_win, context, user, items_copy, page_num, csr_pos, calculate_price(original_copy[csr_pos+page_num*30], gear_merchant.relation), gear_merchant.store[csr_pos+page_num*30].second);
         }
         else if((ch=='w'||ch==SDLK_UP)&&csr_pos>0){
             csr_pos--;
-            tcod::print(*main_win, {0, 39}, empty_line, &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+            tcod::print(main_win, {0, 39}, empty_line, WHITE, BLACK);
             draw_trader_items(main_win, context, user, items_copy, page_num, csr_pos, calculate_price(original_copy[csr_pos+page_num*30], gear_merchant.relation), gear_merchant.store[csr_pos+page_num*30].second);
         }
         else if(ch=='L'){
@@ -492,7 +492,7 @@ void show_merchant_items(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, 
     }
 }
 
-void sell_items_to_merchant(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Merchant &gear_merchant, Player &user, No_Delete &perm_config){
+void sell_items_to_merchant(tcod::Console &main_win, tcod::ContextPtr &context, Merchant &gear_merchant, Player &user, No_Delete &perm_config){
     std::vector<Item *> items_copy;
     unsigned int page_num=0;
     int csr_pos=0;
@@ -558,30 +558,30 @@ void sell_items_to_merchant(tcod::ConsolePtr &main_win, tcod::ContextPtr &contex
     }
 }
 
-void print_trader_misc_menu(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, unsigned int csr_pos){
+void print_trader_misc_menu(tcod::Console &main_win, tcod::ContextPtr &context, unsigned int csr_pos){
     SDL_wclear_main_win(main_win, context);
     // Buy
-    tcod::print(*main_win, {0, 1}, "Buy Materials/Blueprints:", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+    tcod::print(main_win, {0, 1}, "Buy Materials/Blueprints:", WHITE, BLACK);
     print_bold_with_condition(main_win, context, "[Common] "+std::to_string(trader_prices.at("common_material"))+" Gold each", WHITE, 2, csr_pos==0);
     print_bold_with_condition(main_win, context, "[Uncommon] "+std::to_string(trader_prices.at("uncommon_material"))+" Gold each", GREEN, 3, csr_pos==1);
     print_bold_with_condition(main_win, context, "[Rare] "+std::to_string(trader_prices.at("rare_material"))+" Gold each", BLUE, 4, csr_pos==2);
     print_bold_with_condition(main_win, context, "[Epic] "+std::to_string(trader_prices.at("epic_material"))+" Gold each", PURPLE, 5, csr_pos==3);
     print_bold_with_condition(main_win, context, "[Legendary] "+std::to_string(trader_prices.at("legendary_material"))+" Gold each", YELLOW, 6, csr_pos==4);
-    tcod::print(*main_win, {0, 8}, "Blueprints:", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+    tcod::print(main_win, {0, 8}, "Blueprints:", WHITE, BLACK);
     print_bold_with_condition(main_win, context, "[Helmet] "+std::to_string(trader_prices.at("helmet_blueprint"))+" Crystal Cores each", WHITE, 9, csr_pos==5);
     print_bold_with_condition(main_win, context, "[Chestplate] "+std::to_string(trader_prices.at("chestplate_blueprint"))+" Crystal Cores each", WHITE, 10, csr_pos==6);
     print_bold_with_condition(main_win, context, "[Greaves] "+std::to_string(trader_prices.at("greaves_blueprint"))+" Crystal Cores each", WHITE, 11, csr_pos==7);
     print_bold_with_condition(main_win, context, "[Boots] "+std::to_string(trader_prices.at("boots_blueprint"))+" Crystal Cores each", WHITE, 12, csr_pos==8);
     print_bold_with_condition(main_win, context, "[Shield] "+std::to_string(trader_prices.at("shield_blueprint"))+" Crystal Cores each", WHITE, 13, csr_pos==9);
     print_bold_with_condition(main_win, context, "[Weapon] "+std::to_string(trader_prices.at("weapon_blueprint"))+" Crystal Cores each", WHITE, 14, csr_pos==10);
-    tcod::print(*main_win, {0, 16}, "Others:", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+    tcod::print(main_win, {0, 16}, "Others:", WHITE, BLACK);
     print_bold_with_condition(main_win, context, "[First-Aid Kits] "+std::to_string(trader_prices.at("first_aid_kit"))+" Crystal Cores each", PURPLE, 17, csr_pos==11);
     // Sell
-    tcod::print(*main_win, {0, 21}, "--------------------------------------------------------------------------------", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
-    tcod::print(*main_win, {0, 25}, "Sell Cores/Materials:", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
-    tcod::print(*main_win, {0, 26}, "Cores:", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+    tcod::print(main_win, {0, 21}, "--------------------------------------------------------------------------------", WHITE, BLACK);
+    tcod::print(main_win, {0, 25}, "Sell Cores/Materials:", WHITE, BLACK);
+    tcod::print(main_win, {0, 26}, "Cores:", WHITE, BLACK);
     print_bold_with_condition(main_win, context, "[Crystal Cores] "+std::to_string((unsigned long long int) (trader_prices.at("crystal_core")*0.8))+" Gold each", BLUE, 27, csr_pos==12);
-    tcod::print(*main_win, {0, 29}, "Materials:", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+    tcod::print(main_win, {0, 29}, "Materials:", WHITE, BLACK);
     print_bold_with_condition(main_win, context, "[Common] "+std::to_string((unsigned long long int) (trader_prices.at("common_material")*0.8))+" Gold each", WHITE, 30, csr_pos==13);
     print_bold_with_condition(main_win, context, "[Uncommon] "+std::to_string((unsigned long long int) (trader_prices.at("uncommon_material")*0.8))+" Gold each", GREEN, 31, csr_pos==14);
     print_bold_with_condition(main_win, context, "[Rare] "+std::to_string((unsigned long long int) (trader_prices.at("rare_material")*0.8))+" Gold each", BLUE, 32, csr_pos==15);
@@ -600,7 +600,7 @@ bool trader_check_if_payment_valid(const std::string &type, unsigned long long i
     }
 }
 
-bool trader_process_payment(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player &user, Merchant &gear_merchant, unsigned int csr_pos){
+bool trader_process_payment(tcod::Console &main_win, tcod::ContextPtr &context, Player &user, Merchant &gear_merchant, unsigned int csr_pos){
     unsigned long long int amount=0;
     if(csr_pos<12){
         amount=get_ullint(main_win, context, "Please enter the amount of items you wish to purchase: ");
@@ -780,7 +780,7 @@ bool trader_process_payment(tcod::ConsolePtr &main_win, tcod::ContextPtr &contex
     return false;
 }
 
-void trader_misc_menu(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player &user, Merchant &gear_merchant){
+void trader_misc_menu(tcod::Console &main_win, tcod::ContextPtr &context, Player &user, Merchant &gear_merchant){
     unsigned int csr_pos=0;
     int ch;
     print_trader_misc_menu(main_win, context, csr_pos);
@@ -844,24 +844,24 @@ double calculate_quality_points(const Item &cur){
     return quality_points;
 }
 
-void print_inventory_with_quality_points_description(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, const Item *cur_item, int line){
+void print_inventory_with_quality_points_description(tcod::Console &main_win, tcod::ContextPtr &context, const Item *cur_item, int line){
     print_item_description_1(main_win, context, cur_item, line);
     double quality_points=calculate_quality_points(*cur_item);
-    tcod::print(*main_win, {0, line+1}, "Equipped: ", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+    tcod::print(main_win, {0, line+1}, "Equipped: ", WHITE, BLACK);
     if(cur_item->is_equipped){
-        tcod::print(*main_win, {10, line+1}, "true", &GREEN, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+        tcod::print(main_win, {10, line+1}, "true", GREEN, BLACK);
     }
     if(!cur_item->is_equipped){
-        tcod::print(*main_win, {10, line+1}, "false", &LIGHT_RED, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+        tcod::print(main_win, {10, line+1}, "false", LIGHT_RED, BLACK);
     }
     line++;
-    tcod::print(*main_win, {0, line+1}, "Quality Points: "+std::to_string(quality_points), &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+    tcod::print(main_win, {0, line+1}, "Quality Points: "+std::to_string(quality_points), WHITE, BLACK);
     line++;
     print_item_description_2(main_win, context, cur_item, line);
-    context->present(*main_win);
+    context->present(main_win);
 }
 
-void print_item_with_selection(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, const Item *cur_item, int line, bool is_highlighted, bool is_selected){
+void print_item_with_selection(tcod::Console &main_win, tcod::ContextPtr &context, const Item *cur_item, int line, bool is_highlighted, bool is_selected){
     std::stringstream ss;
     if(is_selected){
         ss << "->";
@@ -886,7 +886,7 @@ void print_item_with_selection(tcod::ConsolePtr &main_win, tcod::ContextPtr &con
             ss << "[Weapon] ";
             break;
         default:
-            tcod::print(*main_win, {0, line+1}, "Error", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+            tcod::print(main_win, {0, line+1}, "Error", WHITE, BLACK);
             return;
     }
     ss << cur_item->name;
@@ -896,18 +896,18 @@ void print_item_with_selection(tcod::ConsolePtr &main_win, tcod::ContextPtr &con
     print_bold_with_condition(main_win, context, ss.str(), YELLOW, line+1, is_highlighted);
 }
 
-void draw_base_with_quality_points(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, int y, unsigned int size, unsigned int page, const int &target_quality, const int &total_quality){
+void draw_base_with_quality_points(tcod::Console &main_win, tcod::ContextPtr &context, int y, unsigned int size, unsigned int page, const int &target_quality, const int &total_quality){
     std::stringstream ss;
     SDL_wclear_dialog_bar(main_win, context);
     ss << "Inventory " << "(" << page+1 << "/" << ((size-1)/30)+1 << ")" << " Selected Total Quality: [" << total_quality << "/" << target_quality << "]";
-    tcod::print(*main_win, {0, 0}, ss.str(), &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+    tcod::print(main_win, {0, 0}, ss.str(), WHITE, BLACK);
     for(int i=0; i<80; i++){
         TCOD_console_put_char_ex(main_win.get(), i, y+1, '-', WHITE, BLACK);
     }
-//    context->present(*main_win);
+//    context->present(main_win);
 }
 
-void print_inventory_with_quality_points(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, unsigned int csr_pos, unsigned int page_num, const Player &user, const std::vector<std::pair<Item *, bool>> &items_copy, const int &target_quality, const int &total_quality){
+void print_inventory_with_quality_points(tcod::Console &main_win, tcod::ContextPtr &context, unsigned int csr_pos, unsigned int page_num, const Player &user, const std::vector<std::pair<Item *, bool>> &items_copy, const int &target_quality, const int &total_quality){
     SDL_wclear_main_win(main_win, context);
     SDL_wclear_stats_bar(main_win, context);
     draw_stats(main_win, context, user);
@@ -918,7 +918,7 @@ void print_inventory_with_quality_points(tcod::ConsolePtr &main_win, tcod::Conte
     print_inventory_with_quality_points_description(main_win, context, items_copy[page_num*30+csr_pos].first, 35);
 }
 
-int select_inventory_for_exchange(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player &user, const Item *target){
+int select_inventory_for_exchange(tcod::Console &main_win, tcod::ContextPtr &context, Player &user, const Item *target){
     std::vector<unsigned long long int> selected_for_trade;
     std::vector<std::pair<Item *, bool>> selected_items;
     unsigned int page_num=0;
@@ -983,7 +983,7 @@ int select_inventory_for_exchange(tcod::ConsolePtr &main_win, tcod::ContextPtr &
     }
 }
 
-void mysterious_trader_items(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, Player &user, Merchant &mysterious_merchant){
+void mysterious_trader_items(tcod::Console &main_win, tcod::ContextPtr &context, Player &user, Merchant &mysterious_merchant){
     unsigned int page_num=0;
     int csr_pos=0;
     std::vector<Item> original_copy;

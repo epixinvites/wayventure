@@ -20,18 +20,18 @@
 #include <fstream>
 #include "headers/main.h"
 
-void help_mode(tcod::ConsolePtr &main_win, tcod::ContextPtr &context, std::string mode){
+void help_mode(tcod::Console &main_win, tcod::ContextPtr &context, std::string mode){
     SDL_wclear_main_win(main_win, context);
     SDL_wclear_dialog_bar(main_win, context);
-    tcod::print(*main_win, {0, 0}, "Help", &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+    tcod::print(main_win, {0, 0}, "Help", WHITE, BLACK);
     std::ifstream dungeon_help("src/res/help/"+mode+".txt");
     std::string line;
     int count=0;
     while(std::getline(dungeon_help, line)){
-        tcod::print(*main_win, {0, count+1}, line, &WHITE, &BLACK, TCOD_BKGND_SET, TCOD_LEFT);
+        tcod::print(main_win, {0, count+1}, line, WHITE, BLACK);
         count++;
     }
-    context->present(*main_win);
+    context->present(main_win);
     int ch=0;
     while(!(ch>0&&ch<128)){
         ch=SDL_getch(main_win, context);
