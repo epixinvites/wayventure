@@ -125,7 +125,7 @@ void draw_loot_box(tcod::Console &main_win, tcod::ContextPtr &context, const std
 }
 
 void redraw_main_dungeon(tcod::Console &main_win, tcod::ContextPtr &context, Csr csr_pos, const Player &user, const Dungeon &dungeon_data, const RoomData *cur_room){
-    TCOD_console_clear(main_win.get());
+    main_win.clear({0x20, WHITE, BLACK});
     draw_level(main_win, context, dungeon_data.current);
     draw_stats(main_win, context, user);
     draw_border(main_win, context);

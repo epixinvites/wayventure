@@ -310,7 +310,7 @@ void save_data(const Dungeon &dungeon_data, Player &user, const No_Delete &perm_
 }
 
 void print_start_menu(tcod::Console &main_win, tcod::ContextPtr &context, const std::vector<std::string> &logo, unsigned int csr_pos){
-    TCOD_console_clear(main_win.get());
+    main_win.clear({0x20, WHITE, BLACK});
     int win_iterator=10;
     for(const auto &i:logo){
         tcod::print(main_win, {9, win_iterator}, i, WHITE, BLACK);
@@ -379,8 +379,6 @@ void init(){
     params.renderer_type=TCOD_RENDERER_SDL2;
     params.tileset=tileset.get();
     tcod::ContextPtr context=tcod::new_context(params);
-    TCOD_console_set_default_foreground(main_win.get(), WHITE);
-    TCOD_console_set_default_background(main_win.get(), BLACK);
     // Print starting screen
     starting_screen(main_win, context, user, dungeon_data, perm_config);
     // Start threads

@@ -29,19 +29,19 @@ const std::string save_file_version="0.2"; // DO NOT MODIFY
 const std::string username="Wayfarrer"; // Please don't put weird characters and keep the length under 30 characters. The program will grumble if you don't follow my instructions.
 
 // Tweak these colors if your eyes go ouch. You can play around with the colors and rebuild the program when you're ready.
-static constexpr TCOD_ColorRGB BLACK{32, 32, 32}; // def_background
-static constexpr TCOD_ColorRGB FULL_BLACK{0, 0, 0};
-static constexpr TCOD_ColorRGB WHITE{208, 208, 208}; // def_foreground
-static constexpr TCOD_ColorRGB CYAN{0, 255, 255}; // player_char (exclusive)
-static constexpr TCOD_ColorRGB LIGHT_RED{255, 50, 50}; // enemy (exclusive)
-static constexpr TCOD_ColorRGB GREEN{50, 153, 50};
-static constexpr TCOD_ColorRGB BLUE{0, 127, 255};
-static constexpr TCOD_ColorRGB GRAY{115, 115, 115};
-static constexpr TCOD_ColorRGB PURPLE{120, 81, 169};
-static constexpr TCOD_ColorRGB YELLOW{255, 255, 0};
-static constexpr TCOD_ColorRGB DARK_RED{196, 2, 51}; // artifact (exclusive)
-static constexpr TCOD_ColorRGB LIGHT_BLUE{173, 216, 230}; // water (exclusive)
-static constexpr TCOD_ColorRGB MAGENTA{255, 0, 255}; // NPC (exclusive)
+static constexpr tcod::ColorRGB BLACK{32, 32, 32}; // def_background
+static constexpr tcod::ColorRGB FULL_BLACK{0, 0, 0};
+static constexpr tcod::ColorRGB WHITE{208, 208, 208}; // def_foreground
+static constexpr tcod::ColorRGB CYAN{0, 255, 255}; // player_char (exclusive)
+static constexpr tcod::ColorRGB LIGHT_RED{255, 50, 50}; // enemy (exclusive)
+static constexpr tcod::ColorRGB GREEN{50, 153, 50};
+static constexpr tcod::ColorRGB BLUE{0, 127, 255};
+static constexpr tcod::ColorRGB GRAY{115, 115, 115};
+static constexpr tcod::ColorRGB PURPLE{120, 81, 169};
+static constexpr tcod::ColorRGB YELLOW{255, 255, 0};
+static constexpr tcod::ColorRGB DARK_RED{196, 2, 51}; // artifact (exclusive)
+static constexpr tcod::ColorRGB LIGHT_BLUE{173, 216, 230}; // water (exclusive)
+static constexpr tcod::ColorRGB MAGENTA{255, 0, 255}; // NPC (exclusive)
 
 // Don't touch any of these. For god's sake.
 const std::string empty_line="                                                                                ";
