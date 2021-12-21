@@ -1,6 +1,6 @@
 # Welcome to Wayventure's development branch!
 
-### NOTE: The project is currently halted for a month or two while I study deeper into C++
+### NOTE: The project is currently under the early state of reconstruction. Please stay tuned as I am currently rewriting the entire game into 3D.
 
 ### Please only try to compile the released versions, I usually commit broken code
 
