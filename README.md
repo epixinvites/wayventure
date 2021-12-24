@@ -4,11 +4,6 @@
 
 ### Please only try to compile the released versions, I usually commit broken code
 
-### Join our family!
-- [IRC] - Libera.chat at #wayventure
-- [Discord](https://discord.gg/5TZ7MZDyWm)
-- [Wiki](https://epixinvites.github.io/wayventure) (Not completed yet)
-
 ![wayventure.gif](wayventure.gif)  
 *Sorry for the low framerate, I had to compress the GIF*
 
