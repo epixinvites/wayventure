@@ -23,8 +23,10 @@
 #include <SDL2/SDL.h>
 
 const auto modkeys=KMOD_CTRL | KMOD_SHIFT | KMOD_ALT;
-const std::string TILESET_FILE="src/res/alphabet.png";
-static tcod::Tileset tileset=tcod::load_tilesheet(TILESET_FILE, {16, 16}, tcod::CHARMAP_CP437);
+//const std::string TILESET_FILE="src/res/Zaratustra-msx.png";
+//static tcod::Tileset tileset=tcod::load_tilesheet(TILESET_FILE, {16, 16}, tcod::CHARMAP_CP437);
+const std::string TILESET_FILE="src/res/Tamzen8x15r.bdf";
+static tcod::TilesetPtr tileset=tcod::load_bdf(TILESET_FILE);
 const std::string save_file_version="0.2"; // DO NOT MODIFY
 const std::string username="Wayfarrer"; // Please don't put weird characters and keep the length under 30 characters. The program will grumble if you don't follow my instructions.
 
