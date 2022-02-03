@@ -61,7 +61,7 @@ int SDL_getch(tcod::Console &main_win, tcod::ContextPtr &context){
             }
             else if(event.key.keysym.mod & KMOD_CTRL){
                 if(event.key.keysym.sym=='r'){
-                    SDL_SetWindowSize(context->get_sdl_window(), main_win.get_width()*tileset.get_tile_width(), main_win.get_height()*tileset.get_tile_height());
+                    SDL_SetWindowSize(context->get_sdl_window(), main_win.get_width()*tileset->tile_width, main_win.get_height()*tileset->tile_height);
                     continue;
                 }
             }
@@ -90,7 +90,7 @@ std::pair<int, int> SDL_getch_ex(tcod::Console &main_win, tcod::ContextPtr &cont
         if(event.type==SDL_KEYDOWN){
             if(event.key.keysym.mod & KMOD_CTRL){
                 if(event.key.keysym.sym=='r'){
-                    SDL_SetWindowSize(context->get_sdl_window(), main_win.get_width()*tileset.get_tile_width(), main_win.get_height()*tileset.get_tile_height());
+                    SDL_SetWindowSize(context->get_sdl_window(), main_win.get_width()*tileset->tile_width, main_win.get_height()*tileset->tile_height);
                     continue;
                 }
             }
