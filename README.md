@@ -1,4 +1,4 @@
-# This repository is now archived and moved to https://sr.ht/~arch-angel/wayventure/
+## This repository is now archived and moved to https://sr.ht/~arch-angel/wayventure/
 
 # Welcome to Wayventure's development branch!
 
