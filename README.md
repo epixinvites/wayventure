@@ -1,3 +1,5 @@
+# This repository is now archived and moved to https://sr.ht/~arch-angel/wayventure/
+
 # Welcome to Wayventure's development branch!
 
 ### NOTE: The project is currently under the early state of reconstruction. Please stay tuned as I am currently rewriting the entire game into 3D.
